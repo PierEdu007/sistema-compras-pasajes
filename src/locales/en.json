@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "home": "Home",
+    "terms": "Terms and conditions",
+    "blog": "Blog",
+    "buyTicket": "Buy ticket",
+    "language": "Language"
+  },
+  "hero": {
+    "title": "Travel safely from Cusco to Quillabamba",
+    "subtitle": "Safety and comfort at your service",
+    "searchBtn": "Search trips"
+  },
+  "search": {
+    "origin": "Origin",
+    "destination": "Destination",
+    "date": "Date",
+    "time": "Time",
+    "search": "Search",
+    "noResults": "No available trips found",
+    "seatsAvailable": "seats available",
+    "price": "Price",
+    "selectTrip": "Select trip"
+  },
+  "benefits": {
+    "title": "Why travel with us?",
+    "security": {
+      "title": "Safety",
+      "desc": "Modern units with GPS and certified drivers for your peace of mind."
+    },
+    "comfort": {
+      "title": "Comfort",
+      "desc": "Reclining seats and spacious areas for a pleasant journey."
+    },
+    "punctuality": {
+      "title": "Punctuality",
+      "desc": "We meet established schedules so you can plan without worries."
+    }
+  },
+  "about": {
+    "title": "About us",
+    "description": "Inversiones K'intu is a ground transportation company based in Cusco, dedicated to providing safe, comfortable, and punctual service on the Cusco – Quillabamba route. With years of experience in the sector, we are committed to the satisfaction of our passengers."
+  },
+  "booking": {
+    "selectSeat": "Select your seat",
+    "yourSelection": "Your selection",
+    "occupied": "Occupied",
+    "available": "Available",
+    "blocked": "Blocked",
+    "passengerData": "Passenger information",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "docType": "Document type",
+    "docNumber": "Document number",
+    "email": "Email",
+    "phone": "Phone",
+    "pay": "Pay",
+    "timer": "Time remaining",
+    "timeLeft": "You have {{minutes}}:{{seconds}} left to complete your purchase",
+    "seatExpired": "Your seat reservation has expired. Please select another seat.",
+    "confirmPurchase": "Confirm purchase"
+  },
+  "confirmation": {
+    "title": "Purchase confirmed!",
+    "subtitle": "Your ticket has been successfully registered",
+    "tripDetails": "Trip details",
+    "passengerDetails": "Passenger details",
+    "seatNumber": "Seat number",
+    "thankYou": "Thank you for traveling with Inversiones K'intu!"
+  },
+  "footer": {
+    "officeCusco": "Cusco Office",
+    "officeQuillabamba": "Quillabamba Office",
+    "followUs": "Follow us",
+    "rights": "All rights reserved",
+    "company": "Inversiones K'intu"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "back": "Back",
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "admin": {
+    "login": "Log in",
+    "dashboard": "Admin dashboard",
+    "trips": "Trips",
+    "sales": "Sales",
+    "logout": "Log out",
+    "createTrip": "Create trip",
+    "editTrip": "Edit trip",
+    "uploadInvoice": "Upload invoice",
+    "sendInvoice": "Send invoice",
+    "invoiceSent": "Invoice sent",
+    "pendingInvoices": "Pending invoices"
+  }
+}

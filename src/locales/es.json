@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "terms": "Términos y condiciones",
+    "blog": "Blog",
+    "buyTicket": "Comprar pasaje",
+    "language": "Idioma"
+  },
+  "hero": {
+    "title": "Viaja seguro de Cusco a Quillabamba",
+    "subtitle": "Seguridad y confort a tu servicio",
+    "searchBtn": "Buscar viajes"
+  },
+  "search": {
+    "origin": "Origen",
+    "destination": "Destino",
+    "date": "Fecha",
+    "time": "Hora",
+    "search": "Buscar",
+    "noResults": "No se encontraron viajes disponibles",
+    "seatsAvailable": "asientos disponibles",
+    "price": "Precio",
+    "selectTrip": "Seleccionar viaje"
+  },
+  "benefits": {
+    "title": "¿Por qué viajar con nosotros?",
+    "security": {
+      "title": "Seguridad",
+      "desc": "Unidades modernas con GPS y conductores certificados para tu tranquilidad."
+    },
+    "comfort": {
+      "title": "Comodidad",
+      "desc": "Asientos reclinables y espacios amplios para un viaje placentero."
+    },
+    "punctuality": {
+      "title": "Puntualidad",
+      "desc": "Cumplimos con los horarios establecidos para que planifiques sin preocupaciones."
+    }
+  },
+  "about": {
+    "title": "Sobre nosotros",
+    "description": "Inversiones K'intu es una empresa de transporte terrestre con sede en Cusco, dedicada a brindar un servicio seguro, cómodo y puntual en la ruta Cusco – Quillabamba. Con años de experiencia en el sector, nos comprometemos con la satisfacción de nuestros pasajeros."
+  },
+  "booking": {
+    "selectSeat": "Selecciona tu asiento",
+    "yourSelection": "Tu selección",
+    "occupied": "Ocupado",
+    "available": "Disponible",
+    "blocked": "Bloqueado",
+    "passengerData": "Datos del pasajero",
+    "firstName": "Nombres",
+    "lastName": "Apellidos",
+    "docType": "Tipo de documento",
+    "docNumber": "Número de documento",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "pay": "Pagar",
+    "timer": "Tiempo restante",
+    "timeLeft": "Te quedan {{minutes}}:{{seconds}} para completar tu compra",
+    "seatExpired": "Tu reserva de asiento ha expirado. Por favor, selecciona otro asiento.",
+    "confirmPurchase": "Confirmar compra"
+  },
+  "confirmation": {
+    "title": "¡Compra confirmada!",
+    "subtitle": "Tu pasaje ha sido registrado exitosamente",
+    "tripDetails": "Detalles del viaje",
+    "passengerDetails": "Datos del pasajero",
+    "seatNumber": "Número de asiento",
+    "thankYou": "¡Gracias por viajar con Inversiones K'intu!"
+  },
+  "footer": {
+    "officeCusco": "Oficina Cusco",
+    "officeQuillabamba": "Oficina Quillabamba",
+    "followUs": "Síguenos",
+    "rights": "Todos los derechos reservados",
+    "company": "Inversiones K'intu"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Ha ocurrido un error",
+    "back": "Volver",
+    "continue": "Continuar",
+    "cancel": "Cancelar",
+    "close": "Cerrar"
+  },
+  "admin": {
+    "login": "Iniciar sesión",
+    "dashboard": "Panel de administración",
+    "trips": "Viajes",
+    "sales": "Ventas",
+    "logout": "Cerrar sesión",
+    "createTrip": "Crear viaje",
+    "editTrip": "Editar viaje",
+    "uploadInvoice": "Subir comprobante",
+    "sendInvoice": "Enviar comprobante",
+    "invoiceSent": "Comprobante enviado",
+    "pendingInvoices": "Comprobantes pendientes"
+  }
+}

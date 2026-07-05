@@ -1,0 +1,214 @@
+/* ==========================================================================
+   Trips Page Styles
+   ========================================================================== */
+
+.page-trips {
+  padding-bottom: var(--spacing-2xl);
+}
+
+.search-summary-header {
+  background-color: var(--color-primary-dark);
+  color: var(--color-white);
+  padding: var(--spacing-lg) 0;
+  margin-bottom: var(--spacing-xl);
+}
+
+.search-summary-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+@media (min-width: 768px) {
+  .search-summary-content {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.route-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
+}
+
+.route-arrow {
+  color: var(--color-accent);
+}
+
+.date-info {
+  font-size: 1.125rem;
+  color: var(--color-accent-vibrant);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-change-search {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: var(--color-white);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: var(--font-body);
+}
+
+.btn-change-search:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Trip Card */
+.trips-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.trip-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  background-color: var(--color-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+@media (min-width: 640px) {
+  .trip-card {
+    grid-template-columns: 120px 1fr 180px;
+  }
+}
+
+.trip-card:hover:not(.sold-out) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-light);
+}
+
+.trip-card.sold-out {
+  opacity: 0.7;
+  background-color: var(--color-surface);
+}
+
+.trip-time-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-md);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+@media (min-width: 640px) {
+  .trip-time-col {
+    border-bottom: none;
+    border-right: 1px solid var(--color-border);
+  }
+}
+
+.trip-time {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-dark);
+  font-family: var(--font-heading);
+  line-height: 1;
+}
+
+.trip-meridian {
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+  font-weight: 600;
+}
+
+.trip-info-col {
+  padding: var(--spacing-md) var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.trip-vehicle {
+  font-size: 1.125rem;
+  color: var(--color-primary-dark);
+  margin: 0;
+}
+
+.seat-total {
+  opacity: 0.7;
+  font-size: 0.8em;
+}
+
+.trip-action-col {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: var(--color-surface);
+}
+
+@media (min-width: 640px) {
+  .trip-action-col {
+    background-color: transparent;
+    border-left: 1px dashed var(--color-border);
+  }
+}
+
+.trip-price {
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+}
+
+.trip-price .currency {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-right: 2px;
+}
+
+.trip-price .amount {
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.trip-action-col .btn {
+  width: 100%;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-2xl) var(--spacing-md);
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.empty-state h3 {
+  color: var(--color-dark);
+  margin-bottom: var(--spacing-sm);
+}
+
+.empty-state p {
+  color: var(--color-text-light);
+  margin-bottom: var(--spacing-lg);
+}
