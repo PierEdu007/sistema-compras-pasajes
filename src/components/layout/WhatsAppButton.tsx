@@ -1,3 +1,4 @@
+import { FaWhatsapp } from 'react-icons/fa';
 import '../../styles/components/whatsapp-button.css';
 
 export default function WhatsAppButton() {
@@ -10,7 +11,7 @@ export default function WhatsAppButton() {
       aria-label="Contactar por WhatsApp"
       title="¿Necesitas ayuda? Escríbenos"
     >
-      <div className="whatsapp-icon"><i className="bi bi-whatsapp"></i></div>
+      <div className="whatsapp-icon"><FaWhatsapp /></div>
       <div className="whatsapp-tooltip">¡Hola! ¿En qué te podemos ayudar?</div>
     </a>
   );

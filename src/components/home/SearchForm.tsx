@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FaBus } from 'react-icons/fa';
 
 export default function SearchForm() {
   const { t } = useTranslation();
@@ -85,7 +86,7 @@ export default function SearchForm() {
         </div>
 
         <button type="submit" className="btn btn-primary btn-search" disabled={!origen || !destino || !fecha}>
-          {t('hero.searchBtn', 'Buscar Viajes')} <i className="bi bi-bus-front"></i>
+          {t('hero.searchBtn', 'Buscar Viajes')} <FaBus />
         </button>
       </form>
     </div>

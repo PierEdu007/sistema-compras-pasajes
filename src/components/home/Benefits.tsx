@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { FaShieldAlt, FaCouch, FaStopwatch } from 'react-icons/fa';
 
 export default function Benefits() {
   const { t } = useTranslation();
@@ -6,19 +7,19 @@ export default function Benefits() {
   const benefitsList = [
     {
       id: 'security',
-      icon: <i className="bi bi-shield-check"></i>,
+      icon: <FaShieldAlt />,
       title: t('benefits.security.title', 'SEGURIDAD:'),
       desc: t('benefits.security.desc', 'Nuestras unidades cuentan con sistemas de última generación: sistema de frenos neumático y retardador electromagnético, dirección asistida, monitoreo de ubicación y velocidad mediante sistema GPS.')
     },
     {
       id: 'comfort',
-      icon: <i className="bi bi-person-wheelchair"></i>,
+      icon: <FaCouch />,
       title: t('benefits.comfort.title', 'COMODIDAD:'),
       desc: t('benefits.comfort.desc', 'Nuestros vehículos cuentan con sillones ergonómicos, aire acondicionado, calefacción, cargadores USB, equipos de audio y video, sistema de renovación de aire continuo.')
     },
     {
       id: 'punctuality',
-      icon: <i className="bi bi-stopwatch"></i>,
+      icon: <FaStopwatch />,
       title: t('benefits.punctuality.title', 'PUNTUALIDAD:'),
       desc: t('benefits.punctuality.desc', 'La puntualidad como valor fundamental. Inversiones K\'intu S.R.L. garantiza el cumplimiento de los horarios establecidos para la prestación de los servicios ofertados.')
     }

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { FaCar } from 'react-icons/fa';
 
 export type SeatStatus = 'DISPONIBLE' | 'BLOQUEADO' | 'PAGADO';
 
@@ -73,7 +74,7 @@ export default function SeatMap({
       <div className="vehicle-layout">
         {/* Driver Section */}
         <div className="driver-section">
-          <div className="driver-seat" title="Conductor"><i className="bi bi-car-front-fill"></i></div>
+          <div className="driver-seat" title="Conductor"><FaCar /></div>
         </div>
 
         {/* Rows */}

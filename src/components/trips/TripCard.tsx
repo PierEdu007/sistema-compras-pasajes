@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { FaBus } from 'react-icons/fa';
 
 interface TripCardProps {
   id: string;
@@ -36,7 +37,7 @@ export default function TripCard({
       </div>
 
       <div className="trip-info-col">
-        <h4 className="trip-vehicle"><i className="bi bi-bus-front"></i> {vehiculo_nombre}</h4>
+        <h4 className="trip-vehicle"><FaBus /> {vehiculo_nombre}</h4>
         <div className="trip-seats-badge">
           {isFull ? (
             <span className="badge badge-danger">Agotado</span>

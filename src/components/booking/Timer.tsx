@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaExclamationTriangle, FaStopwatch } from 'react-icons/fa';
 
 interface TimerProps {
   expiresAt: string;
@@ -37,7 +38,7 @@ export default function Timer({ expiresAt, onExpire }: TimerProps) {
   if (isExpired) {
     return (
       <div className="timer-box timer-expired">
-        <span><i className="bi bi-exclamation-triangle-fill"></i> {t('booking.seatExpired', 'El tiempo de reserva ha expirado. Por favor, selecciona tu asiento nuevamente.')}</span>
+        <span><FaExclamationTriangle /> {t('booking.seatExpired', 'El tiempo de reserva ha expirado. Por favor, selecciona tu asiento nuevamente.')}</span>
       </div>
     );
   }
@@ -49,7 +50,7 @@ export default function Timer({ expiresAt, onExpire }: TimerProps) {
 
   return (
     <div className="timer-box">
-      <span><i className="bi bi-stopwatch"></i> {t('booking.timer', 'Tiempo para completar la compra')}:</span>
+      <span><FaStopwatch /> {t('booking.timer', 'Tiempo para completar la compra')}:</span>
       <strong style={{ fontSize: '1.25em' }}>{formattedTime}</strong>
     </div>
   );

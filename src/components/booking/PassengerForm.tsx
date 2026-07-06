@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaCreditCard } from 'react-icons/fa';
 
 export interface PassengerData {
   tipo_documento: 'DNI' | 'RUC' | 'CE' | 'PASAPORTE';
@@ -131,7 +132,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
           className="btn btn-primary"
           disabled={disabled}
         >
-          {t('booking.pay', 'Continuar al Pago')} <i className="bi bi-credit-card"></i>
+          {t('booking.pay', 'Continuar al Pago')} <FaCreditCard />
         </button>
       </div>
     </form>

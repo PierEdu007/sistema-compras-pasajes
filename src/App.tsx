@@ -9,6 +9,7 @@ import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminTrips from './pages/admin/TripsManager';
 import AdminSales from './pages/admin/Sales';
+import AdminLayout from './components/admin/AdminLayout';
 
 function App() {
   return (
@@ -22,9 +23,11 @@ function App() {
           <Route path="/terminos" element={<Terms />} />
         </Route>
         <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/viajes" element={<AdminTrips />} />
-        <Route path="/admin/ventas" element={<AdminSales />} />
+        <Route element={<AdminLayout />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/viajes" element={<AdminTrips />} />
+          <Route path="/admin/ventas" element={<AdminSales />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

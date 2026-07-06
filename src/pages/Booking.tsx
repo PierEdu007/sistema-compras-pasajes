@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FaArrowRight, FaCalendarAlt, FaClock, FaBus, FaCheckSquare } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
 import SeatMap from '../components/booking/SeatMap';
 import type { VehicleLayout, SeatStatus } from '../components/booking/SeatMap';
@@ -198,13 +199,13 @@ export default function Booking() {
         <div className="container">
           <h1>{t('booking.title', 'Completa tu Reserva')}</h1>
           <div className="booking-trip-details">
-            <span>{viaje.rutas.origen} <i className="bi bi-arrow-right"></i> {viaje.rutas.destino}</span>
+            <span>{viaje.rutas.origen} <FaArrowRight /> {viaje.rutas.destino}</span>
             <span>|</span>
-            <span><i className="bi bi-calendar3"></i> {viaje.fecha_viaje}</span>
+            <span><FaCalendarAlt /> {viaje.fecha_viaje}</span>
             <span>|</span>
-            <span><i className="bi bi-clock"></i> {viaje.hora_viaje.substring(0, 5)}</span>
+            <span><FaClock /> {viaje.hora_viaje.substring(0, 5)}</span>
             <span>|</span>
-            <span><i className="bi bi-bus-front"></i> {viaje.vehiculos.nombre_display}</span>
+            <span><FaBus /> {viaje.vehiculos.nombre_display}</span>
           </div>
         </div>
       </div>
@@ -248,7 +249,7 @@ export default function Booking() {
               </div>
             ) : (
               <div className="empty-state">
-                <div className="empty-icon"><i className="bi bi-check-square"></i></div>
+                <div className="empty-icon"><FaCheckSquare /></div>
                 <h3>Aún no has seleccionado un asiento</h3>
                 <p>Por favor, haz clic en un asiento disponible del mapa de la izquierda para comenzar tu reserva.</p>
               </div>
