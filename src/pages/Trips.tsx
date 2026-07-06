@@ -135,11 +135,11 @@ export default function Trips() {
             <div>
               <div className="route-info">
                 <span>{origenParam}</span>
-                <span className="route-arrow">➔</span>
+                <span className="route-arrow"><i className="bi bi-arrow-right"></i></span>
                 <span>{destinoParam}</span>
               </div>
               <div className="date-info">
-                📅 {fechaParam ? formatDate(fechaParam) : ''}
+                <i className="bi bi-calendar3"></i> {fechaParam ? formatDate(fechaParam) : ''}
               </div>
             </div>
             
@@ -172,7 +172,7 @@ export default function Trips() {
           </div>
         ) : (
           <div className="empty-state slide-up">
-            <div className="empty-icon">🏜️</div>
+            <div className="empty-icon"><i className="bi bi-map"></i></div>
             <h3>{t('search.noResults', 'No encontramos viajes para esta fecha')}</h3>
             <p>{t('search.tryAnotherDate', 'Intenta buscar en una fecha diferente o para otra ruta.')}</p>
             <button className="btn btn-primary" onClick={() => navigate('/')}>

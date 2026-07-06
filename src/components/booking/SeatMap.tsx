@@ -73,7 +73,7 @@ export default function SeatMap({
       <div className="vehicle-layout">
         {/* Driver Section */}
         <div className="driver-section">
-          <div className="driver-seat" title="Conductor">🚗</div>
+          <div className="driver-seat" title="Conductor"><i className="bi bi-car-front-fill"></i></div>
         </div>
 
         {/* Rows */}

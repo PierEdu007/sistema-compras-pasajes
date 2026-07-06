@@ -37,7 +37,7 @@ export default function Timer({ expiresAt, onExpire }: TimerProps) {
   if (isExpired) {
     return (
       <div className="timer-box timer-expired">
-        <span>⚠️ {t('booking.seatExpired', 'El tiempo de reserva ha expirado. Por favor, selecciona tu asiento nuevamente.')}</span>
+        <span><i className="bi bi-exclamation-triangle-fill"></i> {t('booking.seatExpired', 'El tiempo de reserva ha expirado. Por favor, selecciona tu asiento nuevamente.')}</span>
       </div>
     );
   }
@@ -49,7 +49,7 @@ export default function Timer({ expiresAt, onExpire }: TimerProps) {
 
   return (
     <div className="timer-box">
-      <span>⏱️ {t('booking.timer', 'Tiempo para completar la compra')}:</span>
+      <span><i className="bi bi-stopwatch"></i> {t('booking.timer', 'Tiempo para completar la compra')}:</span>
       <strong style={{ fontSize: '1.25em' }}>{formattedTime}</strong>
     </div>
   );

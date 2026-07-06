@@ -131,7 +131,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
           className="btn btn-primary"
           disabled={disabled}
         >
-          {t('booking.pay', 'Continuar al Pago')} 💳
+          {t('booking.pay', 'Continuar al Pago')} <i className="bi bi-credit-card"></i>
         </button>
       </div>
     </form>

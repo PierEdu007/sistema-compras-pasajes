@@ -13,43 +13,43 @@ export default function Footer() {
           
           <div className="footer-col">
             <div className="footer-brand">
-              <span className="logo-icon">🍃</span>
+              <span className="logo-icon"><i className="bi bi-leaf"></i></span>
               <h3>Inversiones K'intu</h3>
             </div>
             <p className="footer-desc">
               {t('about.description', 'Empresa 100% Cusqueña brindando un servicio de transporte Formal, Seguro, Confiable y Puntual.')}
             </p>
             <div className="payment-methods">
-              <span>💳 Visa</span>
-              <span>💳 Mastercard</span>
-              <span>📱 Yape</span>
+              <span><i className="bi bi-credit-card"></i> Visa</span>
+              <span><i className="bi bi-credit-card"></i> Mastercard</span>
+              <span><i className="bi bi-phone"></i> Yape</span>
             </div>
           </div>
 
           <div className="footer-col">
             <h4>{t('footer.officeCusco', 'Oficina en Cusco')}</h4>
             <ul className="footer-contact">
-              <li>📍 Calle Sacristanniyoc con Tres Marias Nro 131-A, Santiago</li>
-              <li>📞 084 208513</li>
-              <li>📱 997 040 003</li>
+              <li><i className="bi bi-geo-alt-fill"></i> Calle Sacristanniyoc con Tres Marias Nro 131-A, Santiago</li>
+              <li><i className="bi bi-telephone-fill"></i> 084 208513</li>
+              <li><i className="bi bi-phone"></i> 997 040 003</li>
             </ul>
           </div>
 
           <div className="footer-col">
             <h4>{t('footer.officeQuillabamba', 'Oficina en Quillabamba')}</h4>
             <ul className="footer-contact">
-              <li>📍 Jr. de la Confraternidad S/N, Santa Ana</li>
-              <li>📞 084 212400</li>
-              <li>📱 968 573 314</li>
+              <li><i className="bi bi-geo-alt-fill"></i> Jr. de la Confraternidad S/N, Santa Ana</li>
+              <li><i className="bi bi-telephone-fill"></i> 084 212400</li>
+              <li><i className="bi bi-phone"></i> 968 573 314</li>
             </ul>
           </div>
 
           <div className="footer-col">
             <h4>{t('footer.followUs', 'Síguenos')}</h4>
             <div className="footer-social">
-              <a href="#" target="_blank" rel="noreferrer">📘 Facebook</a>
-              <a href="#" target="_blank" rel="noreferrer">📷 Instagram</a>
-              <a href="#" target="_blank" rel="noreferrer">💬 WhatsApp</a>
+              <a href="#" target="_blank" rel="noreferrer"><i className="bi bi-facebook"></i> Facebook</a>
+              <a href="#" target="_blank" rel="noreferrer"><i className="bi bi-instagram"></i> Instagram</a>
+              <a href="#" target="_blank" rel="noreferrer"><i className="bi bi-whatsapp"></i> WhatsApp</a>
             </div>
             <div className="footer-links">
               <Link to="/terminos">{t('nav.terms', 'Términos y Condiciones')}</Link>

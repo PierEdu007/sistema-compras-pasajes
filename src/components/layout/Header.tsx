@@ -27,13 +27,13 @@ export default function Header() {
       <div className="header-top">
         <div className="container">
           <div className="contact-info">
-            <span>📞 084 208513</span>
-            <span>✉️ inversioneskintu@gmail.com</span>
+            <span><i className="bi bi-telephone-fill"></i> 084 208513</span>
+            <span><i className="bi bi-envelope-fill"></i> inversioneskintu@gmail.com</span>
           </div>
           <div className="social-links">
-            <a href="#" target="_blank" rel="noreferrer">📘</a>
-            <a href="#" target="_blank" rel="noreferrer">📷</a>
-            <a href="#" target="_blank" rel="noreferrer">💬 +51 997 040 003</a>
+            <a href="#" target="_blank" rel="noreferrer"><i className="bi bi-facebook"></i></a>
+            <a href="#" target="_blank" rel="noreferrer"><i className="bi bi-instagram"></i></a>
+            <a href="#" target="_blank" rel="noreferrer"><i className="bi bi-whatsapp"></i> +51 997 040 003</a>
           </div>
         </div>
       </div>
@@ -42,7 +42,7 @@ export default function Header() {
       <div className="header-main">
         <div className="container">
           <Link to="/" className="brand">
-            <div className="brand-logo">🍃</div>
+            <div className="brand-logo"><i className="bi bi-leaf"></i></div>
             <div className="brand-text">
               <span className="brand-name">K'INTU</span>
               <span className="brand-slogan">{t('hero.subtitle', 'Seguridad y confort')}</span>

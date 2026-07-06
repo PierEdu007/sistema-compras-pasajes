@@ -85,7 +85,7 @@ export default function SearchForm() {
         </div>
 
         <button type="submit" className="btn btn-primary btn-search" disabled={!origen || !destino || !fecha}>
-          {t('hero.searchBtn', 'Buscar Viajes')} 🚌
+          {t('hero.searchBtn', 'Buscar Viajes')} <i className="bi bi-bus-front"></i>
         </button>
       </form>
     </div>

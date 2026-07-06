@@ -198,13 +198,13 @@ export default function Booking() {
         <div className="container">
           <h1>{t('booking.title', 'Completa tu Reserva')}</h1>
           <div className="booking-trip-details">
-            <span>{viaje.rutas.origen} ➔ {viaje.rutas.destino}</span>
+            <span>{viaje.rutas.origen} <i className="bi bi-arrow-right"></i> {viaje.rutas.destino}</span>
             <span>|</span>
-            <span>📅 {viaje.fecha_viaje}</span>
+            <span><i className="bi bi-calendar3"></i> {viaje.fecha_viaje}</span>
             <span>|</span>
-            <span>⏰ {viaje.hora_viaje.substring(0, 5)}</span>
+            <span><i className="bi bi-clock"></i> {viaje.hora_viaje.substring(0, 5)}</span>
             <span>|</span>
-            <span>🚌 {viaje.vehiculos.nombre_display}</span>
+            <span><i className="bi bi-bus-front"></i> {viaje.vehiculos.nombre_display}</span>
           </div>
         </div>
       </div>
@@ -248,7 +248,7 @@ export default function Booking() {
               </div>
             ) : (
               <div className="empty-state">
-                <div className="empty-icon">💺</div>
+                <div className="empty-icon"><i className="bi bi-check-square"></i></div>
                 <h3>Aún no has seleccionado un asiento</h3>
                 <p>Por favor, haz clic en un asiento disponible del mapa de la izquierda para comenzar tu reserva.</p>
               </div>
