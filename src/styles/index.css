@@ -2,10 +2,10 @@
 
 :root {
   /* Color Palette — Inversiones Tunki Chasky */
-  --color-primary: #ED1C24;
-  --color-primary-light: #FF4D4D;
-  --color-primary-dark: #C1121F;
-  --color-accent: #00AEEF;
+  --color-primary: #00AEEF;
+  --color-primary-light: #33BFFF;
+  --color-primary-dark: #0088BC;
+  --color-accent: #ED1C24;
   --color-accent-vibrant: #FFF200;
   --color-dark: #0F1B2D;
   --color-surface: #F8FBFE;

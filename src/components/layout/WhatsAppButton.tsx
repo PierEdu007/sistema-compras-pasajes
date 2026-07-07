@@ -5,12 +5,15 @@ export default function WhatsAppButton() {
   return (
     <a
       href="https://wa.me/51997475405?text=Hola,%20solicito%20información%20sobre%20sus%20servicios."
-      className="whatsapp-float"
+      className="whatsapp-btn"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat por WhatsApp"
     >
-      <FaWhatsapp />
+      <div className="whatsapp-icon">
+        <FaWhatsapp />
+      </div>
+      <span className="whatsapp-tooltip">Chat con nosotros</span>
     </a>
   );
 }
