@@ -62,6 +62,9 @@ export default function Header() {
 
           <nav className={`nav-menu ${menuOpen ? 'active' : ''}`}>
             <Link to="/" onClick={() => setMenuOpen(false)}>{t('nav.home', 'Inicio')}</Link>
+            <a href="#rutas" onClick={() => setMenuOpen(false)}>{t('nav.rutas', 'Rutas')}</a>
+            <a href="#servicios" onClick={() => setMenuOpen(false)}>{t('nav.servicios', 'Servicios')}</a>
+            <a href="#ubicanos" onClick={() => setMenuOpen(false)}>{t('nav.ubicanos', 'Ubícanos')}</a>
             <Link to="/terminos" onClick={() => setMenuOpen(false)}>{t('nav.terms', 'Términos y Condiciones')}</Link>
             
             <button className="lang-toggle" onClick={toggleLanguage}>

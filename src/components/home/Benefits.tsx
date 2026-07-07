@@ -26,7 +26,7 @@ export default function Benefits() {
   ];
 
   return (
-    <section className="benefits-section py-5">
+    <section id="servicios" className="benefits-section py-5">
       <div className="container">
         <div className="benefits-grid">
           {benefitsList.map(benefit => (

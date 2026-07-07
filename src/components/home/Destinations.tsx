@@ -85,7 +85,7 @@ export default function Destinations() {
   ];
 
   return (
-    <section className="destinations-section py-5">
+    <section id="rutas" className="destinations-section py-5">
       <div className="container">
         <div className="section-header text-center">
           <span className="subtitle">{t('dest.subtitle', 'Transporte de Pasajeros')}</span>

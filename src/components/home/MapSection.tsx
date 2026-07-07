@@ -5,7 +5,7 @@ export default function MapSection() {
   const { t } = useTranslation();
 
   return (
-    <section className="map-section py-5">
+    <section id="ubicanos" className="map-section py-5">
       <div className="container">
         <div className="section-header text-center">
           <span className="subtitle">{t('map.subtitle', 'Visítanos')}</span>
