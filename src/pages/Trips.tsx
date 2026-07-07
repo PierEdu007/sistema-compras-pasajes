@@ -145,7 +145,7 @@ export default function Trips() {
           </div>
         ) : viajes.length > 0 ? (
           <div className="trips-list">
-            {viajes.map((viaje, idx) => (
+            {viajes.map((viaje) => (
               <TripCard 
                 key={viaje.id}
                 id={viaje.id}

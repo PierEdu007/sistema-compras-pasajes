@@ -34,7 +34,7 @@ export default function Booking() {
 
   const [loading, setLoading] = useState(true);
   const [viaje, setViaje] = useState<ViajeBooking | null>(null);
-  const [seatStatuses, setSeatStatuses] = useState<Record<number, SeatStatus>>({});
+  const [seatStatuses] = useState<Record<number, SeatStatus>>({});
   
   // Estado de la reserva
   const [selectedSeat, setSelectedSeat] = useState<number | null>(null);
