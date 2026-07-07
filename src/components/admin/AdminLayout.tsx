@@ -48,7 +48,7 @@ const AdminLayout: React.FC = () => {
             </NavLink>
           )}
         </nav>
-        <div style={{ marginTop: 'auto', borderTop: '1px solid #1a252f' }}>
+        <div className="admin-sidebar-footer">
           <button onClick={logout} className="admin-logout-btn">
             <FaSignOutAlt /> Cerrar Sesión
           </button>

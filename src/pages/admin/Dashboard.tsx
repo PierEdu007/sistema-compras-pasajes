@@ -15,7 +15,7 @@ const AdminDashboard: React.FC = () => {
         <p>Rol en el sistema: <strong>{role || 'SIN ROL DEFINIDO'}</strong></p>
       </div>
 
-      <div style={{ display: 'flex', gap: '20px', marginTop: '30px' }}>
+      <div className="dashboard-cards">
         <div className="admin-card" style={{ flex: 1, textAlign: 'center' }}>
           <h4>Ventas Hoy</h4>
           <h2 style={{ color: '#2ecc71', marginTop: '10px' }}>S/ 0.00</h2>
