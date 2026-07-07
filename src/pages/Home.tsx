@@ -5,6 +5,7 @@ import About from '../components/home/About';
 import Destinations from '../components/home/Destinations';
 import Testimonials from '../components/home/Testimonials';
 import MapSection from '../components/home/MapSection';
+import ComunicadoModal from '../components/home/ComunicadoModal';
 import '../styles/components/Home.css';
 
 // Import the Tunki Chasky hero image
@@ -15,6 +16,7 @@ export default function Home() {
 
   return (
     <div className="page-home fade-in">
+      <ComunicadoModal />
       
       {/* Hero Section */}
       <section className="hero-section">
