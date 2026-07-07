@@ -18,7 +18,7 @@
     "time": "Hora",
     "search": "Buscar",
     "noResults": "No se encontraron viajes disponibles",
-    "seatsAvailable": "asientos disponibles",
+    "seatsAvailable": "{{count}} asientos disponibles",
     "price": "Precio",
     "selectTrip": "Seleccionar viaje"
   },

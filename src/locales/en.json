@@ -18,7 +18,7 @@
     "time": "Time",
     "search": "Search",
     "noResults": "No available trips found",
-    "seatsAvailable": "seats available",
+    "seatsAvailable": "{{count}} seats available",
     "price": "Price",
     "selectTrip": "Select trip"
   },
