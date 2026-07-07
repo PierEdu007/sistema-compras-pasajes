@@ -98,15 +98,19 @@
   gap: 2rem;
 }
 
-.nav-menu a {
+.nav-menu a, .nav-link-btn {
   color: var(--color-dark);
   font-weight: 600;
   font-family: var(--font-heading);
   font-size: 1.125rem;
   position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
 
-.nav-menu a::after {
+.nav-menu a::after, .nav-link-btn::after {
   content: '';
   position: absolute;
   width: 0;
@@ -117,7 +121,7 @@
   transition: width var(--transition-fast);
 }
 
-.nav-menu a:hover::after {
+.nav-menu a:hover::after, .nav-link-btn:hover::after {
   width: 100%;
 }
 

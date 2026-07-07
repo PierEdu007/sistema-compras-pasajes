@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { FaPhoneAlt, FaEnvelope, FaFacebook, FaInstagram, FaWhatsapp } from 'react-icons/fa';
@@ -11,6 +11,8 @@ export default function Header() {
   const { t, i18n } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,6 +26,41 @@ export default function Header() {
     const newLang = i18n.language.startsWith('es') ? 'en' : 'es';
     i18n.changeLanguage(newLang);
   };
+
+  const handleNavClick = (hash: string) => {
+    setMenuOpen(false);
+    if (pathname !== '/') {
+      navigate('/' + hash);
+    } else {
+      const element = document.querySelector(hash);
+      if (element) {
+        // Offset for the fixed header
+        const headerOffset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+  
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
+  // Check if there is a hash in the URL on mount and scroll to it
+  useEffect(() => {
+    if (pathname === '/' && window.location.hash) {
+      setTimeout(() => {
+        const element = document.querySelector(window.location.hash);
+        if (element) {
+          const headerOffset = 80;
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  }, [pathname]);
 
   return (
     <header className={`header ${scrolled ? 'scrolled glass' : ''}`}>
@@ -62,9 +99,9 @@ export default function Header() {
 
           <nav className={`nav-menu ${menuOpen ? 'active' : ''}`}>
             <Link to="/" onClick={() => setMenuOpen(false)}>{t('nav.home', 'Inicio')}</Link>
-            <a href="#rutas" onClick={() => setMenuOpen(false)}>{t('nav.rutas', 'Rutas')}</a>
-            <a href="#servicios" onClick={() => setMenuOpen(false)}>{t('nav.servicios', 'Servicios')}</a>
-            <a href="#ubicanos" onClick={() => setMenuOpen(false)}>{t('nav.ubicanos', 'Ubícanos')}</a>
+            <button className="nav-link-btn" onClick={() => handleNavClick('#rutas')}>{t('nav.rutas', 'Rutas')}</button>
+            <button className="nav-link-btn" onClick={() => handleNavClick('#servicios')}>{t('nav.servicios', 'Servicios')}</button>
+            <button className="nav-link-btn" onClick={() => handleNavClick('#ubicanos')}>{t('nav.ubicanos', 'Ubícanos')}</button>
             <Link to="/terminos" onClick={() => setMenuOpen(false)}>{t('nav.terms', 'Términos y Condiciones')}</Link>
             
             <button className="lang-toggle" onClick={toggleLanguage}>
