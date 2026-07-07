@@ -53,7 +53,12 @@ export default function Footer() {
       
       <div className="footer-bottom">
         <div className="container">
-          <p>© {year} Inversiones Tunki Chasky S.R.L. {t('footer.rights', 'Diseñado para la excelencia.')}</p>
+          <p>
+            © {year} Inversiones Tunki Chasky S.R.L. |{' '}
+            <a href="https://wa.me/51983878473" target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none', fontWeight: 'bold' }}>
+              Hecho por PAMCo
+            </a>
+          </p>
         </div>
       </div>
     </footer>

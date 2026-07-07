@@ -98,7 +98,7 @@ export default function Header() {
           </button>
 
           <nav className={`nav-menu ${menuOpen ? 'active' : ''}`}>
-            <Link to="/" onClick={() => setMenuOpen(false)}>{t('nav.home', 'Inicio')}</Link>
+            <Link to="/" onClick={() => { setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>{t('nav.home', 'Inicio')}</Link>
             <button className="nav-link-btn" onClick={() => handleNavClick('#rutas')}>{t('nav.rutas', 'Rutas')}</button>
             <button className="nav-link-btn" onClick={() => handleNavClick('#servicios')}>{t('nav.servicios', 'Servicios')}</button>
             <button className="nav-link-btn" onClick={() => handleNavClick('#ubicanos')}>{t('nav.ubicanos', 'Ubícanos')}</button>
