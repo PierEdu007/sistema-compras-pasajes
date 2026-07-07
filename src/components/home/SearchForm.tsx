@@ -29,8 +29,10 @@ export default function SearchForm() {
   // Prevenir seleccionar el mismo origen como destino
   const destinosFiltrados = rutas.filter(r => r.value !== origen);
 
-  // Obtener fecha actual para el atributo 'min' del input date
-  const today = new Date().toISOString().split('T')[0];
+  // Obtener fecha actual en zona horaria local para el atributo 'min' del input date
+  const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+  const localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+  const today = localISOTime.split('T')[0];
 
   return (
     <div className="search-form-container glass">
