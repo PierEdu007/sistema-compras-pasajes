@@ -42,8 +42,8 @@ export default function Booking() {
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   
-  // TODO: Replace with real public key from Culqi Dashboard
-  const CULQI_PUBLIC_KEY = 'pk_test_b07d6eb7c569ff42'; // Default dummy test key
+  // Obtener la llave pública de Culqi desde las variables de entorno
+  const CULQI_PUBLIC_KEY = import.meta.env.VITE_CULQI_PUBLIC_KEY || ''; 
   const { openCulqi } = useCulqi(CULQI_PUBLIC_KEY);
 
   useEffect(() => {
@@ -140,6 +140,12 @@ export default function Booking() {
     setIsProcessing(true);
     try {
       if (!viaje) return;
+      
+      if (!CULQI_PUBLIC_KEY) {
+        alert('Falta configurar la llave pública de Culqi (VITE_CULQI_PUBLIC_KEY).');
+        setIsProcessing(false);
+        return;
+      }
       
       // Abre el checkout de Culqi
       const token = await openCulqi({
