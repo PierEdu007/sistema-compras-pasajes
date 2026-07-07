@@ -115,7 +115,7 @@
 
 .seat-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.5rem;
   position: relative;
 }
@@ -123,7 +123,11 @@
 /* Position mapping using grid columns */
 .pos-izq { grid-column: 1; }
 .pos-cen-izq { grid-column: 2; }
-.pos-cen { grid-column: 2 / span 2; justify-self: center; width: 45%; } /* Suzuki center */
+.pos-cen { 
+  grid-column: 2; 
+  transform: translateX(calc(50% + 0.25rem));
+  z-index: 2;
+}
 .pos-cen-der { grid-column: 3; }
 .pos-der { grid-column: 4; }
 
