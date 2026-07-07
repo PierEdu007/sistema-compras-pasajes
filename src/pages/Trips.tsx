@@ -153,8 +153,8 @@ export default function Trips() {
                 precio_base={viaje.precio_base}
                 vehiculo_nombre={viaje.vehiculos.nombre_display}
                 total_asientos={viaje.vehiculos.total_asientos_pasajero}
-                // Simulación de asientos libres basada en el índice para demostración visual
-                asientos_libres={idx === 1 ? 0 : idx === 2 ? 2 : viaje.vehiculos.total_asientos_pasajero - 5}
+                // Mostrar 100% disponibles hasta que se implemente el conteo real
+                asientos_libres={viaje.vehiculos.total_asientos_pasajero}
               />
             ))}
           </div>

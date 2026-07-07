@@ -86,12 +86,6 @@ export default function Booking() {
         // Mapear al estado
         */
         
-        // Simulación inicial de asientos ocupados (2 y 5)
-        setSeatStatuses({
-          2: 'PAGADO',
-          5: 'BLOQUEADO'
-        });
-
       } catch (err) {
         console.error('Error fetching trip details:', err);
       } finally {

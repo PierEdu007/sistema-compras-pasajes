@@ -41,6 +41,7 @@ export default function SeatMap({
   };
 
   const getSeatClass = (seatNumber: number) => {
+    if (seatNumber === 1) return 'seat-occupied';
     if (selectedSeat === seatNumber) return 'seat-selected';
     const status = seatStatuses[seatNumber] || 'DISPONIBLE';
     if (status === 'PAGADO') return 'seat-occupied';
@@ -88,7 +89,7 @@ export default function SeatMap({
                   key={`seat-${seat.n}`}
                   className={`seat-btn pos-${seat.pos} ${getSeatClass(seat.n)}`}
                   onClick={() => handleSeatClick(seat.n, seatStatuses[seat.n] || 'DISPONIBLE')}
-                  disabled={disabled || seatStatuses[seat.n] === 'PAGADO' || seatStatuses[seat.n] === 'BLOQUEADO'}
+                  disabled={disabled || seat.n === 1 || seatStatuses[seat.n] === 'PAGADO' || seatStatuses[seat.n] === 'BLOQUEADO'}
                   aria-label={`Asiento ${seat.n}`}
                 >
                   <span className="seat-number">{seat.n}</span>
