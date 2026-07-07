@@ -19,7 +19,7 @@ export function useAuth() {
         setUser(currentUser);
         
         if (currentUser) {
-          await fetchRole(currentUser.id);
+          await fetchRole(currentUser);
         } else {
           setRole(null);
           setLoading(false);
@@ -39,7 +39,7 @@ export function useAuth() {
         setUser(currentUser);
         
         if (currentUser) {
-          await fetchRole(currentUser.id);
+          await fetchRole(currentUser);
         } else {
           setRole(null);
           setLoading(false);
@@ -52,18 +52,23 @@ export function useAuth() {
     };
   }, []);
 
-  const fetchRole = async (userId: string) => {
+  const fetchRole = async (currentUser: User) => {
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('user_roles')
         .select('rol')
-        .eq('user_id', userId)
+        .eq('user_id', currentUser.id)
         .single();
       
       if (error) {
-        console.error('Error fetching user role:', error);
-        setRole(null);
+        // Fallback for the main admin if no role is defined in the database
+        if (currentUser.email === 'admin@tunky.com') {
+          setRole('ADMIN' as Rol);
+        } else {
+          console.error('Error fetching user role:', error);
+          setRole(null);
+        }
       } else {
         // Casting since we expect data.rol to match the Rol type
         setRole((data as any).rol as Rol);
