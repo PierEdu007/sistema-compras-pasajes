@@ -94,8 +94,6 @@ export default function Booking() {
 
       } catch (err) {
         console.error('Error fetching trip details:', err);
-        // Cargar dummy data para propósitos de demostración en UI
-        loadDummyData();
       } finally {
         setLoading(false);
       }
@@ -104,39 +102,7 @@ export default function Booking() {
     fetchViajeDetails();
   }, [viajeId, navigate]);
 
-  const loadDummyData = () => {
-    // Dummy Data para Renault Master
-    const dummyLayout: VehicleLayout = {
-      filas: [
-        { fila: 1, asientos: [{ n: 1, pos: 'izq' }, { n: 2, pos: 'der' }] },
-        { fila: 2, asientos: [{ n: 3, pos: 'izq' }, { n: 4, pos: 'cen' }, { n: 5, pos: 'der' }] },
-        { fila: 3, asientos: [{ n: 6, pos: 'izq' }, { n: 7, pos: 'cen' }, { n: 8, pos: 'der' }] },
-        { fila: 4, asientos: [{ n: 9, pos: 'izq' }, { n: 10, pos: 'cen' }, { n: 11, pos: 'der' }] },
-        { fila: 5, asientos: [{ n: 12, pos: 'izq' }, { n: 13, pos: 'cen-izq' }, { n: 14, pos: 'cen-der' }, { n: 15, pos: 'der' }] }
-      ]
-    };
 
-    setViaje({
-      id: viajeId || 'dummy',
-      hora_viaje: '08:00:00',
-      precio_base: 45.00,
-      fecha_viaje: '2026-07-06',
-      vehiculos: {
-        nombre_display: 'Renault Master',
-        layout_json: dummyLayout
-      },
-      rutas: {
-        origen: 'CUSCO',
-        destino: 'QUILLABAMBA'
-      }
-    });
-
-    setSeatStatuses({
-      2: 'PAGADO',
-      5: 'BLOQUEADO',
-      8: 'PAGADO'
-    });
-  };
 
   const handleSelectSeat = async (seatNumber: number) => {
     // 1. Simular llamada a Edge Function para bloquear el asiento

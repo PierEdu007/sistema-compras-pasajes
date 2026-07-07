@@ -51,7 +51,7 @@ export default function Trips() {
 
         if (rutaData) {
           // 2. Buscar viajes para esa ruta y fecha
-          const { data: viajesData } = await supabase
+          let query = supabase
             .from('viajes')
             .select(`
               id,
@@ -64,22 +64,31 @@ export default function Trips() {
             `)
             .eq('ruta_id', (rutaData as { id: string }).id)
             .eq('fecha_viaje', fechaParam)
-            .eq('estado', 'ACTIVO')
-            .order('hora_viaje', { ascending: true });
+            .eq('estado', 'ACTIVO');
+
+          // Si es hoy, no mostrar viajes de horas pasadas
+          const today = new Date();
+          const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+          
+          if (fechaParam === todayStr) {
+            const currentHour = String(today.getHours()).padStart(2, '0');
+            const currentMinute = String(today.getMinutes()).padStart(2, '0');
+            query = query.gte('hora_viaje', `${currentHour}:${currentMinute}:00`);
+          }
+
+          const { data: viajesData } = await query.order('hora_viaje', { ascending: true });
 
           if (viajesData && viajesData.length > 0) {
             setViajes(viajesData as unknown as ViajeWithDetails[]);
           } else {
-            // FALLBACK TEMPORAL PARA DEMOSTRACIÓN UI (Si la BD está vacía)
-            // Se puede quitar en producción
-            loadFallbackData();
+            setViajes([]);
           }
         } else {
-          loadFallbackData();
+          setViajes([]);
         }
       } catch (error) {
         console.error('Error fetching trips:', error);
-        loadFallbackData();
+        setViajes([]);
       } finally {
         setLoading(false);
       }
@@ -88,29 +97,7 @@ export default function Trips() {
     fetchViajes();
   }, [origenParam, destinoParam, fechaParam, navigate]);
 
-  const loadFallbackData = () => {
-    // Datos de prueba (Dummy data) para visualizar la interfaz
-    setViajes([
-      {
-        id: 'dummy-1',
-        hora_viaje: '08:00:00',
-        precio_base: 45.00,
-        vehiculos: { nombre_display: 'Renault Master', total_asientos_pasajero: 15 }
-      },
-      {
-        id: 'dummy-2',
-        hora_viaje: '12:30:00',
-        precio_base: 45.00,
-        vehiculos: { nombre_display: 'Suzuki Ertiga', total_asientos_pasajero: 8 }
-      },
-      {
-        id: 'dummy-3',
-        hora_viaje: '18:00:00',
-        precio_base: 55.00, // Precio de noche / diferente
-        vehiculos: { nombre_display: 'Renault Master', total_asientos_pasajero: 15 }
-      }
-    ]);
-  };
+
 
   const formatDate = (dateStr: string) => {
     try {
