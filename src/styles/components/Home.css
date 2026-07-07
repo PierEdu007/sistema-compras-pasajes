@@ -11,8 +11,8 @@
   justify-content: center;
   padding: var(--spacing-2xl) 0;
   overflow: hidden;
-  margin-top: -80px; /* Pull up under transparent header */
-  padding-top: 120px; /* Offset content below header */
+  margin-top: -110px; /* Pull up under transparent header */
+  padding-top: 150px; /* Offset content below header */
 }
 
 .hero-background {
