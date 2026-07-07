@@ -8,6 +8,7 @@ import type { VehicleLayout, SeatStatus } from '../components/booking/SeatMap';
 import PassengerForm from '../components/booking/PassengerForm';
 import type { PassengerData } from '../components/booking/PassengerForm';
 import Timer from '../components/booking/Timer';
+import { useCulqi } from '../hooks/useCulqi';
 import '../styles/components/Booking.css';
 
 // Interfaz extendida para el viaje
@@ -40,6 +41,10 @@ export default function Booking() {
   const [_bloqueoId, setBloqueoId] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // TODO: Replace with real public key from Culqi Dashboard
+  const CULQI_PUBLIC_KEY = 'pk_test_b07d6eb7c569ff42'; // Default dummy test key
+  const { openCulqi } = useCulqi(CULQI_PUBLIC_KEY);
 
   useEffect(() => {
     if (!viajeId) {
@@ -166,10 +171,23 @@ export default function Booking() {
   };
 
   const handlePassengerSubmit = async (_passengerData: PassengerData) => {
-    // 2. Simular flujo de pago Culqi y creación de venta
     setIsProcessing(true);
     try {
-      // Mock Culqi / Edge Function /procesar-pago
+      if (!viaje) return;
+      
+      // Abre el checkout de Culqi
+      const token = await openCulqi({
+        title: 'Pasaje: ' + viaje.rutas.origen + ' - ' + viaje.rutas.destino,
+        currency: 'PEN',
+        amount: viaje.precio_base
+      });
+      
+      console.log('Culqi Token Recibido:', token);
+      
+      // Aquí enviaríamos el token a nuestra Edge Function
+      // await supabase.functions.invoke('procesar-pago', { body: { token, ... } })
+      
+      // Simulación temporal de la llamada al backend
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Redirigir a confirmación
@@ -177,7 +195,8 @@ export default function Booking() {
       navigate(`/confirmacion/${mockVentaId}`);
       
     } catch (err) {
-      alert('Error al procesar el pago. Intenta nuevamente.');
+      console.error(err);
+      alert('Error en el pago: ' + (err as any).message || 'Intenta nuevamente.');
     } finally {
       setIsProcessing(false);
     }
