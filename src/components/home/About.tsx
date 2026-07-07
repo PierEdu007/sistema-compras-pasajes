@@ -9,10 +9,10 @@ export default function About() {
         <div className="about-content text-center">
           <div className="quote-icon">❝</div>
           <h2>
-            {t('about.title', 'Inversiones K\'intu')}
+            {t('about.title', 'Inversiones Tunki Chasky')}
           </h2>
           <p className="about-desc mt-4">
-            {t('about.description', 'Inversiones K\'intu es una empresa de capitales 100% Cusqueños identificados con el desarrollo de nuestra región. Una empresa Formal, Segura, Confiable y Puntual en busca de brindarle un servicio de Calidad para satisfacer las necesidades de nuestros usuarios.')}
+            {t('about.description', 'Inversiones Tunki Chasky S.R.L. es una empresa líder en transporte terrestre interurbano y logística de encomiendas en la región Cusco. Con camionetas modernas de 3 filas, ofrecemos un servicio Formal, Seguro, Confiable y Puntual para satisfacer las necesidades de nuestros usuarios.')}
           </p>
           <div className="quote-icon right">❞</div>
         </div>

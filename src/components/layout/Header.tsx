@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
-import { FaPhoneAlt, FaEnvelope, FaFacebook, FaInstagram, FaWhatsapp, FaLeaf } from 'react-icons/fa';
+import { FaPhoneAlt, FaEnvelope, FaFacebook, FaInstagram, FaWhatsapp } from 'react-icons/fa';
 import '../../styles/components/header.css';
+
+// Import the Tunki Chasky logo
+import logoImg from '../../assets/logo.png';
 
 export default function Header() {
   const { t, i18n } = useTranslation();
@@ -28,13 +31,13 @@ export default function Header() {
       <div className="header-top">
         <div className="container">
           <div className="contact-info">
-            <span><FaPhoneAlt /> 084 208513</span>
-            <span><FaEnvelope /> inversioneskintu@gmail.com</span>
+            <span><FaPhoneAlt /> +51 997 475 405</span>
+            <span><FaEnvelope /> reservas@tunkichasky.com</span>
           </div>
           <div className="social-links">
             <a href="#" target="_blank" rel="noreferrer"><FaFacebook /></a>
             <a href="#" target="_blank" rel="noreferrer"><FaInstagram /></a>
-            <a href="#" target="_blank" rel="noreferrer"><FaWhatsapp /> +51 997 040 003</a>
+            <a href="https://wa.me/51997475405" target="_blank" rel="noreferrer"><FaWhatsapp /> +51 997 475 405</a>
           </div>
         </div>
       </div>
@@ -43,10 +46,10 @@ export default function Header() {
       <div className="header-main">
         <div className="container">
           <Link to="/" className="brand">
-            <div className="brand-logo"><FaLeaf /></div>
+            <img src={logoImg} alt="Logo Tunki Chasky" className="brand-logo-img" />
             <div className="brand-text">
-              <span className="brand-name">K'INTU</span>
-              <span className="brand-slogan">{t('hero.subtitle', 'Seguridad y confort')}</span>
+              <span className="brand-name">TUNKI CHASKY</span>
+              <span className="brand-slogan">{t('hero.subtitle', 'Seguridad · Rapidez · Confort')}</span>
             </div>
           </Link>
 

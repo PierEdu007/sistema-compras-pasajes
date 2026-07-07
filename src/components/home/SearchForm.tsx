@@ -16,10 +16,16 @@ export default function SearchForm() {
   const [destino, setDestino] = useState('');
   const [fecha, setFecha] = useState(today); // Fecha por defecto: hoy
 
-  // Rutas disponibles (Cusco <-> Quillabamba, Quillabamba <-> Kiteni)
+  // Rutas disponibles — Inversiones Tunki Chasky
   const rutas = [
     { value: 'CUSCO', label: 'Cusco' },
+    { value: 'HIDROELECTRICA', label: 'Hidroeléctrica' },
     { value: 'QUILLABAMBA', label: 'Quillabamba' },
+    { value: 'QUELLOUNO', label: 'Quellouno' },
+    { value: 'CALCA', label: 'Calca' },
+    { value: 'OLLANTAYTAMBO', label: 'Ollantaytambo' },
+    { value: 'LIMA', label: 'Lima' },
+    { value: 'ABANCAY', label: 'Abancay' },
     { value: 'KITENI', label: 'Kiteni' }
   ];
 
@@ -33,8 +39,6 @@ export default function SearchForm() {
 
   // Prevenir seleccionar el mismo origen como destino
   const destinosFiltrados = rutas.filter(r => r.value !== origen);
-
-
 
   return (
     <div className="search-form-container glass">

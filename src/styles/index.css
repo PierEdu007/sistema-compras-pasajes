@@ -1,27 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@400;700;900&display=swap');
 
 :root {
-  /* Color Palette */
-  --color-primary: #2D6A4F;
-  --color-primary-light: #40916C;
-  --color-primary-dark: #1B4332;
-  --color-accent: #95D5B2;
-  --color-accent-vibrant: #A8CE50;
+  /* Color Palette — Inversiones Tunki Chasky */
+  --color-primary: #ED1C24;
+  --color-primary-light: #FF4D4D;
+  --color-primary-dark: #C1121F;
+  --color-accent: #00AEEF;
+  --color-accent-vibrant: #FFF200;
   --color-dark: #0F1B2D;
-  --color-surface: #F8F9FA;
+  --color-surface: #F8FBFE;
   --color-surface-dark: #E9ECEF;
   --color-danger: #E63946;
   --color-warning: #F4A261;
   --color-selected: #2196F3;
   
-  --color-text: #212529;
-  --color-text-light: #6C757D;
+  --color-text: #2D3436;
+  --color-text-light: #636E72;
   --color-white: #FFFFFF;
   --color-border: #DEE2E6;
 
-  /* Typography */
-  --font-heading: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  /* Typography — Tunki Chasky */
+  --font-heading: 'Cinzel', serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
 
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -41,7 +41,7 @@
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-  --shadow-glow: 0 0 15px rgba(168, 206, 80, 0.5);
+  --shadow-glow: 0 0 15px rgba(0, 174, 239, 0.5);
 
   /* Transitions */
   --transition-fast: 150ms ease-in-out;
@@ -59,7 +59,7 @@ body {
   font-family: var(--font-body);
   color: var(--color-text);
   background-color: var(--color-surface);
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -127,16 +127,16 @@ img {
 .btn-primary:hover:not(:disabled) {
   background-color: var(--color-primary-dark);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 20px rgba(237, 28, 36, 0.3);
 }
 
 .btn-accent {
-  background-color: var(--color-accent-vibrant);
-  color: var(--color-dark);
+  background-color: var(--color-accent);
+  color: var(--color-white);
 }
 
 .btn-accent:hover:not(:disabled) {
-  background-color: var(--color-accent);
+  background-color: #0088BC;
   transform: translateY(-2px);
   box-shadow: var(--shadow-glow);
 }
@@ -179,7 +179,7 @@ img {
 .form-control:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.2);
+  box-shadow: 0 0 0 3px rgba(237, 28, 36, 0.2);
 }
 
 /* Badges */
@@ -192,7 +192,7 @@ img {
   font-family: var(--font-heading);
 }
 
-.badge-success { background-color: var(--color-accent-vibrant); color: var(--color-dark); }
+.badge-success { background-color: var(--color-accent); color: var(--color-white); }
 .badge-warning { background-color: var(--color-warning); color: var(--color-white); }
 .badge-danger { background-color: var(--color-danger); color: var(--color-white); }
 
@@ -208,9 +208,9 @@ img {
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(45, 106, 79, 0.4); }
-  70% { box-shadow: 0 0 0 15px rgba(45, 106, 79, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(45, 106, 79, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(237, 28, 36, 0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(237, 28, 36, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(237, 28, 36, 0); }
 }
 
 .fade-in { animation: fadeIn var(--transition-normal); }
@@ -224,7 +224,7 @@ img {
   background: var(--color-surface);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-primary-light);
+  background: var(--color-accent);
   border-radius: 5px;
 }
 ::-webkit-scrollbar-thumb:hover {

@@ -1,27 +1,27 @@
 import { useTranslation } from 'react-i18next';
-import { FaShieldAlt, FaCouch, FaStopwatch } from 'react-icons/fa';
+import { FaShippingFast, FaClock, FaUserShield } from 'react-icons/fa';
 
 export default function Benefits() {
   const { t } = useTranslation();
 
   const benefitsList = [
     {
-      id: 'security',
-      icon: <FaShieldAlt />,
-      title: t('benefits.security.title', 'SEGURIDAD:'),
-      desc: t('benefits.security.desc', 'Nuestras unidades cuentan con sistemas de última generación: sistema de frenos neumático y retardador electromagnético, dirección asistida, monitoreo de ubicación y velocidad mediante sistema GPS.')
+      id: 'cargo',
+      icon: <FaShippingFast />,
+      title: t('benefits.cargo.title', 'ENCOMIENDAS Y GIROS:'),
+      desc: t('benefits.cargo.desc', 'Envío de sobres, paquetes y giros de dinero con la mayor seguridad y rapidez del mercado.')
     },
     {
-      id: 'comfort',
-      icon: <FaCouch />,
-      title: t('benefits.comfort.title', 'COMODIDAD:'),
-      desc: t('benefits.comfort.desc', 'Nuestros vehículos cuentan con sillones ergonómicos, aire acondicionado, calefacción, cargadores USB, equipos de audio y video, sistema de renovación de aire continuo.')
+      id: 'departures',
+      icon: <FaClock />,
+      title: t('benefits.departures.title', 'SALIDAS DIARIAS:'),
+      desc: t('benefits.departures.desc', 'Programación constante hacia Hidroeléctrica, Quillabamba, Lima y más destinos estratégicos.')
     },
     {
-      id: 'punctuality',
-      icon: <FaStopwatch />,
-      title: t('benefits.punctuality.title', 'PUNTUALIDAD:'),
-      desc: t('benefits.punctuality.desc', 'La puntualidad como valor fundamental. Inversiones K\'intu S.R.L. garantiza el cumplimiento de los horarios establecidos para la prestación de los servicios ofertados.')
+      id: 'drivers',
+      icon: <FaUserShield />,
+      title: t('benefits.drivers.title', 'CONDUCTORES EXPERTOS:'),
+      desc: t('benefits.drivers.desc', 'Conductores profesionales con amplia experiencia en rutas altoandinas y de selva.')
     }
   ];
 
