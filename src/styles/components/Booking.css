@@ -158,12 +158,20 @@
   transform: scale(1.05);
 }
 
+.pos-cen.seat-available:hover:not(:disabled) {
+  transform: translateX(calc(50% + 0.25rem)) scale(1.05);
+}
+
 .seat-selected {
   background-color: var(--color-selected);
   border-color: var(--color-selected);
   color: var(--color-white);
   box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
   transform: scale(1.05);
+}
+
+.pos-cen.seat-selected {
+  transform: translateX(calc(50% + 0.25rem)) scale(1.05);
 }
 
 .seat-occupied {
