@@ -67,7 +67,11 @@ const AdminSales: React.FC = () => {
 
       if (error) throw error;
       const allData = (data as unknown as VentaRow[]) || [];
-      const activeVentas = allData.filter(v => !v.culqi_charge_id?.startsWith('RECHAZADO_'));
+      const rejectedList: string[] = JSON.parse(localStorage.getItem('rejected_ventas') || '[]');
+      const activeVentas = allData.filter(v => 
+        !v.culqi_charge_id?.startsWith('RECHAZADO_') && 
+        !rejectedList.includes(v.id)
+      );
       setVentas(activeVentas);
     } catch (err) {
       console.error('Error fetching ventas:', err);
@@ -144,6 +148,13 @@ const AdminSales: React.FC = () => {
 
     setProcessingId(venta.id);
     try {
+      // Guardar ID en localStorage para asegurar persistencia en recargas
+      const rejectedList: string[] = JSON.parse(localStorage.getItem('rejected_ventas') || '[]');
+      if (!rejectedList.includes(venta.id)) {
+        rejectedList.push(venta.id);
+        localStorage.setItem('rejected_ventas', JSON.stringify(rejectedList));
+      }
+
       // 1. Intentar borrar de Supabase
       const { error: delError } = await (supabase.from('ventas') as any)
         .delete()

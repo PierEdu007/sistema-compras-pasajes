@@ -77,7 +77,11 @@ const AdminDashboard: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (!salesErr && salesData) {
-        const allSales = (salesData as unknown as DashboardVenta[]).filter(v => !v.culqi_charge_id?.startsWith('RECHAZADO_'));
+        const rejectedList: string[] = JSON.parse(localStorage.getItem('rejected_ventas') || '[]');
+        const allSales = (salesData as unknown as DashboardVenta[]).filter(v => 
+          !v.culqi_charge_id?.startsWith('RECHAZADO_') && 
+          !rejectedList.includes(v.id)
+        );
 
         // Ventas confirmadas (comprobante_emitido === true)
         const confirmed = allSales.filter(v => v.comprobante_emitido);
