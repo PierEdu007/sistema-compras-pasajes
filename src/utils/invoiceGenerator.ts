@@ -18,7 +18,7 @@ export interface InvoiceData {
   metodoPago?: string;
 }
 
-// Convert numbers to Spanish words (simple helper)
+// Convert numbers to Spanish words
 function numberToWordsPE(num: number): string {
   const entero = Math.floor(num);
   const centavos = Math.round((num - entero) * 100);
@@ -48,11 +48,12 @@ function numberToWordsPE(num: number): string {
   return `${texto} CON ${centavosStr}/100 SOLES`;
 }
 
+// Genera la Boleta o Factura Electrónica en PDF (Modelo Tunky Chasky)
 export function generateInvoicePDF(data: InvoiceData): jsPDF {
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
-    format: [80, 220] // Ticket thermal size style or A5 width
+    format: [80, 220]
   });
 
   const isFactura = data.tipoDocumento === 'RUC';
@@ -228,6 +229,93 @@ export function generateInvoicePDF(data: InvoiceData): jsPDF {
   doc.setTextColor(100, 100, 100);
   const footerLines = doc.splitTextToSize(`Representación impresa de la ${comprobanteTipo.toUpperCase()} que puede ser consultada en la web corporativa.`, 70);
   doc.text(footerLines, 40, y, { align: 'center' });
+
+  return doc;
+}
+
+// Genera el Boleto de Viaje del Pasajero en PDF
+export function generateTicketPDF(data: InvoiceData): jsPDF {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: [80, 180]
+  });
+
+  let y = 10;
+
+  // Header Banner
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(116, 34, 132);
+  doc.text("BOLETO DE VIAJE", 40, y, { align: 'center' });
+  y += 4.5;
+
+  doc.setFontSize(7);
+  doc.setTextColor(80, 80, 80);
+  doc.text("INVERSIONES TUNKY CHASKY S.R.L.", 40, y, { align: 'center' });
+  y += 3.5;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.5);
+  doc.text(`Ticket N° #${data.ventaId.substring(0, 8).toUpperCase()}`, 40, y, { align: 'center' });
+  y += 5;
+
+  doc.setDrawColor(200, 200, 200);
+  doc.line(5, y, 75, y);
+  y += 4;
+
+  // Ticket Body
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text("PASAJERO:", 5, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${data.nombres} ${data.apellidos}`.toUpperCase(), 24, y);
+  y += 4;
+
+  doc.setFont('helvetica', 'bold');
+  doc.text("DOCUMENTO:", 5, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${data.tipoDocumento}: ${data.nroDocumento}`, 24, y);
+  y += 4;
+
+  doc.setFont('helvetica', 'bold');
+  doc.text("ORIGEN - DESTINO:", 5, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${data.origen} ➔ ${data.destino}`, 28, y);
+  y += 4;
+
+  doc.setFont('helvetica', 'bold');
+  doc.text("ASIENTO SELECCIONADO:", 5, y);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(116, 34, 132);
+  doc.text(`# ${data.asiento}`, 42, y);
+  y += 4;
+
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'bold');
+  doc.text("FECHA DE VIAJE:", 5, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${data.fechaViaje} - ${data.horaViaje.substring(0, 5)}`, 28, y);
+  y += 4;
+
+  doc.setFont('helvetica', 'bold');
+  doc.text("MONTO PAGADO:", 5, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`S/ ${data.monto.toFixed(2)} (${data.metodoPago || 'YAPE'})`, 28, y);
+  y += 5;
+
+  doc.line(5, y, 75, y);
+  y += 4;
+
+  // Conditions
+  doc.setFontSize(5.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(80, 80, 80);
+  doc.text("CONDICIONES DEL SERVICIO:", 5, y);
+  y += 3;
+  const condText = "• Presentarse 30 minutos antes del embarque con su DNI físico.\n• Equipaje permitido: 25kg por pasajero.\n• No se admiten cambios ni devoluciones 1 hora antes del viaje.";
+  const condLines = doc.splitTextToSize(condText, 70);
+  doc.text(condLines, 5, y);
 
   return doc;
 }

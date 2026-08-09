@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { FaCheck, FaFilePdf, FaQrcode, FaPaperPlane } from 'react-icons/fa';
-import { generateInvoicePDF } from '../../utils/invoiceGenerator';
+import { FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes } from 'react-icons/fa';
+import { generateInvoicePDF, generateTicketPDF } from '../../utils/invoiceGenerator';
 import '../../styles/components/admin.css';
 
 interface VentaRow {
@@ -22,6 +22,7 @@ interface VentaRow {
   descripcion_opcional?: string;
   comprobante_emitido: boolean;
   comprobante_url: string | null;
+  estado?: string;
   viajes: {
     fecha_viaje: string;
     hora_viaje: string;
@@ -76,8 +77,7 @@ const AdminSales: React.FC = () => {
   const handleConfirmPayment = async (venta: VentaRow) => {
     setProcessingId(venta.id);
     try {
-      // 1. Generar PDF (Boleta o Factura)
-      const pdfDoc = generateInvoicePDF({
+      const invoiceData = {
         ventaId: venta.id,
         tipoDocumento: venta.tipo_documento,
         nroDocumento: venta.nro_documento,
@@ -93,30 +93,62 @@ const AdminSales: React.FC = () => {
         fechaViaje: venta.viajes?.fecha_viaje || '',
         horaViaje: venta.viajes?.hora_viaje || '',
         metodoPago: venta.metodo_pago || 'YAPE'
-      });
+      };
 
-      // Descargar/abrir el PDF generado
-      const pdfBlob = pdfDoc.output('blob');
-      const blobUrl = URL.createObjectURL(pdfBlob);
-      window.open(blobUrl, '_blank');
+      // 1. Generar los DOS PDFs (Comprobante Boleta/Factura + Boleto de Viaje)
+      const invoicePdf = generateInvoicePDF(invoiceData);
+      const ticketPdf = generateTicketPDF(invoiceData);
 
-      // 2. Actualizar en Supabase como emitido
+      // Abrir/Descargar ambos PDFs
+      const invoiceBlob = invoicePdf.output('blob');
+      const ticketBlob = ticketPdf.output('blob');
+
+      const invoiceUrl = URL.createObjectURL(invoiceBlob);
+      const ticketUrl = URL.createObjectURL(ticketBlob);
+
+      window.open(invoiceUrl, '_blank');
+      window.open(ticketUrl, '_blank');
+
+      // 2. Actualizar en Supabase
       await (supabase.from('ventas') as any)
         .update({
           comprobante_emitido: true,
-          comprobante_url: blobUrl
+          comprobante_url: invoiceUrl
         })
         .eq('id', venta.id);
 
       // Actualizar estado local
-      setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: blobUrl } : v));
+      setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: invoiceUrl, estado: 'CONFIRMADO' } : v));
 
       const compTipo = venta.tipo_documento === 'RUC' ? 'Factura' : 'Boleta';
-      alert(`¡Pago confirmado exitosamente!\nSe ha generado la ${compTipo} Electrónica y se envió la notificación al cliente.`);
+      alert(`¡Pago verificado y confirmado exitosamente!\n\n• Se generó la ${compTipo} Electrónica en PDF.\n• Se generó el Boleto de Viaje en PDF.\n• Se notificó al cliente (${venta.email}).`);
 
     } catch (err) {
       console.error('Error al confirmar pago:', err);
-      alert('Ocurrió un error al procesar el comprobante.');
+      alert('Ocurrió un error al procesar el pago.');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleRejectPayment = async (venta: VentaRow) => {
+    const isConfirmed = window.confirm(`¿Estás seguro de que deseas RECHAZAR este pago?\n\nPasajero: ${venta.nombres} ${venta.apellidos}\nMonto: S/ ${venta.monto_pagado}`);
+    if (!isConfirmed) return;
+
+    setProcessingId(venta.id);
+    try {
+      // Eliminar o marcar como rechazado en Supabase
+      await (supabase.from('ventas') as any)
+        .delete()
+        .eq('id', venta.id);
+
+      // Liberar el asiento
+      setVentas(prev => prev.filter(v => v.id !== venta.id));
+
+      alert('El pago ha sido rechazado y la reserva fue liberada.');
+    } catch (err) {
+      console.error('Error al rechazar pago:', err);
+      alert('Ocurrió un error al rechazar el pago.');
     } finally {
       setProcessingId(null);
     }
@@ -137,7 +169,7 @@ const AdminSales: React.FC = () => {
               <th>Documento</th>
               <th>Pago / N° Op.</th>
               <th>Monto (S/)</th>
-              <th>Acción / Comprobante</th>
+              <th>Acciones / Comprobante</th>
             </tr>
           </thead>
           <tbody>
@@ -199,14 +231,27 @@ const AdminSales: React.FC = () => {
                           )}
                         </span>
                       ) : (
-                        <button 
-                          className="admin-btn admin-btn-primary" 
-                          style={{ padding: '6px 12px', fontSize: '0.85em', background: '#10b981' }}
-                          onClick={() => handleConfirmPayment(v)}
-                          disabled={processingId === v.id}
-                        >
-                          <FaPaperPlane /> {processingId === v.id ? 'Emitiendo...' : 'Confirmar Pago'}
-                        </button>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <button 
+                            className="admin-btn" 
+                            style={{ padding: '6px 10px', fontSize: '0.8em', background: '#10b981', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                            onClick={() => handleConfirmPayment(v)}
+                            disabled={processingId === v.id}
+                            title="Confirmar pago y emitir comprobante + boleto"
+                          >
+                            <FaPaperPlane /> {processingId === v.id ? '...' : 'Confirmar'}
+                          </button>
+                          
+                          <button 
+                            className="admin-btn" 
+                            style={{ padding: '6px 10px', fontSize: '0.8em', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                            onClick={() => handleRejectPayment(v)}
+                            disabled={processingId === v.id}
+                            title="Rechazar pago y liberar asiento"
+                          >
+                            <FaTimes /> Rechazar
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
