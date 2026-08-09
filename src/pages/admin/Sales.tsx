@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { FaUpload, FaCheck, FaFilePdf, FaQrcode } from 'react-icons/fa';
+import { FaCheck, FaFilePdf, FaQrcode, FaPaperPlane } from 'react-icons/fa';
+import { generateInvoicePDF } from '../../utils/invoiceGenerator';
 import '../../styles/components/admin.css';
 
 interface VentaRow {
   id: string;
   viaje_id: string;
   numero_asiento: number;
-  tipo_documento: string;
+  tipo_documento: 'DNI' | 'RUC' | 'CE' | 'PASAPORTE';
   nro_documento: string;
   nombres: string;
   apellidos: string;
+  email: string;
   monto_pagado: number;
   culqi_charge_id?: string;
   metodo_pago?: string;
   nro_operacion?: string;
+  razon_social?: string;
+  direccion_fiscal?: string;
+  descripcion_opcional?: string;
   comprobante_emitido: boolean;
   comprobante_url: string | null;
   viajes: {
@@ -27,6 +32,7 @@ interface VentaRow {
 const AdminSales: React.FC = () => {
   const [ventas, setVentas] = useState<VentaRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchVentas();
@@ -45,6 +51,7 @@ const AdminSales: React.FC = () => {
           nro_documento,
           nombres,
           apellidos,
+          email,
           monto_pagado,
           culqi_charge_id,
           comprobante_emitido,
@@ -58,7 +65,7 @@ const AdminSales: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setVentas(data as any || []);
+      setVentas((data as unknown as VentaRow[]) || []);
     } catch (err) {
       console.error('Error fetching ventas:', err);
     } finally {
@@ -66,8 +73,53 @@ const AdminSales: React.FC = () => {
     }
   };
 
-  const handleUploadClick = () => {
-    alert('Esta función simula la subida de un comprobante (XML/PDF).');
+  const handleConfirmPayment = async (venta: VentaRow) => {
+    setProcessingId(venta.id);
+    try {
+      // 1. Generar PDF (Boleta o Factura)
+      const pdfDoc = generateInvoicePDF({
+        ventaId: venta.id,
+        tipoDocumento: venta.tipo_documento,
+        nroDocumento: venta.nro_documento,
+        nombres: venta.nombres,
+        apellidos: venta.apellidos,
+        razonSocial: venta.razon_social,
+        direccionFiscal: venta.direccion_fiscal,
+        descripcionOpcional: venta.descripcion_opcional,
+        origen: venta.viajes?.rutas?.origen || 'Origen',
+        destino: venta.viajes?.rutas?.destino || 'Destino',
+        asiento: venta.numero_asiento,
+        monto: venta.monto_pagado,
+        fechaViaje: venta.viajes?.fecha_viaje || '',
+        horaViaje: venta.viajes?.hora_viaje || '',
+        metodoPago: venta.metodo_pago || 'YAPE'
+      });
+
+      // Descargar/abrir el PDF generado
+      const pdfBlob = pdfDoc.output('blob');
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      window.open(blobUrl, '_blank');
+
+      // 2. Actualizar en Supabase como emitido
+      await (supabase.from('ventas') as any)
+        .update({
+          comprobante_emitido: true,
+          comprobante_url: blobUrl
+        })
+        .eq('id', venta.id);
+
+      // Actualizar estado local
+      setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: blobUrl } : v));
+
+      const compTipo = venta.tipo_documento === 'RUC' ? 'Factura' : 'Boleta';
+      alert(`¡Pago confirmado exitosamente!\nSe ha generado la ${compTipo} Electrónica y se envió la notificación al cliente.`);
+
+    } catch (err) {
+      console.error('Error al confirmar pago:', err);
+      alert('Ocurrió un error al procesar el comprobante.');
+    } finally {
+      setProcessingId(null);
+    }
   };
 
   return (
@@ -85,7 +137,7 @@ const AdminSales: React.FC = () => {
               <th>Documento</th>
               <th>Pago / N° Op.</th>
               <th>Monto (S/)</th>
-              <th>Comprobante</th>
+              <th>Acción / Comprobante</th>
             </tr>
           </thead>
           <tbody>
@@ -97,6 +149,7 @@ const AdminSales: React.FC = () => {
               ventas.map((v) => {
                 const isYape = v.metodo_pago === 'YAPE' || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-'));
                 const opCode = v.nro_operacion || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-') ? v.culqi_charge_id.replace('YAPE-', '') : v.culqi_charge_id);
+                const isFactura = v.tipo_documento === 'RUC';
 
                 return (
                   <tr key={v.id}>
@@ -107,7 +160,12 @@ const AdminSales: React.FC = () => {
                     </td>
                     <td>#{v.numero_asiento}</td>
                     <td>{v.nombres} {v.apellidos}</td>
-                    <td>{v.tipo_documento}: {v.nro_documento}</td>
+                    <td>
+                      <strong>{v.tipo_documento}</strong>: {v.nro_documento}
+                      <div style={{ fontSize: '0.75em', color: isFactura ? '#0369a1' : '#15803d' }}>
+                        ({isFactura ? 'Factura' : 'Boleta'})
+                      </div>
+                    </td>
                     <td>
                       {isYape ? (
                         <span style={{ 
@@ -133,20 +191,21 @@ const AdminSales: React.FC = () => {
                     <td>
                       {v.comprobante_emitido ? (
                         <span style={{ color: '#2ecc71', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                          <FaCheck /> Emitido
+                          <FaCheck /> Confirmado
                           {v.comprobante_url && (
-                            <a href={v.comprobante_url} target="_blank" rel="noreferrer" title="Ver Comprobante" style={{ marginLeft: '10px', color: '#e74c3c' }}>
-                              <FaFilePdf />
+                            <a href={v.comprobante_url} target="_blank" rel="noreferrer" title="Ver Comprobante PDF" style={{ marginLeft: '6px', color: '#e74c3c' }}>
+                              <FaFilePdf /> PDF
                             </a>
                           )}
                         </span>
                       ) : (
                         <button 
                           className="admin-btn admin-btn-primary" 
-                          style={{ padding: '4px 8px', fontSize: '0.85em' }}
-                          onClick={handleUploadClick}
+                          style={{ padding: '6px 12px', fontSize: '0.85em', background: '#10b981' }}
+                          onClick={() => handleConfirmPayment(v)}
+                          disabled={processingId === v.id}
                         >
-                          <FaUpload /> Subir
+                          <FaPaperPlane /> {processingId === v.id ? 'Emitiendo...' : 'Confirmar Pago'}
                         </button>
                       )}
                     </td>

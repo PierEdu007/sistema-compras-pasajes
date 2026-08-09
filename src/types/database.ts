@@ -78,6 +78,9 @@ export interface Venta {
   culqi_charge_id: string;
   metodo_pago?: string;
   nro_operacion?: string;
+  razon_social?: string;
+  direccion_fiscal?: string;
+  descripcion_opcional?: string;
   comprobante_emitido: boolean;
   comprobante_url: string | null;
   created_at: string;

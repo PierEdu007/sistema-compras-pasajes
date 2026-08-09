@@ -138,6 +138,9 @@ export default function Booking() {
         telefono: pendingPassengerData.telefono,
         monto_pagado: viaje.precio_base,
         culqi_charge_id: `YAPE-${yapeData.nro_operacion}`,
+        razon_social: pendingPassengerData.razon_social,
+        direccion_fiscal: pendingPassengerData.direccion_fiscal,
+        descripcion_opcional: pendingPassengerData.descripcion_opcional,
       };
 
       let ventaId = `venta-${Date.now()}`;
@@ -164,6 +167,9 @@ export default function Booking() {
           pasajero: `${pendingPassengerData.nombres} ${pendingPassengerData.apellidos}`,
           tipo_documento: pendingPassengerData.tipo_documento,
           nro_documento: pendingPassengerData.nro_documento,
+          razon_social: pendingPassengerData.razon_social,
+          direccion_fiscal: pendingPassengerData.direccion_fiscal,
+          descripcion_opcional: pendingPassengerData.descripcion_opcional,
           origen: viaje.rutas.origen,
           destino: viaje.rutas.destino,
           asiento: selectedSeat,
