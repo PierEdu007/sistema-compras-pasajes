@@ -159,7 +159,17 @@ export default function Booking() {
       navigate(`/confirmacion/${ventaId}`, {
         state: {
           nro_operacion: yapeData.nro_operacion,
-          metodo_pago: 'YAPE'
+          metodo_pago: 'YAPE',
+          monto_pagado: viaje.precio_base,
+          pasajero: `${pendingPassengerData.nombres} ${pendingPassengerData.apellidos}`,
+          tipo_documento: pendingPassengerData.tipo_documento,
+          nro_documento: pendingPassengerData.nro_documento,
+          origen: viaje.rutas.origen,
+          destino: viaje.rutas.destino,
+          asiento: selectedSeat,
+          fecha_viaje: viaje.fecha_viaje,
+          hora_viaje: viaje.hora_viaje,
+          bus: viaje.vehiculos.nombre_display
         }
       });
     } catch (err) {
