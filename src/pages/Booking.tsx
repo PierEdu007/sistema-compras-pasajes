@@ -126,8 +126,18 @@ export default function Booking() {
 
     setIsProcessing(true);
     try {
-      // Intentar insertar la venta en Supabase
-      const payload: any = {
+      let chargeId = `YAPE-${yapeData.nro_operacion}`;
+      if (pendingPassengerData.razon_social) {
+        chargeId += `|RS:${pendingPassengerData.razon_social}`;
+      }
+      if (pendingPassengerData.direccion_fiscal) {
+        chargeId += `|DIR:${pendingPassengerData.direccion_fiscal}`;
+      }
+      if (pendingPassengerData.descripcion_opcional) {
+        chargeId += `|DESC:${pendingPassengerData.descripcion_opcional}`;
+      }
+
+      const basePayload: any = {
         viaje_id: viaje.id,
         numero_asiento: selectedSeat,
         tipo_documento: pendingPassengerData.tipo_documento,
@@ -137,25 +147,39 @@ export default function Booking() {
         email: pendingPassengerData.email,
         telefono: pendingPassengerData.telefono,
         monto_pagado: viaje.precio_base,
-        culqi_charge_id: `YAPE-${yapeData.nro_operacion}`,
+        culqi_charge_id: chargeId,
+      };
+
+      const fullPayload = {
+        ...basePayload,
         razon_social: pendingPassengerData.razon_social,
         direccion_fiscal: pendingPassengerData.direccion_fiscal,
         descripcion_opcional: pendingPassengerData.descripcion_opcional,
       };
 
       let ventaId = `venta-${Date.now()}`;
-
-      // Insertar en Supabase
-      const { data: insertedData, error: insertError } = await supabase
+      let { data: insertedData, error: insertError } = await supabase
         .from('ventas')
-        .insert(payload)
+        .insert(fullPayload)
         .select('id')
         .single();
 
+      if (insertError) {
+        console.warn('Reintentando inserción con payload compatible:', insertError);
+        const retryRes = await supabase
+          .from('ventas')
+          .insert(basePayload)
+          .select('id')
+          .single();
+
+        insertedData = retryRes.data;
+        insertError = retryRes.error;
+      }
+
       if (!insertError && insertedData) {
         ventaId = (insertedData as { id: string }).id;
-      } else {
-        console.warn('Advertencia al insertar venta:', insertError);
+      } else if (insertError) {
+        console.error('Error final al insertar venta:', insertError);
       }
 
       setIsYapeModalOpen(false);

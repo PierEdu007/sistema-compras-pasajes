@@ -77,15 +77,20 @@ const AdminSales: React.FC = () => {
   const handleConfirmPayment = async (venta: VentaRow) => {
     setProcessingId(venta.id);
     try {
+      const parts = (venta.culqi_charge_id || '').split('|');
+      const razonSocial = venta.razon_social || parts.find(p => p.startsWith('RS:'))?.replace('RS:', '') || '';
+      const direccionFiscal = venta.direccion_fiscal || parts.find(p => p.startsWith('DIR:'))?.replace('DIR:', '') || '';
+      const descripcionOpcional = venta.descripcion_opcional || parts.find(p => p.startsWith('DESC:'))?.replace('DESC:', '') || '';
+
       const invoiceData = {
         ventaId: venta.id,
         tipoDocumento: venta.tipo_documento,
         nroDocumento: venta.nro_documento,
         nombres: venta.nombres,
         apellidos: venta.apellidos,
-        razonSocial: venta.razon_social,
-        direccionFiscal: venta.direccion_fiscal,
-        descripcionOpcional: venta.descripcion_opcional,
+        razonSocial,
+        direccionFiscal,
+        descripcionOpcional,
         origen: venta.viajes?.rutas?.origen || 'Origen',
         destino: venta.viajes?.rutas?.destino || 'Destino',
         asiento: venta.numero_asiento,

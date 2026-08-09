@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { FaCheckCircle, FaPrint, FaHome, FaQrcode, FaClock } from 'react-icons/fa';
+import { FaCheckCircle, FaHome, FaQrcode, FaClock } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
 import '../styles/components/Confirmation.css';
 
@@ -173,10 +173,22 @@ function Confirmation() {
           </div>
         </div>
 
+        <div className="email-notice-box" style={{
+          background: '#f0fdf4',
+          border: '1px solid #bbf7d0',
+          color: '#15803d',
+          padding: '0.85rem 1.2rem',
+          borderRadius: '12px',
+          fontSize: '0.9rem',
+          fontWeight: 600,
+          marginBottom: '1.5rem',
+          textAlign: 'center',
+          lineHeight: '1.4'
+        }}>
+          📧 El boleto y comprobante se enviarán a tu correo electrónico una vez verificado y confirmado el pago.
+        </div>
+
         <div className="confirmation-actions">
-          <button className="btn btn-secondary" onClick={() => window.print()}>
-            <FaPrint /> Imprimir Boleto
-          </button>
           <button className="btn btn-primary" onClick={() => navigate('/')}>
             <FaHome /> Volver al Inicio
           </button>
