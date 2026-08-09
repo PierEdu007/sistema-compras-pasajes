@@ -39,7 +39,7 @@ const AdminLayout: React.FC = () => {
             </NavLink>
           )}
 
-          {role === 'CONTADOR' && (
+          {(role === 'ADMIN' || role === 'CONTADOR') && (
             <NavLink 
               to="/admin/ventas" 
               className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
