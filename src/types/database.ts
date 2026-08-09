@@ -76,6 +76,8 @@ export interface Venta {
   telefono: string;
   monto_pagado: number;
   culqi_charge_id: string;
+  metodo_pago?: string;
+  nro_operacion?: string;
   comprobante_emitido: boolean;
   comprobante_url: string | null;
   created_at: string;

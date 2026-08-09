@@ -8,7 +8,8 @@ import type { VehicleLayout, SeatStatus } from '../components/booking/SeatMap';
 import PassengerForm from '../components/booking/PassengerForm';
 import type { PassengerData } from '../components/booking/PassengerForm';
 import Timer from '../components/booking/Timer';
-import { useCulqi } from '../hooks/useCulqi';
+import YapePaymentModal from '../components/booking/YapePaymentModal';
+import type { YapePaymentData } from '../components/booking/YapePaymentModal';
 import '../styles/components/Booking.css';
 
 // Interfaz extendida para el viaje
@@ -41,10 +42,10 @@ export default function Booking() {
   const [_bloqueoId, setBloqueoId] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  
-  // Obtener la llave pública de Culqi desde las variables de entorno
-  const CULQI_PUBLIC_KEY = import.meta.env.VITE_CULQI_PUBLIC_KEY || ''; 
-  const { openCulqi } = useCulqi(CULQI_PUBLIC_KEY);
+
+  // Estado para modal Yape
+  const [isYapeModalOpen, setIsYapeModalOpen] = useState(false);
+  const [pendingPassengerData, setPendingPassengerData] = useState<PassengerData | null>(null);
 
   useEffect(() => {
     if (!viajeId) {
@@ -78,14 +79,6 @@ export default function Booking() {
         }
 
         setViaje(data as unknown as ViajeBooking);
-
-        // Fetch asientos estado actual (simulado o via Supabase function)
-        // En un entorno real llamaríamos a la función:
-        /*
-        const { data: asientos } = await supabase.rpc('obtener_asientos_disponibles', { p_viaje_id: viajeId });
-        // Mapear al estado
-        */
-        
       } catch (err) {
         console.error('Error fetching trip details:', err);
       } finally {
@@ -96,73 +89,82 @@ export default function Booking() {
     fetchViajeDetails();
   }, [viajeId, navigate]);
 
-
-
   const handleSelectSeat = async (seatNumber: number) => {
-    // 1. Simular llamada a Edge Function para bloquear el asiento
     setIsProcessing(true);
     try {
-      // Mock del API request
-      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate network
-      
-      // Si todo sale bien:
+      await new Promise(resolve => setTimeout(resolve, 600));
       setSelectedSeat(seatNumber);
       
-      // Expiración en 6 minutos
       const expiraDate = new Date();
-      expiraDate.setMinutes(expiraDate.getMinutes() + 6);
+      expiraDate.setMinutes(expiraDate.getMinutes() + 10);
       
       setExpiresAt(expiraDate.toISOString());
-      setBloqueoId(`mock-bloqueo-${Date.now()}`);
-      
+      setBloqueoId(`bloqueo-${Date.now()}`);
     } catch (err) {
-      alert('Error al bloquear el asiento. Por favor intenta de nuevo.');
+      alert('Error al seleccionar el asiento. Por favor intenta de nuevo.');
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleTimerExpire = () => {
-    // Cuando expira el tiempo
     setSelectedSeat(null);
     setBloqueoId(null);
     setExpiresAt(null);
+    setIsYapeModalOpen(false);
     alert('Tu reserva temporal ha expirado.');
   };
 
-  const handlePassengerSubmit = async (_passengerData: PassengerData) => {
+  const handlePassengerSubmit = (passengerData: PassengerData) => {
+    if (!viaje || selectedSeat === null) return;
+    setPendingPassengerData(passengerData);
+    setIsYapeModalOpen(true);
+  };
+
+  const handleYapeConfirm = async (yapeData: YapePaymentData) => {
+    if (!viaje || selectedSeat === null || !pendingPassengerData) return;
+
     setIsProcessing(true);
     try {
-      if (!viaje) return;
-      
-      if (!CULQI_PUBLIC_KEY) {
-        alert('Falta configurar la llave pública de Culqi (VITE_CULQI_PUBLIC_KEY).');
-        setIsProcessing(false);
-        return;
+      // Intentar insertar la venta en Supabase
+      const payload: any = {
+        viaje_id: viaje.id,
+        numero_asiento: selectedSeat,
+        tipo_documento: pendingPassengerData.tipo_documento,
+        nro_documento: pendingPassengerData.nro_documento,
+        nombres: pendingPassengerData.nombres,
+        apellidos: pendingPassengerData.apellidos,
+        email: pendingPassengerData.email,
+        telefono: pendingPassengerData.telefono,
+        monto_pagado: viaje.precio_base,
+        culqi_charge_id: `YAPE-${yapeData.nro_operacion}`,
+      };
+
+      let ventaId = `venta-${Date.now()}`;
+
+      // Insertar en Supabase
+      const { data: insertedData, error: insertError } = await supabase
+        .from('ventas')
+        .insert(payload)
+        .select('id')
+        .single();
+
+      if (!insertError && insertedData) {
+        ventaId = (insertedData as { id: string }).id;
+      } else {
+        console.warn('Advertencia al insertar venta:', insertError);
       }
-      
-      // Abre el checkout de Culqi
-      const token = await openCulqi({
-        title: 'Pasaje: ' + viaje.rutas.origen + ' - ' + viaje.rutas.destino,
-        currency: 'PEN',
-        amount: viaje.precio_base
+
+      setIsYapeModalOpen(false);
+      navigate(`/confirmacion/${ventaId}`, {
+        state: {
+          nro_operacion: yapeData.nro_operacion,
+          metodo_pago: 'YAPE'
+        }
       });
-      
-      console.log('Culqi Token Recibido:', token);
-      
-      // Aquí enviaríamos el token a nuestra Edge Function
-      // await supabase.functions.invoke('procesar-pago', { body: { token, ... } })
-      
-      // Simulación temporal de la llamada al backend
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Redirigir a confirmación
-      const mockVentaId = `venta-${Date.now()}`;
-      navigate(`/confirmacion/${mockVentaId}`);
-      
     } catch (err) {
-      console.error(err);
-      alert('Error en el pago: ' + (err as any).message || 'Intenta nuevamente.');
+      console.error('Error al procesar pago por Yape:', err);
+      alert('Ocurrió un error al procesar tu solicitud. Intenta nuevamente.');
     } finally {
       setIsProcessing(false);
     }
@@ -242,6 +244,20 @@ export default function Booking() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Pago por Yape */}
+      {selectedSeat && (
+        <YapePaymentModal 
+          isOpen={isYapeModalOpen}
+          onClose={() => setIsYapeModalOpen(false)}
+          onConfirm={handleYapeConfirm}
+          monto={viaje.precio_base}
+          asiento={selectedSeat}
+          origen={viaje.rutas.origen}
+          destino={viaje.rutas.destino}
+          disabled={isProcessing}
+        />
+      )}
     </div>
   );
 }

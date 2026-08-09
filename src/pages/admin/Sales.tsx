@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { FaUpload, FaCheck, FaFilePdf } from 'react-icons/fa';
+import { FaUpload, FaCheck, FaFilePdf, FaQrcode } from 'react-icons/fa';
 import '../../styles/components/admin.css';
 
 interface VentaRow {
@@ -12,6 +12,9 @@ interface VentaRow {
   nombres: string;
   apellidos: string;
   monto_pagado: number;
+  culqi_charge_id?: string;
+  metodo_pago?: string;
+  nro_operacion?: string;
   comprobante_emitido: boolean;
   comprobante_url: string | null;
   viajes: {
@@ -43,6 +46,7 @@ const AdminSales: React.FC = () => {
           nombres,
           apellidos,
           monto_pagado,
+          culqi_charge_id,
           comprobante_emitido,
           comprobante_url,
           viajes (
@@ -63,7 +67,6 @@ const AdminSales: React.FC = () => {
   };
 
   const handleUploadClick = () => {
-    // En un sistema real esto abriría un diálogo para subir archivo
     alert('Esta función simula la subida de un comprobante (XML/PDF).');
   };
 
@@ -80,49 +83,76 @@ const AdminSales: React.FC = () => {
               <th>Asiento</th>
               <th>Pasajero</th>
               <th>Documento</th>
+              <th>Pago / N° Op.</th>
               <th>Monto (S/)</th>
               <th>Comprobante</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} style={{ textAlign: 'center' }}>Cargando ventas...</td></tr>
+              <tr><td colSpan={8} style={{ textAlign: 'center' }}>Cargando ventas...</td></tr>
             ) : ventas.length === 0 ? (
-              <tr><td colSpan={7} style={{ textAlign: 'center' }}>No hay ventas registradas</td></tr>
+              <tr><td colSpan={8} style={{ textAlign: 'center' }}>No hay ventas registradas</td></tr>
             ) : (
-              ventas.map((v) => (
-                <tr key={v.id}>
-                  <td style={{ fontSize: '0.85em', color: '#666' }}>{v.id.substring(0, 8)}...</td>
-                  <td>
-                    {v.viajes?.rutas?.origen} - {v.viajes?.rutas?.destino}<br/>
-                    <small style={{ color: '#7f8c8d' }}>{v.viajes?.fecha_viaje} {v.viajes?.hora_viaje}</small>
-                  </td>
-                  <td>#{v.numero_asiento}</td>
-                  <td>{v.nombres} {v.apellidos}</td>
-                  <td>{v.tipo_documento}: {v.nro_documento}</td>
-                  <td>{v.monto_pagado}</td>
-                  <td>
-                    {v.comprobante_emitido ? (
-                      <span style={{ color: '#2ecc71', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <FaCheck /> Emitido
-                        {v.comprobante_url && (
-                          <a href={v.comprobante_url} target="_blank" rel="noreferrer" title="Ver Comprobante" style={{ marginLeft: '10px', color: '#e74c3c' }}>
-                            <FaFilePdf />
-                          </a>
-                        )}
-                      </span>
-                    ) : (
-                      <button 
-                        className="admin-btn admin-btn-primary" 
-                        style={{ padding: '4px 8px', fontSize: '0.85em' }}
-                        onClick={handleUploadClick}
-                      >
-                        <FaUpload /> Subir
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))
+              ventas.map((v) => {
+                const isYape = v.metodo_pago === 'YAPE' || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-'));
+                const opCode = v.nro_operacion || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-') ? v.culqi_charge_id.replace('YAPE-', '') : v.culqi_charge_id);
+
+                return (
+                  <tr key={v.id}>
+                    <td style={{ fontSize: '0.85em', color: '#666' }}>{v.id.substring(0, 8)}...</td>
+                    <td>
+                      {v.viajes?.rutas?.origen} - {v.viajes?.rutas?.destino}<br/>
+                      <small style={{ color: '#7f8c8d' }}>{v.viajes?.fecha_viaje} {v.viajes?.hora_viaje}</small>
+                    </td>
+                    <td>#{v.numero_asiento}</td>
+                    <td>{v.nombres} {v.apellidos}</td>
+                    <td>{v.tipo_documento}: {v.nro_documento}</td>
+                    <td>
+                      {isYape ? (
+                        <span style={{ 
+                          background: '#742284', 
+                          color: '#00d2b8', 
+                          padding: '3px 8px', 
+                          borderRadius: '12px', 
+                          fontSize: '0.8em',
+                          fontWeight: 'bold',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          <FaQrcode /> YAPE: {opCode}
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '0.85em', color: '#555' }}>
+                          {opCode || 'Tarjeta'}
+                        </span>
+                      )}
+                    </td>
+                    <td>S/ {v.monto_pagado}</td>
+                    <td>
+                      {v.comprobante_emitido ? (
+                        <span style={{ color: '#2ecc71', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <FaCheck /> Emitido
+                          {v.comprobante_url && (
+                            <a href={v.comprobante_url} target="_blank" rel="noreferrer" title="Ver Comprobante" style={{ marginLeft: '10px', color: '#e74c3c' }}>
+                              <FaFilePdf />
+                            </a>
+                          )}
+                        </span>
+                      ) : (
+                        <button 
+                          className="admin-btn admin-btn-primary" 
+                          style={{ padding: '4px 8px', fontSize: '0.85em' }}
+                          onClick={handleUploadClick}
+                        >
+                          <FaUpload /> Subir
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

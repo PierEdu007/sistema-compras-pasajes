@@ -1,17 +1,165 @@
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { FaCheckCircle, FaPrint, FaHome, FaQrcode } from 'react-icons/fa';
+import { supabase } from '../lib/supabase';
 import '../styles/components/Confirmation.css';
+
+interface VentaDetails {
+  id: string;
+  numero_asiento: number;
+  nombres: string;
+  apellidos: string;
+  tipo_documento: string;
+  nro_documento: string;
+  monto_pagado: number;
+  culqi_charge_id: string;
+  created_at: string;
+  viajes?: {
+    fecha_viaje: string;
+    hora_viaje: string;
+    vehiculos?: { nombre_display: string };
+    rutas?: { origen: string; destino: string };
+  };
+}
 
 function Confirmation() {
   const { t } = useTranslation();
   const { ventaId } = useParams<{ ventaId: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const stateData = location.state as { nro_operacion?: string; metodo_pago?: string } | null;
+  const [venta, setVenta] = useState<VentaDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!ventaId) return;
+
+    const fetchVenta = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('ventas')
+          .select(`
+            id,
+            numero_asiento,
+            nombres,
+            apellidos,
+            tipo_documento,
+            nro_documento,
+            monto_pagado,
+            culqi_charge_id,
+            created_at,
+            viajes (
+              fecha_viaje,
+              hora_viaje,
+              vehiculos (nombre_display),
+              rutas (origen, destino)
+            )
+          `)
+          .eq('id', ventaId)
+          .single();
+
+        if (!error && data) {
+          setVenta(data as unknown as VentaDetails);
+        }
+      } catch (err) {
+        console.error('Error fetching venta:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVenta();
+  }, [ventaId]);
+
+  const nroOperacion = stateData?.nro_operacion || (venta?.culqi_charge_id?.startsWith('YAPE-') ? venta.culqi_charge_id.replace('YAPE-', '') : null);
 
   return (
-    <div className="page-confirmation">
-      <h1>{t('confirmation.title')}</h1>
-      <p>{t('confirmation.subtitle')}</p>
-      <p>Venta ID: {ventaId}</p>
-      <p>{t('confirmation.thankYou')}</p>
+    <div className="page-confirmation container py-5 fade-in">
+      <div className="confirmation-card">
+        <div className="confirmation-header text-center">
+          <div className="success-icon-wrapper">
+            <FaCheckCircle className="success-icon" />
+          </div>
+          <h1>¡Reserva Registrada Exitosamente!</h1>
+          <p className="confirmation-subtitle">
+            {t('confirmation.subtitle', 'Tu pasaje ha sido reservado. Conserva este comprobante.')}
+          </p>
+        </div>
+
+        <div className="ticket-details-box">
+          <div className="ticket-header">
+            <span>BOLETO DE VIAJE</span>
+            <span className="code"># {ventaId?.substring(0, 8).toUpperCase()}</span>
+          </div>
+
+          <div className="ticket-body">
+            {loading ? (
+              <p className="text-center py-3">Cargando detalles del comprobante...</p>
+            ) : venta ? (
+              <>
+                <div className="ticket-row">
+                  <div className="ticket-col">
+                    <small>PASAJERO</small>
+                    <strong>{venta.nombres} {venta.apellidos}</strong>
+                  </div>
+                  <div className="ticket-col text-right">
+                    <small>DOCUMENTO</small>
+                    <strong>{venta.tipo_documento}: {venta.nro_documento}</strong>
+                  </div>
+                </div>
+
+                <div className="ticket-row">
+                  <div className="ticket-col">
+                    <small>RUTA</small>
+                    <strong>{venta.viajes?.rutas?.origen} ➔ {venta.viajes?.rutas?.destino}</strong>
+                  </div>
+                  <div className="ticket-col text-right">
+                    <small>ASIENTO</small>
+                    <strong className="seat-badge">#{venta.numero_asiento}</strong>
+                  </div>
+                </div>
+
+                <div className="ticket-row">
+                  <div className="ticket-col">
+                    <small>FECHA Y HORA</small>
+                    <strong>{venta.viajes?.fecha_viaje} - {venta.viajes?.hora_viaje?.substring(0, 5)}</strong>
+                  </div>
+                  <div className="ticket-col text-right">
+                    <small>BUS</small>
+                    <strong>{venta.viajes?.vehiculos?.nombre_display || 'Bus Estándar'}</strong>
+                  </div>
+                </div>
+              </>
+            ) : null}
+
+            <div className="ticket-divider"></div>
+
+            <div className="ticket-payment-info">
+              <div className="payment-method-badge">
+                <span className="yape-mini-tag"><FaQrcode /> YAPE</span>
+                {nroOperacion && (
+                  <span className="op-number">N° Op: <strong>{nroOperacion}</strong></span>
+                )}
+              </div>
+              <div className="total-paid">
+                <small>TOTAL</small>
+                <span>S/ {venta ? venta.monto_pagado.toFixed(2) : '0.00'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="confirmation-actions">
+          <button className="btn btn-secondary" onClick={() => window.print()}>
+            <FaPrint /> Imprimir Boleto
+          </button>
+          <button className="btn btn-primary" onClick={() => navigate('/')}>
+            <FaHome /> Volver al Inicio
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
