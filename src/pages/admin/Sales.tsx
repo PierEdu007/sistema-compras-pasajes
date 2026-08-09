@@ -249,11 +249,37 @@ const AdminSales: React.FC = () => {
                       {v.comprobante_emitido ? (
                         <span style={{ color: '#2ecc71', display: 'flex', alignItems: 'center', gap: '5px' }}>
                           <FaCheck /> Confirmado
-                          {v.comprobante_url && (
-                            <a href={v.comprobante_url} target="_blank" rel="noreferrer" title="Ver Comprobante PDF" style={{ marginLeft: '6px', color: '#e74c3c' }}>
-                              <FaFilePdf /> PDF
-                            </a>
-                          )}
+                          <button
+                            onClick={() => {
+                              const parts = (v.culqi_charge_id || '').split('|');
+                              const razonSocial = v.razon_social || parts.find(p => p.startsWith('RS:'))?.replace('RS:', '') || '';
+                              const direccionFiscal = v.direccion_fiscal || parts.find(p => p.startsWith('DIR:'))?.replace('DIR:', '') || '';
+                              const descripcionOpcional = v.descripcion_opcional || parts.find(p => p.startsWith('DESC:'))?.replace('DESC:', '') || '';
+                              const doc = generateInvoicePDF({
+                                ventaId: v.id,
+                                tipoDocumento: v.tipo_documento,
+                                nroDocumento: v.nro_documento,
+                                nombres: v.nombres,
+                                apellidos: v.apellidos,
+                                razonSocial,
+                                direccionFiscal,
+                                descripcionOpcional,
+                                origen: v.viajes?.rutas?.origen || 'Origen',
+                                destino: v.viajes?.rutas?.destino || 'Destino',
+                                asiento: v.numero_asiento,
+                                monto: v.monto_pagado,
+                                fechaViaje: v.viajes?.fecha_viaje || '',
+                                horaViaje: v.viajes?.hora_viaje || '',
+                                metodoPago: v.metodo_pago || 'YAPE'
+                              });
+                              const b = doc.output('blob');
+                              window.open(URL.createObjectURL(b), '_blank');
+                            }}
+                            title="Ver Comprobante PDF"
+                            style={{ background: 'none', border: 'none', color: '#e74c3c', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '3px', fontWeight: 'bold', marginLeft: '6px' }}
+                          >
+                            <FaFilePdf /> PDF
+                          </button>
                         </span>
                       ) : (
                         <div style={{ display: 'flex', gap: '6px' }}>

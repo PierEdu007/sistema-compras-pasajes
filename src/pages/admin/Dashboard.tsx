@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
 import { FaMoneyBillWave, FaBus, FaFileInvoiceDollar, FaQrcode, FaCheckCircle, FaFilePdf, FaClock } from 'react-icons/fa';
+import { generateInvoicePDF } from '../../utils/invoiceGenerator';
 import '../../styles/components/admin.css';
 
 interface DashboardVenta {
@@ -100,6 +101,35 @@ const AdminDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenPDF = (v: DashboardVenta) => {
+    const parts = (v.culqi_charge_id || '').split('|');
+    const razonSocial = parts.find(p => p.startsWith('RS:'))?.replace('RS:', '') || '';
+    const direccionFiscal = parts.find(p => p.startsWith('DIR:'))?.replace('DIR:', '') || '';
+    const descripcionOpcional = parts.find(p => p.startsWith('DESC:'))?.replace('DESC:', '') || '';
+
+    const invoicePdf = generateInvoicePDF({
+      ventaId: v.id,
+      tipoDocumento: (v.tipo_documento as any) || 'DNI',
+      nroDocumento: v.nro_documento,
+      nombres: v.nombres,
+      apellidos: v.apellidos,
+      razonSocial,
+      direccionFiscal,
+      descripcionOpcional,
+      origen: v.viajes?.rutas?.origen || 'Origen',
+      destino: v.viajes?.rutas?.destino || 'Destino',
+      asiento: v.numero_asiento,
+      monto: v.monto_pagado,
+      fechaViaje: v.viajes?.fecha_viaje || '',
+      horaViaje: v.viajes?.hora_viaje || '',
+      metodoPago: v.metodo_pago || 'YAPE'
+    });
+
+    const pdfBlob = invoicePdf.output('blob');
+    const freshUrl = URL.createObjectURL(pdfBlob);
+    window.open(freshUrl, '_blank');
   };
 
   return (
@@ -208,11 +238,23 @@ const AdminDashboard: React.FC = () => {
                     <td>
                       <span style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem' }}>
                         <FaCheckCircle /> Emitido
-                        {v.comprobante_url && (
-                          <a href={v.comprobante_url} target="_blank" rel="noreferrer" title="Ver Comprobante PDF" style={{ marginLeft: '6px', color: '#ef4444' }}>
-                            <FaFilePdf /> PDF
-                          </a>
-                        )}
+                        <button
+                          onClick={() => handleOpenPDF(v)}
+                          title="Ver Comprobante PDF"
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#ef4444',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '3px',
+                            fontWeight: 'bold',
+                            marginLeft: '6px'
+                          }}
+                        >
+                          <FaFilePdf /> PDF
+                        </button>
                       </span>
                     </td>
                   </tr>
