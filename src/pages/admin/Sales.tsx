@@ -66,7 +66,9 @@ const AdminSales: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setVentas((data as unknown as VentaRow[]) || []);
+      const allData = (data as unknown as VentaRow[]) || [];
+      const activeVentas = allData.filter(v => !v.culqi_charge_id?.startsWith('RECHAZADO_'));
+      setVentas(activeVentas);
     } catch (err) {
       console.error('Error fetching ventas:', err);
     } finally {
@@ -142,14 +144,21 @@ const AdminSales: React.FC = () => {
 
     setProcessingId(venta.id);
     try {
-      // Eliminar o marcar como rechazado en Supabase
-      await (supabase.from('ventas') as any)
+      // 1. Intentar borrar de Supabase
+      const { error: delError } = await (supabase.from('ventas') as any)
         .delete()
         .eq('id', venta.id);
 
-      // Liberar el asiento
-      setVentas(prev => prev.filter(v => v.id !== venta.id));
+      // 2. Si RLS bloquea DELETE, marcar como RECHAZADO en la base de datos
+      if (delError) {
+        console.warn('DELETE falló por RLS, marcando como RECHAZADO:', delError);
+        const newChargeId = `RECHAZADO_${venta.culqi_charge_id || ''}`;
+        await (supabase.from('ventas') as any)
+          .update({ culqi_charge_id: newChargeId })
+          .eq('id', venta.id);
+      }
 
+      setVentas(prev => prev.filter(v => v.id !== venta.id));
       alert('El pago ha sido rechazado y la reserva fue liberada.');
     } catch (err) {
       console.error('Error al rechazar pago:', err);
