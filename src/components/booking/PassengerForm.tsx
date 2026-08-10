@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaCreditCard, FaFileInvoice } from 'react-icons/fa';
+import { FaCreditCard, FaFileInvoice, FaSpinner } from 'react-icons/fa';
 
 export interface PassengerData {
   tipo_documento: 'DNI' | 'RUC' | 'CE' | 'PASAPORTE';
@@ -35,13 +35,88 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
   });
 
   const [errorMsg, setErrorMsg] = useState('');
+  const [loadingLookup, setLoadingLookup] = useState(false);
+  const [lookupSuccessMsg, setLookupSuccessMsg] = useState('');
 
   const isRuc = formData.tipo_documento === 'RUC';
+  const isDni = formData.tipo_documento === 'DNI';
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errorMsg) setErrorMsg('');
+  };
+
+  // Función para consultar SUNAT (RUC) o RENIEC (DNI) automáticamente
+  const fetchDocumentoData = async (doc: string, tipo: string) => {
+    if (tipo === 'RUC' && doc.length === 11 && /^(10|20)[0-9]{9}$/.test(doc)) {
+      setLoadingLookup(true);
+      setLookupSuccessMsg('');
+      setErrorMsg('');
+
+      try {
+        // Intento 1: API APIS Peru / Net
+        let res = await fetch(`https://api.apis.net.pe/v1/ruc?numero=${doc}`).catch(() => null);
+        if (!res || !res.ok) {
+          res = await fetch(`https://dniruc.apisperu.com/api/v1/ruc/${doc}`).catch(() => null);
+        }
+
+        if (res && res.ok) {
+          const data = await res.json();
+          const razonSocial = data.nombre || data.razonSocial || data.razon_social || '';
+          const direccion = data.direccion || data.direccionFiscal || data.direccion_fiscal || 'CUSCO, PERU';
+
+          if (razonSocial) {
+            setFormData(prev => ({
+              ...prev,
+              razon_social: razonSocial,
+              direccion_fiscal: direccion
+            }));
+            setLookupSuccessMsg(`✅ SUNAT: Razón Social y Dirección comprobadas para ${razonSocial}`);
+          }
+        } else {
+          console.warn('No se obtuvo respuesta automatica de SUNAT, el usuario puede ingresarlo manualmente.');
+        }
+      } catch (err) {
+        console.warn('Error al consultar RUC:', err);
+      } finally {
+        setLoadingLookup(false);
+      }
+    } else if (tipo === 'DNI' && doc.length === 8 && /^[0-9]{8}$/.test(doc)) {
+      setLoadingLookup(true);
+      setLookupSuccessMsg('');
+      try {
+        const res = await fetch(`https://api.apis.net.pe/v1/dni?numero=${doc}`).catch(() => null);
+        if (res && res.ok) {
+          const data = await res.json();
+          const nombres = data.nombres || '';
+          const apellidos = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
+
+          if (nombres) {
+            setFormData(prev => ({
+              ...prev,
+              nombres: prev.nombres || nombres,
+              apellidos: prev.apellidos || apellidos
+            }));
+            setLookupSuccessMsg(`✅ RENIEC: Nombres identificados (${nombres} ${apellidos})`);
+          }
+        }
+      } catch (err) {
+        console.warn('Error al consultar DNI:', err);
+      } finally {
+        setLoadingLookup(false);
+      }
+    }
+  };
+
+  const handleDocumentNumberChange = (val: string) => {
+    const cleanVal = isRuc || isDni ? val.replace(/\D/g, '') : val;
+    setFormData(prev => ({ ...prev, nro_documento: cleanVal }));
+    setLookupSuccessMsg('');
+
+    if ((isRuc && cleanVal.length === 11) || (isDni && cleanVal.length === 8)) {
+      fetchDocumentoData(cleanVal, formData.tipo_documento);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -78,7 +153,12 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
   };
 
   return (
-    <form className="passenger-form-wrapper" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="card-custom fade-in">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+        <FaCreditCard style={{ color: 'var(--color-accent)', fontSize: '1.2rem' }} />
+        <h3 style={{ margin: 0, color: 'var(--color-primary)' }}>{t('booking.passengerTitle', 'Datos del Pasajero')}</h3>
+      </div>
+
       <div className="passenger-form">
         {/* Badge Informativo de Comprobante */}
         <div style={{
@@ -97,7 +177,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
         }}>
           <FaFileInvoice />
           <span>
-            Tipo de Comprobante: <strong>{isRuc ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA'}</strong>
+            Tipo de Comprobante a Emitir: <strong>{isRuc ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA'}</strong>
           </span>
         </div>
 
@@ -107,7 +187,10 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
             name="tipo_documento" 
             className="form-control" 
             value={formData.tipo_documento}
-            onChange={handleChange}
+            onChange={(e) => {
+              handleChange(e);
+              setLookupSuccessMsg('');
+            }}
             disabled={disabled}
             required
           >
@@ -119,26 +202,43 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
         </div>
 
         <div className="form-group">
-          <label className="form-label">
-            {isRuc ? 'N° RUC' : t('booking.docNumber', 'N° Documento')} <span style={{color: 'red'}}>*</span>
+          <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>{isRuc ? 'N° RUC' : t('booking.docNumber', 'N° Documento')} <span style={{color: 'red'}}>*</span></span>
+            {loadingLookup && (
+              <span style={{ fontSize: '0.75rem', color: '#0284c7', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <FaSpinner className="spin" /> Consultando SUNAT...
+              </span>
+            )}
           </label>
-          <input 
-            type="text" 
-            name="nro_documento" 
-            className="form-control" 
-            value={formData.nro_documento}
-            onChange={(e) => {
-              const val = isRuc || formData.tipo_documento === 'DNI' 
-                ? e.target.value.replace(/\D/g, '') 
-                : e.target.value;
-              setFormData(prev => ({ ...prev, nro_documento: val }));
-            }}
-            disabled={disabled}
-            required
-            maxLength={isRuc ? 11 : formData.tipo_documento === 'DNI' ? 8 : 15}
-            placeholder={isRuc ? 'Ej: 20608425676' : 'Ej: 75622278'}
-          />
+          <div style={{ position: 'relative' }}>
+            <input 
+              type="text" 
+              name="nro_documento" 
+              className="form-control" 
+              value={formData.nro_documento}
+              onChange={(e) => handleDocumentNumberChange(e.target.value)}
+              disabled={disabled}
+              required
+              maxLength={isRuc ? 11 : isDni ? 8 : 15}
+              placeholder={isRuc ? 'Ej: 20608425676 (11 dígitos)' : 'Ej: 75622278 (8 dígitos)'}
+            />
+          </div>
         </div>
+
+        {lookupSuccessMsg && (
+          <div style={{
+            gridColumn: '1 / -1',
+            background: '#f0fdf4',
+            border: '1px solid #86efac',
+            color: '#166534',
+            padding: '0.5rem 0.8rem',
+            borderRadius: '8px',
+            fontSize: '0.8rem',
+            fontWeight: 600
+          }}>
+            {lookupSuccessMsg}
+          </div>
+        )}
 
         {isRuc && (
           <>
@@ -154,7 +254,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
                 onChange={handleChange}
                 disabled={disabled}
                 required={isRuc}
-                placeholder="Ej: CORPORACION BJR IMPORT SUR S.A.C."
+                placeholder="Ej: CORPORACION BJR IMPORT SUR S.A.C. (Autocompletado SUNAT)"
               />
             </div>
 
@@ -170,7 +270,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
                 onChange={handleChange}
                 disabled={disabled}
                 required={isRuc}
-                placeholder="Ej: Cal. Enrique Barron Nro. 1024, Lima"
+                placeholder="Ej: Cal. Enrique Barron Nro. 1024, Lima (Autocompletado SUNAT)"
               />
             </div>
           </>
@@ -203,7 +303,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
         </div>
 
         <div className="form-group">
-          <label className="form-label">{t('booking.email', 'Correo Electrónico')}</label>
+          <label className="form-label">{t('booking.email', 'Correo Electrónico')} <span style={{color: 'red'}}>*</span></label>
           <input 
             type="email" 
             name="email" 
@@ -212,11 +312,12 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
             onChange={handleChange}
             disabled={disabled}
             required
+            placeholder="ejemplo@correo.com"
           />
         </div>
 
         <div className="form-group">
-          <label className="form-label">{t('booking.phone', 'Celular (WhatsApp)')}</label>
+          <label className="form-label">{t('booking.phone', 'Teléfono / Celular')} <span style={{color: 'red'}}>*</span></label>
           <input 
             type="tel" 
             name="telefono" 
@@ -225,13 +326,14 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
             onChange={handleChange}
             disabled={disabled}
             required
+            placeholder="987654321"
           />
         </div>
 
-        {/* Campo Opcional de Descripción para Boleta/Factura */}
+        {/* Descripción Opcional para la Boleta / Factura */}
         <div className="form-group" style={{ gridColumn: '1 / -1' }}>
           <label className="form-label">
-            Descripción Opcional <small style={{ color: '#64748b' }}>(Aparecerá en la Boleta o Factura)</small>
+            Descripción Opcional <small style={{ color: '#64748b' }}>(Aparecerá impresa en su {isRuc ? 'Factura' : 'Boleta'})</small>
           </label>
           <textarea
             name="descripcion_opcional"
@@ -240,34 +342,34 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
             value={formData.descripcion_opcional || ''}
             onChange={handleChange}
             disabled={disabled}
-            placeholder="Ej: Servicio de traslado de personal / Nota de equipaje adicional..."
+            placeholder="Ej: Pasaje ida y vuelta servicio ejecutivo K'intu"
           />
         </div>
       </div>
 
       {errorMsg && (
         <div style={{
-          background: '#fef2f2',
-          border: '1px solid #fecaca',
-          color: '#dc2626',
-          padding: '0.6rem 1rem',
+          marginTop: '1rem',
+          padding: '0.75rem',
+          backgroundColor: '#fee2e2',
+          border: '1px solid #fca5a5',
           borderRadius: '8px',
-          fontSize: '0.85rem',
-          marginTop: '0.75rem'
+          color: '#991b1b',
+          fontSize: '0.9rem',
+          fontWeight: '500'
         }}>
           {errorMsg}
         </div>
       )}
 
-      <div className="form-actions" style={{ marginTop: '1rem' }}>
-        <button 
-          type="submit" 
-          className="btn btn-primary"
-          disabled={disabled}
-        >
-          {t('booking.pay', 'Continuar al Pago')} <FaCreditCard />
-        </button>
-      </div>
+      <button 
+        type="submit" 
+        className="btn btn-accent" 
+        style={{ width: '100%', marginTop: '1.5rem', padding: '0.85rem' }}
+        disabled={disabled || loadingLookup}
+      >
+        {t('booking.continuePayment', 'Continuar al Pago')}
+      </button>
     </form>
   );
 }
