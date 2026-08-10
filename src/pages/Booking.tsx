@@ -186,7 +186,22 @@ export default function Booking() {
         sessionStorage.setItem('booking_session_token', sessionToken);
       }
 
-      // Intentar bloquear el asiento en la base de datos
+      // Si ya tenía un asiento seleccionado anteriormente, liberarlo primero en la DB
+      if (selectedSeat && selectedSeat !== seatNumber) {
+        try {
+          await (supabase.from('asientos_bloqueos') as any)
+            .delete()
+            .eq('viaje_id', viajeId)
+            .eq('numero_asiento', selectedSeat)
+            .eq('sesion_token', sessionToken);
+        } catch (_e) {}
+      }
+
+      const expiraDate = new Date();
+      expiraDate.setMinutes(expiraDate.getMinutes() + 10);
+      const expiraIso = expiraDate.toISOString();
+
+      // 1. Ejecutar RPC en Postgres para bloquear el asiento
       const { error } = await (supabase as any).rpc('bloquear_asiento', {
         p_viaje_id: viajeId,
         p_numero_asiento: seatNumber,
@@ -200,15 +215,29 @@ export default function Booking() {
         return;
       }
 
+      // 2. Inserción directa en asientos_bloqueos para visibilidad inmediata
+      try {
+        await (supabase.from('asientos_bloqueos') as any).upsert({
+          viaje_id: viajeId,
+          numero_asiento: seatNumber,
+          estado: 'BLOQUEADO',
+          expira_at: expiraIso,
+          sesion_token: sessionToken
+        }, { onConflict: 'viaje_id,numero_asiento' });
+      } catch (_e) {}
+
+      // 3. Activar el contador y selección
       setSelectedSeat(seatNumber);
-
-      const expiraDate = new Date();
-      expiraDate.setMinutes(expiraDate.getMinutes() + 10);
-
-      setExpiresAt(expiraDate.toISOString());
+      setExpiresAt(expiraIso);
       setBloqueoId(`bloqueo-${Date.now()}`);
 
-      setSeatStatuses(prev => ({ ...prev, [seatNumber]: 'BLOQUEADO' }));
+      // Actualizar estado local
+      setSeatStatuses(prev => {
+        const updated = { ...prev };
+        if (selectedSeat) delete updated[selectedSeat];
+        updated[seatNumber] = 'BLOQUEADO';
+        return updated;
+      });
     } catch (err) {
       console.error('Error al bloquear asiento:', err);
       alert('Error al seleccionar el asiento. Por favor intenta de nuevo.');
@@ -217,12 +246,23 @@ export default function Booking() {
     }
   };
 
-  const handleTimerExpire = () => {
+  const handleTimerExpire = async () => {
+    if (viajeId && selectedSeat) {
+      const sessionToken = sessionStorage.getItem('booking_session_token');
+      try {
+        await (supabase.from('asientos_bloqueos') as any)
+          .delete()
+          .eq('viaje_id', viajeId)
+          .eq('numero_asiento', selectedSeat)
+          .eq('sesion_token', sessionToken);
+      } catch (_e) {}
+    }
     setSelectedSeat(null);
     setBloqueoId(null);
     setExpiresAt(null);
     setIsYapeModalOpen(false);
-    alert('Tu reserva temporal ha expirado.');
+    alert('Tu reserva temporal ha expirado. El asiento ha sido liberado.');
+    if (viajeId) fetchSeatStatuses(viajeId);
   };
 
   const handlePassengerSubmit = (passengerData: PassengerData) => {
