@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { FaStar } from 'react-icons/fa';
 import '../../styles/components/Testimonials.css';
 
 import authorCarlos from '../../assets/testimonials/author-carlos.png';
@@ -44,7 +45,9 @@ export default function Testimonials() {
         <div className="testimonials-grid">
           {testimonials.map(test => (
             <div key={test.id} className="testimonial-card fade-in">
-              <div className="testimonial-stars">★★★★★</div>
+              <div className="testimonial-stars" style={{ display: 'flex', gap: '3px', color: '#f59e0b' }}>
+                <FaStar /><FaStar /><FaStar /><FaStar /><FaStar />
+              </div>
               <p className="testimonial-text">{test.text}</p>
               <div className="testimonial-author">
                 <img src={test.image} alt={test.name} className="author-img" loading="lazy" />

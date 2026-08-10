@@ -1,4 +1,9 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { 
+  FaBolt, FaCouch, FaSun, FaRoad, FaLeaf, FaTachometerAlt, 
+  FaMapMarkedAlt, FaClock, FaTrain, FaStar, FaShieldAlt, FaArrowRight 
+} from 'react-icons/fa';
 import '../../styles/components/Destinations.css';
 
 // Import destination images
@@ -16,9 +21,9 @@ interface Destination {
   priceTag: string;
   title: string;
   description: string;
-  meta1Icon: string;
+  meta1Icon: ReactNode;
   meta1Text: string;
-  meta2Icon: string;
+  meta2Icon: ReactNode;
   meta2Text: string;
 }
 
@@ -31,56 +36,56 @@ export default function Destinations() {
       priceTag: 'Cusco - Hidroeléctrica · S/ 60',
       title: t('dest.1.title', 'Ruta a Machu Picchu'),
       description: t('dest.1.desc', 'Servicio directo y veloz para turistas y locales buscando puntualidad.'),
-      meta1Icon: '⚡', meta1Text: t('dest.express', 'Express'),
-      meta2Icon: '🛋️', meta2Text: t('dest.comfort', 'Confort'),
+      meta1Icon: <FaBolt />, meta1Text: t('dest.express', 'Express'),
+      meta2Icon: <FaCouch />, meta2Text: t('dest.comfort', 'Confort'),
     },
     {
       id: 2, image: quillabamba,
       priceTag: 'Cusco - Quillabamba · S/ 50',
       title: t('dest.2.title', 'Ruta de la Convención'),
       description: t('dest.2.desc', 'Viajes diarios por la ruta Málaga con conductores expertos.'),
-      meta1Icon: '☀️', meta1Text: t('dest.daily', 'Diario'),
-      meta2Icon: '🛤️', meta2Text: 'Málaga',
+      meta1Icon: <FaSun />, meta1Text: t('dest.daily', 'Diario'),
+      meta2Icon: <FaRoad />, meta2Text: 'Málaga',
     },
     {
       id: 3, image: quellouno,
       priceTag: 'Cusco - Quellouno · S/ 50',
       title: t('dest.3.title', 'Ruta Quellouno'),
       description: t('dest.3.desc', 'Conexión rápida y segura hacia el valle de Quellouno todos los días.'),
-      meta1Icon: '🌿', meta1Text: t('dest.jungle', 'Selva'),
-      meta2Icon: '🏎️', meta2Text: t('dest.fast', 'Rápido'),
+      meta1Icon: <FaLeaf />, meta1Text: t('dest.jungle', 'Selva'),
+      meta2Icon: <FaTachometerAlt />, meta2Text: t('dest.fast', 'Rápido'),
     },
     {
       id: 4, image: calca,
       priceTag: 'Cusco - Calca · S/ 20',
       title: t('dest.4.title', 'Ruta Valle Sagrado'),
       description: t('dest.4.desc', 'Transporte frecuente hacia el corazón de Calca en camionetas modernas.'),
-      meta1Icon: '🗺️', meta1Text: t('dest.valley', 'Valle'),
-      meta2Icon: '🕐', meta2Text: t('dest.frequent', 'Frecuente'),
+      meta1Icon: <FaMapMarkedAlt />, meta1Text: t('dest.valley', 'Valle'),
+      meta2Icon: <FaClock />, meta2Text: t('dest.frequent', 'Frecuente'),
     },
     {
       id: 5, image: ollantaytambo,
       priceTag: 'Cusco - Ollantaytambo · S/ 30',
       title: t('dest.5.title', 'Conexión Trenes'),
       description: t('dest.5.desc', 'Llega a tiempo para tu tren a Machu Picchu con nuestro servicio ejecutivo.'),
-      meta1Icon: '🚂', meta1Text: t('dest.train', 'Tren'),
-      meta2Icon: '⚡', meta2Text: t('dest.punctual', 'Puntual'),
+      meta1Icon: <FaTrain />, meta1Text: t('dest.train', 'Tren'),
+      meta2Icon: <FaBolt />, meta2Text: t('dest.punctual', 'Puntual'),
     },
     {
       id: 6, image: lima,
       priceTag: 'Cusco - Lima · S/ 180',
       title: t('dest.6.title', 'Ruta Nacional'),
       description: t('dest.6.desc', 'Servicio especial hacia la capital con GPS y monitoreo 24/7.'),
-      meta1Icon: '🛣️', meta1Text: t('dest.direct', 'Directo'),
-      meta2Icon: '⭐', meta2Text: t('dest.executive', 'Ejecutivo'),
+      meta1Icon: <FaRoad />, meta1Text: t('dest.direct', 'Directo'),
+      meta2Icon: <FaStar />, meta2Text: t('dest.executive', 'Ejecutivo'),
     },
     {
       id: 7, image: abancay,
       priceTag: 'Cusco - Abancay · S/ 50',
       title: t('dest.7.title', 'Ruta Interurbana'),
       description: t('dest.7.desc', 'La opción más veloz y segura para viajar hacia Abancay.'),
-      meta1Icon: '🏎️', meta1Text: t('dest.veloz', 'Veloz'),
-      meta2Icon: '🛡️', meta2Text: t('dest.secure', 'Seguro'),
+      meta1Icon: <FaTachometerAlt />, meta1Text: t('dest.veloz', 'Veloz'),
+      meta2Icon: <FaShieldAlt />, meta2Text: t('dest.secure', 'Seguro'),
     },
   ];
 
@@ -104,8 +109,8 @@ export default function Destinations() {
                 <h3>{dest.title}</h3>
                 <p>{dest.description}</p>
                 <div className="card-meta">
-                  <span>{dest.meta1Icon} {dest.meta1Text}</span>
-                  <span>{dest.meta2Icon} {dest.meta2Text}</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>{dest.meta1Icon} {dest.meta1Text}</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>{dest.meta2Icon} {dest.meta2Text}</span>
                 </div>
                 <div className="card-actions">
                   <a 
@@ -113,8 +118,10 @@ export default function Destinations() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="btn-text"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                   >
-                    {t('dest.enquire', 'Consultar Ahora')} →
+                    <span>{t('dest.enquire', 'Consultar Ahora')}</span>
+                    <FaArrowRight />
                   </a>
                 </div>
               </div>

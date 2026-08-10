@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { FaCheckCircle, FaHome, FaQrcode, FaClock } from 'react-icons/fa';
+import { FaCheckCircle, FaHome, FaQrcode, FaClock, FaEnvelope } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
 import '../styles/components/Confirmation.css';
 
@@ -185,7 +185,7 @@ function Confirmation() {
           textAlign: 'center',
           lineHeight: '1.4'
         }}>
-          📧 El boleto y comprobante se enviarán a tu correo electrónico una vez verificado y confirmado el pago.
+          <FaEnvelope style={{ marginRight: '6px' }} /> El boleto y comprobante se enviarán a tu correo electrónico una vez verificado y confirmado el pago.
         </div>
 
         <div className="confirmation-actions">
