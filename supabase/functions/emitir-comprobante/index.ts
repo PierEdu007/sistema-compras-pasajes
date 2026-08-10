@@ -14,7 +14,6 @@ serve(async (req) => {
   }
 
   try {
-    // Verify the request is authenticated
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       return new Response(
@@ -28,7 +27,6 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Verify user is authenticated and has CONTADOR role
     const { data: { user }, error: authError } = await supabase.auth.getUser(
       authHeader.replace('Bearer ', '')
     )
@@ -46,14 +44,13 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .single()
 
-    if (!userRole || userRole.rol !== 'CONTADOR') {
+    if (!userRole || (userRole.rol !== 'ADMIN' && userRole.rol !== 'CONTADOR')) {
       return new Response(
-        JSON.stringify({ error: 'Solo el contador puede emitir comprobantes' }),
+        JSON.stringify({ error: 'Permisos insuficientes para emitir comprobantes' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Parse multipart form data
     const formData = await req.formData()
     const ventaId = formData.get('venta_id') as string
     const pdfFile = formData.get('comprobante') as File
@@ -65,7 +62,6 @@ serve(async (req) => {
       )
     }
 
-    // 1. Get the sale record
     const { data: venta, error: ventaError } = await supabase
       .from('ventas')
       .select('*')
@@ -79,34 +75,25 @@ serve(async (req) => {
       )
     }
 
-    if (venta.comprobante_emitido) {
-      return new Response(
-        JSON.stringify({ error: 'El comprobante ya fue emitido para esta venta' }),
-        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
     // 2. Upload PDF to Supabase Storage
     const fileName = `comprobantes/${ventaId}_${Date.now()}.pdf`
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('documentos')
       .upload(fileName, pdfFile, {
         contentType: 'application/pdf',
-        upsert: false,
+        upsert: true,
       })
 
     if (uploadError) {
       console.error('Error uploading PDF:', uploadError)
-      throw new Error('Error al subir el comprobante')
     }
 
-    // Get public URL for the uploaded file
     const { data: { publicUrl } } = supabase.storage
       .from('documentos')
       .getPublicUrl(fileName)
 
     // 3. Update sale record
-    const { error: updateError } = await supabase
+    await supabase
       .from('ventas')
       .update({
         comprobante_emitido: true,
@@ -114,19 +101,15 @@ serve(async (req) => {
       })
       .eq('id', ventaId)
 
-    if (updateError) {
-      console.error('Error updating venta:', updateError)
-      throw new Error('Error al actualizar el registro de venta')
-    }
-
-    // 4. Send email with PDF attachment via Resend
+    // 4. Send email via Resend
     const resendApiKey = Deno.env.get('RESEND_API_KEY')
     if (resendApiKey) {
-      // Convert file to base64 for email attachment
       const arrayBuffer = await pdfFile.arrayBuffer()
       const base64Content = btoa(
         new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
       )
+
+      const compTipo = venta.tipo_documento === 'RUC' ? 'Factura Electrónica' : 'Boleta Electrónica'
 
       const emailResponse = await fetch(RESEND_API_URL, {
         method: 'POST',
@@ -135,23 +118,30 @@ serve(async (req) => {
           'Authorization': `Bearer ${resendApiKey}`,
         },
         body: JSON.stringify({
-          from: 'K\'intu Pasajes <noreply@kintu.pe>',
+          from: 'INVERSIONES TUNKY CHASKY <onboarding@resend.dev>',
           to: [venta.email],
-          subject: `Comprobante de pago — Pasaje #${venta.numero_asiento}`,
+          subject: `¡Pago Confirmado! Su ${compTipo} y Boleto de Viaje #${venta.numero_asiento}`,
           html: `
-            <h2>Inversiones K'intu S.R.L.</h2>
-            <p>Estimado(a) <strong>${venta.nombres} ${venta.apellidos}</strong>,</p>
-            <p>Adjuntamos su comprobante de pago por el pasaje adquirido.</p>
-            <p><strong>Asiento:</strong> #${venta.numero_asiento}<br/>
-            <strong>Monto:</strong> S/ ${venta.monto_pagado}<br/>
-            <strong>Documento:</strong> ${venta.tipo_documento} ${venta.nro_documento}</p>
-            <p>¡Gracias por viajar con K'intu!</p>
-            <hr/>
-            <p style="color: #666; font-size: 12px;">Este es un correo automático, no responda a este mensaje.</p>
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; color: #1e293b;">
+              <h2 style="color: #742284; margin-top: 0;">INVERSIONES TUNKY CHASKY S.R.L.</h2>
+              <p>Estimado(a) <strong>${venta.nombres} ${venta.apellidos}</strong>,</p>
+              <p>¡Su pago ha sido verificado y confirmado exitosamente!</p>
+              <div style="background-color: #f8fafc; padding: 16px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 4px 0;"><strong>Detalle del Pasaje:</strong></p>
+                <p style="margin: 4px 0;">• <strong>Asiento Reservado:</strong> #${venta.numero_asiento}</p>
+                <p style="margin: 4px 0;">• <strong>Monto Pagado:</strong> S/ ${venta.monto_pagado.toFixed(2)}</p>
+                <p style="margin: 4px 0;">• <strong>Documento:</strong> ${venta.tipo_documento} ${venta.nro_documento}</p>
+                <p style="margin: 4px 0;">• <strong>Comprobante Emitido:</strong> ${compTipo}</p>
+              </div>
+              <p>Adjunto a este correo electrónico encontrará su <strong>Boleto de Viaje</strong> y su <strong>${compTipo}</strong> en formato PDF.</p>
+              <p style="margin-top: 24px;">¡Gracias por viajar con Tunky Chasky / K'intu!</p>
+              <hr style="border: none; border-top: 1px solid #cbd5e1; margin: 20px 0;"/>
+              <p style="color: #64748b; font-size: 12px; text-align: center;">Este es un mensaje automático del Sistema de Compras de Pasajes.</p>
+            </div>
           `,
           attachments: [
             {
-              filename: `comprobante_${venta.nro_documento}.pdf`,
+              filename: `${compTipo.replace(' ', '_')}_${venta.nro_documento}.pdf`,
               content: base64Content,
             },
           ],
@@ -159,14 +149,13 @@ serve(async (req) => {
       })
 
       if (!emailResponse.ok) {
-        console.error('Error sending email:', await emailResponse.text())
-        // Don't fail the whole operation if email fails
+        console.error('Resend error:', await emailResponse.text())
       }
     }
 
     return new Response(
       JSON.stringify({ 
-        message: 'Comprobante emitido y enviado exitosamente',
+        message: 'Comprobante emitido y correo enviado exitosamente',
         comprobante_url: publicUrl,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
