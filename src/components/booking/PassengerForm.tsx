@@ -89,16 +89,26 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
         const res = await fetch(`https://api.apis.net.pe/v1/dni?numero=${doc}`).catch(() => null);
         if (res && res.ok) {
           const data = await res.json();
-          const nombres = data.nombres || '';
-          const apellidos = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
+          let nombres = data.nombres || '';
+          let apellidos = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
 
-          if (nombres) {
+          if (!nombres && data.nombre) {
+            const parts = data.nombre.trim().split(/\s+/);
+            if (parts.length >= 3) {
+              apellidos = `${parts[0]} ${parts[1]}`;
+              nombres = parts.slice(2).join(' ');
+            } else {
+              nombres = data.nombre;
+            }
+          }
+
+          if (nombres || apellidos) {
             setFormData(prev => ({
               ...prev,
-              nombres: prev.nombres || nombres,
-              apellidos: prev.apellidos || apellidos
+              nombres: nombres,
+              apellidos: apellidos
             }));
-            setLookupSuccessMsg(`✅ RENIEC: Nombres identificados (${nombres} ${apellidos})`);
+            setLookupSuccessMsg(`✅ RENIEC: Nombres y Apellidos identificados (${nombres} ${apellidos})`);
           }
         }
       } catch (err) {
