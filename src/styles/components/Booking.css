@@ -189,12 +189,13 @@
   opacity: 0.6;
 }
 
-.seat-blocked {
-  background-color: var(--color-warning);
-  border-color: var(--color-warning);
-  color: var(--color-white);
+.seat-blocked,
+.seat-demo.seat-blocked {
+  background-color: #f97316 !important;
+  border-color: #ea580c !important;
+  color: #ffffff !important;
   cursor: not-allowed;
-  opacity: 0.8;
+  opacity: 0.95;
 }
 
 /* Booking Form Area */
