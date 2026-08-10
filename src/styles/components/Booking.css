@@ -125,6 +125,20 @@
 .pos-cen { grid-column: 2; }
 .pos-der { grid-column: 3; }
 
+/* Fila 3 de 6 pasajeros: 2 asientos más anchos que ocupan todo el ancho de la fila */
+.seat-row-2col {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
+.seat-row-2col .pos-der {
+  grid-column: 2 !important;
+}
+
+.seat-row-2col .seat-btn {
+  aspect-ratio: auto !important;
+  height: 54px !important;
+}
+
 .seat-driver {
   background-color: #ef4444 !important;
   color: #ffffff !important;

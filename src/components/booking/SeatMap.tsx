@@ -79,7 +79,7 @@ export default function SeatMap({
         {/* Rows */}
         <div className="rows-container">
           {layout.filas.map((row) => (
-            <div key={`row-${row.fila}`} className="seat-row">
+            <div key={`row-${row.fila}`} className={`seat-row ${row.fila === 3 ? 'seat-row-2col' : ''}`}>
               {row.asientos.map((seat) => (
                 <button
                   key={`seat-${seat.n}`}
