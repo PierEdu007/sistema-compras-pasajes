@@ -35,7 +35,7 @@ export default function Booking() {
 
   const [loading, setLoading] = useState(true);
   const [viaje, setViaje] = useState<ViajeBooking | null>(null);
-  const [seatStatuses] = useState<Record<number, SeatStatus>>({});
+  const [seatStatuses, setSeatStatuses] = useState<Record<number, SeatStatus>>({});
   
   // Estado de la reserva
   const [selectedSeat, setSelectedSeat] = useState<number | null>(null);
@@ -116,18 +116,101 @@ export default function Booking() {
     fetchViajeDetails();
   }, [viajeId, navigate]);
 
+  // Cargar estado de asientos y suscribirse a cambios en tiempo real
+  const fetchSeatStatuses = async (vId: string) => {
+    try {
+      const [{ data: ventasData }, { data: bloqueosData }] = await Promise.all([
+        supabase.from('ventas').select('numero_asiento').eq('viaje_id', vId),
+        supabase.from('asientos_bloqueos').select('numero_asiento, estado, expira_at').eq('viaje_id', vId)
+      ]);
+
+      const statuses: Record<number, SeatStatus> = {};
+
+      if (ventasData) {
+        for (const v of (ventasData as any[])) {
+          statuses[v.numero_asiento] = 'PAGADO';
+        }
+      }
+
+      if (bloqueosData) {
+        const now = new Date();
+        for (const b of (bloqueosData as any[])) {
+          if (b.estado === 'PAGADO') {
+            statuses[b.numero_asiento] = 'PAGADO';
+          } else if (b.estado === 'BLOQUEADO') {
+            const expDate = new Date(b.expira_at);
+            if (expDate > now) {
+              statuses[b.numero_asiento] = 'BLOQUEADO';
+            }
+          }
+        }
+      }
+
+      setSeatStatuses(statuses);
+    } catch (err) {
+      console.error('Error fetching seat statuses:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (!viajeId) return;
+
+    fetchSeatStatuses(viajeId);
+
+    const channel = supabase
+      .channel(`viaje-seats-${viajeId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'asientos_bloqueos', filter: `viaje_id=eq.${viajeId}` },
+        () => fetchSeatStatuses(viajeId)
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ventas', filter: `viaje_id=eq.${viajeId}` },
+        () => fetchSeatStatuses(viajeId)
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [viajeId]);
+
   const handleSelectSeat = async (seatNumber: number) => {
+    if (seatNumber === 1 || !viajeId) return;
     setIsProcessing(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 600));
+      let sessionToken = sessionStorage.getItem('booking_session_token');
+      if (!sessionToken) {
+        sessionToken = `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+        sessionStorage.setItem('booking_session_token', sessionToken);
+      }
+
+      // Intentar bloquear el asiento en la base de datos
+      const { error } = await (supabase as any).rpc('bloquear_asiento', {
+        p_viaje_id: viajeId,
+        p_numero_asiento: seatNumber,
+        p_sesion_token: sessionToken,
+        p_minutos: 10
+      });
+
+      if (error && error.message?.includes('ASIENTO_NO_DISPONIBLE')) {
+        alert(`El asiento #${seatNumber} ya ha sido reservado u ocupado por otro usuario.`);
+        fetchSeatStatuses(viajeId);
+        return;
+      }
+
       setSelectedSeat(seatNumber);
-      
+
       const expiraDate = new Date();
       expiraDate.setMinutes(expiraDate.getMinutes() + 10);
-      
+
       setExpiresAt(expiraDate.toISOString());
       setBloqueoId(`bloqueo-${Date.now()}`);
+
+      setSeatStatuses(prev => ({ ...prev, [seatNumber]: 'BLOQUEADO' }));
     } catch (err) {
+      console.error('Error al bloquear asiento:', err);
       alert('Error al seleccionar el asiento. Por favor intenta de nuevo.');
     } finally {
       setIsProcessing(false);
@@ -208,6 +291,19 @@ export default function Booking() {
       } else if (insertError) {
         console.error('Error al insertar venta en Supabase:', insertError);
       }
+
+      // Marcar el asiento como PAGADO (ocupado) permanentemente en la base de datos
+      try {
+        await (supabase.from('asientos_bloqueos') as any).upsert({
+          viaje_id: viaje.id,
+          numero_asiento: selectedSeat,
+          estado: 'PAGADO',
+          expira_at: '2099-12-31T23:59:59Z',
+          sesion_token: 'PAGADO'
+        }, { onConflict: 'viaje_id,numero_asiento' });
+      } catch (_e) {}
+
+      setSeatStatuses(prev => ({ ...prev, [selectedSeat]: 'PAGADO' }));
 
       // Guardar respaldo local de la venta para visibilidad inmediata en /admin/ventas
       const newVentaRecord = {
