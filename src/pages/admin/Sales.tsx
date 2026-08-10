@@ -132,50 +132,67 @@ const AdminSales: React.FC = () => {
 
       const compTipo = venta.tipo_documento === 'RUC' ? 'Factura Electrónica' : 'Boleta Electrónica';
 
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          from: 'INVERSIONES TUNKY CHASKY <onboarding@resend.dev>',
-          to: [venta.email],
-          subject: `¡Pago Confirmado! Su ${compTipo} y Boleto de Viaje #${venta.numero_asiento}`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; color: #1e293b;">
-              <h2 style="color: #742284; margin-top: 0;">INVERSIONES TUNKY CHASKY S.R.L.</h2>
-              <p>Estimado(a) <strong>${venta.nombres} ${venta.apellidos}</strong>,</p>
-              <p>¡Su pago ha sido verificado y confirmado exitosamente!</p>
-              <div style="background-color: #f8fafc; padding: 16px; border-radius: 8px; margin: 20px 0;">
-                <p style="margin: 4px 0;"><strong>Detalle del Pasaje:</strong></p>
-                <p style="margin: 4px 0;">• <strong>Asiento Reservado:</strong> #${venta.numero_asiento}</p>
-                <p style="margin: 4px 0;">• <strong>Monto Pagado:</strong> S/ ${venta.monto_pagado.toFixed(2)}</p>
-                <p style="margin: 4px 0;">• <strong>Documento:</strong> ${venta.tipo_documento} ${venta.nro_documento}</p>
-                <p style="margin: 4px 0;">• <strong>Comprobante Emitido:</strong> ${compTipo}</p>
-              </div>
-              <p>Adjunto a este correo encontrará su <strong>Boleto de Viaje</strong> y su <strong>${compTipo}</strong> en formato PDF.</p>
-              <p style="margin-top: 24px;">¡Gracias por viajar con Tunky Chasky / K'intu!</p>
+      const emailPayload = {
+        from: 'INVERSIONES TUNKY CHASKY <onboarding@resend.dev>',
+        to: [venta.email],
+        subject: `¡Pago Confirmado! Su ${compTipo} y Boleto de Viaje #${venta.numero_asiento}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; color: #1e293b;">
+            <h2 style="color: #742284; margin-top: 0;">INVERSIONES TUNKY CHASKY S.R.L.</h2>
+            <p>Estimado(a) <strong>${venta.nombres} ${venta.apellidos}</strong>,</p>
+            <p>¡Su pago ha sido verificado y confirmado exitosamente!</p>
+            <div style="background-color: #f8fafc; padding: 16px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 4px 0;"><strong>Detalle del Pasaje:</strong></p>
+              <p style="margin: 4px 0;">• <strong>Asiento Reservado:</strong> #${venta.numero_asiento}</p>
+              <p style="margin: 4px 0;">• <strong>Monto Pagado:</strong> S/ ${venta.monto_pagado.toFixed(2)}</p>
+              <p style="margin: 4px 0;">• <strong>Documento:</strong> ${venta.tipo_documento} ${venta.nro_documento}</p>
+              <p style="margin: 4px 0;">• <strong>Comprobante Emitido:</strong> ${compTipo}</p>
             </div>
-          `,
-          attachments: [
-            {
-              filename: `Comprobante_${venta.tipo_documento}_${venta.nro_documento}.pdf`,
-              content: invBase64
-            },
-            {
-              filename: `Boleto_de_Viaje_Asiento_${venta.numero_asiento}.pdf`,
-              content: tktBase64
-            }
-          ]
-        })
-      });
+            <p>Adjunto a este correo encontrará su <strong>Boleto de Viaje</strong> y su <strong>${compTipo}</strong> en formato PDF.</p>
+            <p style="margin-top: 24px;">¡Gracias por viajar con Tunky Chasky / K'intu!</p>
+          </div>
+        `,
+        attachments: [
+          {
+            filename: `Comprobante_${venta.tipo_documento}_${venta.nro_documento}.pdf`,
+            content: invBase64
+          },
+          {
+            filename: `Boleto_de_Viaje_Asiento_${venta.numero_asiento}.pdf`,
+            content: tktBase64
+          }
+        ]
+      };
 
-      const resData = await res.json();
-      if (res.ok) {
+      let res: Response | null = null;
+      try {
+        res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify(emailPayload)
+        });
+      } catch (_corsErr) {
+        console.warn('Direct fetch blocked by CORS, using proxy...');
+        res = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.resend.com/emails'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify(emailPayload)
+        });
+      }
+
+      if (res && res.ok) {
         return { success: true, message: `Correo enviado exitosamente con 2 PDFs a ${venta.email}` };
-      } else {
+      } else if (res) {
+        const resData = await res.json();
         return { success: false, error: resData.message || resData.name || JSON.stringify(resData) };
+      } else {
+        return { success: false, error: 'No se pudo conectar con el servidor de correo.' };
       }
     } catch (err: any) {
       return { success: false, error: err.message || 'Error de conexión con Resend' };
