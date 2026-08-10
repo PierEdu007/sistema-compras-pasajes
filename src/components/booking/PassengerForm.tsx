@@ -47,12 +47,13 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
     if (errorMsg) setErrorMsg('');
   };
 
-  // Función para consultar SUNAT (RUC) o RENIEC (DNI) con fallback anti-CORS
+  // Función para consultar SUNAT (RUC) o RENIEC (DNI) eliminando la cabecera Referer local
   const fetchDocumentoData = async (doc: string, tipo: string) => {
     const cleanDoc = doc.trim();
+
     if (tipo === 'RUC') {
       if (!/^(10|20)[0-9]{9}$/.test(cleanDoc)) {
-        setErrorMsg('El RUC debe tener 11 dígitos numéricos y comenzar con 10 o 20.');
+        setErrorMsg('El RUC debe contener exactamente 11 dígitos numéricos y comenzar con 10 o 20.');
         return;
       }
 
@@ -63,18 +64,27 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
       try {
         let data: any = null;
 
-        // Intento 1: Directo a la API pública de SUNAT
+        // Intento 1: Directo con no-referrer para bypass de bloqueos por localhost
         try {
-          const res = await fetch(`https://api.apis.net.pe/v1/ruc?numero=${cleanDoc}`);
-          if (res.ok) data = await res.json();
-        } catch (_e1) {
-          // Intento 2: Proxy AllOrigins para bypass de CORS
+          const res = await fetch(`https://api.apis.net.pe/v1/ruc?numero=${cleanDoc}`, {
+            referrerPolicy: 'no-referrer'
+          });
+          if (res.ok) {
+            data = await res.json();
+          } else {
+            console.warn('API RUC status:', res.status);
+          }
+        } catch (e1) {
+          console.warn('Error directo RUC:', e1);
+        }
+
+        // Intento 2: Fallback público alternativo
+        if (!data) {
           try {
-            const proxyRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://api.apis.net.pe/v1/ruc?numero=' + cleanDoc)}`);
-            if (proxyRes.ok) {
-              const proxyData = await proxyRes.json();
-              if (proxyData.contents) data = JSON.parse(proxyData.contents);
-            }
+            const res2 = await fetch(`https://dniruc.apisperu.com/api/v1/ruc/${cleanDoc}`, {
+              referrerPolicy: 'no-referrer'
+            });
+            if (res2.ok) data = await res2.json();
           } catch (_e2) {}
         }
 
@@ -90,13 +100,14 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
             }));
             setLookupSuccessMsg(`✅ SUNAT: Razón Social obtenida (${razonSocial})`);
           } else {
-            setErrorMsg('RUC no encontrado en SUNAT. Ingresa los datos manualmente.');
+            setErrorMsg('RUC no encontrado en SUNAT. Por favor ingresa los datos manualmente.');
           }
         } else {
-          setErrorMsg('No se pudo conectar con SUNAT automáticamente. Por favor ingresa la Razón Social.');
+          setErrorMsg('No se obtuvo respuesta de SUNAT. Por favor ingresa la Razón Social y Dirección Fiscal manualmente.');
         }
-      } catch (err) {
-        console.warn('Error al consultar RUC:', err);
+      } catch (err: any) {
+        console.error('Error al consultar RUC:', err);
+        setErrorMsg(`Error al consultar SUNAT: ${err.message || 'Sin conexión'}`);
       } finally {
         setLoadingLookup(false);
       }
@@ -113,18 +124,27 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
       try {
         let data: any = null;
 
-        // Intento 1: Directo a API RENIEC
+        // Intento 1: Directo a API RENIEC con no-referrer
         try {
-          const res = await fetch(`https://api.apis.net.pe/v1/dni?numero=${cleanDoc}`);
-          if (res.ok) data = await res.json();
-        } catch (_e1) {
-          // Intento 2: Proxy AllOrigins para bypass de CORS
+          const res = await fetch(`https://api.apis.net.pe/v1/dni?numero=${cleanDoc}`, {
+            referrerPolicy: 'no-referrer'
+          });
+          if (res.ok) {
+            data = await res.json();
+          } else {
+            console.warn('API DNI status:', res.status);
+          }
+        } catch (e1) {
+          console.warn('Error directo DNI:', e1);
+        }
+
+        // Intento 2: Fallback público alternativo
+        if (!data) {
           try {
-            const proxyRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://api.apis.net.pe/v1/dni?numero=' + cleanDoc)}`);
-            if (proxyRes.ok) {
-              const proxyData = await proxyRes.json();
-              if (proxyData.contents) data = JSON.parse(proxyData.contents);
-            }
+            const res2 = await fetch(`https://dniruc.apisperu.com/api/v1/dni/${cleanDoc}`, {
+              referrerPolicy: 'no-referrer'
+            });
+            if (res2.ok) data = await res2.json();
           } catch (_e2) {}
         }
 
@@ -148,15 +168,16 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
               nombres: nombres,
               apellidos: apellidos
             }));
-            setLookupSuccessMsg(`✅ RENIEC: Datos obtenidos (${nombres} ${apellidos})`);
+            setLookupSuccessMsg(`✅ RENIEC: Nombres y Apellidos identificados (${nombres} ${apellidos})`);
           } else {
-            setErrorMsg('DNI no encontrado en RENIEC. Por favor escribe tus nombres y apellidos.');
+            setErrorMsg('DNI no encontrado en RENIEC. Por favor ingresa tus nombres y apellidos.');
           }
         } else {
-          setErrorMsg('No se pudo conectar con RENIEC automáticamente. Por favor escribe tus nombres y apellidos.');
+          setErrorMsg('No se obtuvo respuesta de RENIEC. Por favor ingresa tus nombres y apellidos manualmente.');
         }
-      } catch (err) {
-        console.warn('Error al consultar DNI:', err);
+      } catch (err: any) {
+        console.error('Error al consultar DNI:', err);
+        setErrorMsg(`Error al consultar RENIEC: ${err.message || 'Sin conexión'}`);
       } finally {
         setLoadingLookup(false);
       }
@@ -260,7 +281,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
             <span>{isRuc ? 'N° RUC' : t('booking.docNumber', 'N° Documento')} <span style={{color: 'red'}}>*</span></span>
             {loadingLookup && (
               <span style={{ fontSize: '0.75rem', color: '#0284c7', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <FaSpinner className="spin" /> Consultando...
+                <FaSpinner className="spin" /> Consultando {isRuc ? 'SUNAT' : 'RENIEC'}...
               </span>
             )}
           </label>
