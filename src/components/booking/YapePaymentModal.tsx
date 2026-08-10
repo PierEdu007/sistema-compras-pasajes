@@ -34,7 +34,7 @@ export default function YapePaymentModal({
   const [error, setError] = useState('');
 
   const YAPE_NUMBER = '997 475 405';
-  const YAPE_TITULAR = "Inversiones Tunky Chasky S.R.L. / K'intu";
+  const YAPE_TITULAR = "Inversiones Tunky Chasky S.R.L.";
 
   if (!isOpen) return null;
 

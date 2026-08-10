@@ -7,7 +7,7 @@ const supabase = createClient(
 
 async function setup() {
   const { data: authData, error: authErr } = await supabase.auth.admin.createUser({
-    email: 'admin@kintu.com',
+    email: 'admin@turismotunkychasky.pe',
     password: 'password123',
     email_confirm: true
   });

@@ -1,6 +1,6 @@
 -- ============================================================
 -- MIGRATION 001: Schema Inicial — Sistema de Pasajes
--- Inversiones K'intu | Cusco - Quillabamba
+-- Tunky Chasky | Cusco - Quillabamba
 -- ============================================================
 
 -- ============================================================

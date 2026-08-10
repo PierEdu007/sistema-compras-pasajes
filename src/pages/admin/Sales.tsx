@@ -149,7 +149,7 @@ const AdminSales: React.FC = () => {
               <p style="margin: 4px 0;">• <strong>Comprobante Emitido:</strong> ${compTipo}</p>
             </div>
             <p>Adjunto a este correo encontrará su <strong>Boleto de Viaje</strong> y su <strong>${compTipo}</strong> en formato PDF.</p>
-            <p style="margin-top: 24px;">¡Gracias por viajar con Tunky Chasky / K'intu!</p>
+            <p style="margin-top: 24px;">¡Gracias por viajar con Tunky Chasky!</p>
           </div>
         `,
         attachments: [

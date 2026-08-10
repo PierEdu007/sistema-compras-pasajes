@@ -134,7 +134,7 @@ serve(async (req) => {
                 <p style="margin: 4px 0;">• <strong>Comprobante Emitido:</strong> ${compTipo}</p>
               </div>
               <p>Adjunto a este correo electrónico encontrará su <strong>Boleto de Viaje</strong> y su <strong>${compTipo}</strong> en formato PDF.</p>
-              <p style="margin-top: 24px;">¡Gracias por viajar con Tunky Chasky / K'intu!</p>
+              <p style="margin-top: 24px;">¡Gracias por viajar con Tunky Chasky!</p>
               <hr style="border: none; border-top: 1px solid #cbd5e1; margin: 20px 0;"/>
               <p style="color: #64748b; font-size: 12px; text-align: center;">Este es un mensaje automático del Sistema de Compras de Pasajes.</p>
             </div>
