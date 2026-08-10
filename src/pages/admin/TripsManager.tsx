@@ -68,14 +68,22 @@ const AdminTrips: React.FC = () => {
         supabase.from('vehiculos').select('id, nombre_display').eq('activo', true)
       ]);
       
-      if (rutasRes.data) setRutas(rutasRes.data as any[]);
-      if (vehiculosRes.data) setVehiculos(vehiculosRes.data as any[]);
-      
       if (rutasRes.data && (rutasRes.data as any[]).length > 0) {
+        setRutas(rutasRes.data as any[]);
         setFormData(prev => ({ ...prev, ruta_id: (rutasRes.data as any[])[0].id }));
       }
       if (vehiculosRes.data && (vehiculosRes.data as any[]).length > 0) {
-        setFormData(prev => ({ ...prev, vehiculo_id: (vehiculosRes.data as any[])[0].id }));
+        const rawList = vehiculosRes.data as any[];
+        const v4 = rawList.find(v => v.nombre_display?.includes('4') || v.tipo === 'CAMIONETA_4') || rawList[0];
+        const v6 = rawList.find(v => v.nombre_display?.includes('6') || v.tipo === 'CAMIONETA_6') || rawList[1] || rawList[0];
+
+        const cleanList = [
+          { id: v4.id, nombre_display: 'Camioneta (4 Pasajeros)' },
+          { id: v6.id, nombre_display: 'Camioneta (6 Pasajeros)' }
+        ];
+
+        setVehiculos(cleanList);
+        setFormData(prev => ({ ...prev, vehiculo_id: cleanList[0].id }));
       }
     } catch (err) {
       console.error('Error fetching options:', err);
