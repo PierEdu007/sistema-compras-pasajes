@@ -7,16 +7,16 @@ const supabase = createClient(
 
 const layout4 = {
   filas: [
-    { fila: 1, asientos: [{ n: 1, pos: 'der' }], nota: 'Copiloto' },
-    { fila: 2, asientos: [{ n: 2, pos: 'izq' }, { n: 3, pos: 'cen' }, { n: 4, pos: 'der' }], nota: 'Segunda Fila' }
+    { fila: 1, asientos: [{ n: 1, pos: 'izq' }, { n: 2, pos: 'der' }], nota: 'Conductor + Copiloto' },
+    { fila: 2, asientos: [{ n: 3, pos: 'izq' }, { n: 4, pos: 'cen' }, { n: 5, pos: 'der' }], nota: 'Segunda Fila' }
   ]
 };
 
 const layout6 = {
   filas: [
-    { fila: 1, asientos: [{ n: 1, pos: 'der' }], nota: 'Copiloto' },
-    { fila: 2, asientos: [{ n: 2, pos: 'izq' }, { n: 3, pos: 'cen' }, { n: 4, pos: 'der' }], nota: 'Segunda Fila' },
-    { fila: 3, asientos: [{ n: 5, pos: 'izq' }, { n: 6, pos: 'der' }], nota: 'Tercera Fila' }
+    { fila: 1, asientos: [{ n: 1, pos: 'izq' }, { n: 2, pos: 'der' }], nota: 'Conductor + Copiloto' },
+    { fila: 2, asientos: [{ n: 3, pos: 'izq' }, { n: 4, pos: 'cen' }, { n: 5, pos: 'der' }], nota: 'Segunda Fila' },
+    { fila: 3, asientos: [{ n: 6, pos: 'izq' }, { n: 7, pos: 'der' }], nota: 'Tercera Fila' }
   ]
 };
 

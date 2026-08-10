@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { FaCar } from 'react-icons/fa';
 
 export type SeatStatus = 'DISPONIBLE' | 'BLOQUEADO' | 'PAGADO';
 
@@ -36,11 +35,12 @@ export default function SeatMap({
   const { t } = useTranslation();
 
   const handleSeatClick = (seatNumber: number, status: SeatStatus) => {
-    if (disabled || status === 'PAGADO' || status === 'BLOQUEADO') return;
+    if (disabled || seatNumber === 1 || status === 'PAGADO' || status === 'BLOQUEADO') return;
     onSelectSeat(seatNumber);
   };
 
   const getSeatClass = (seatNumber: number) => {
+    if (seatNumber === 1) return 'seat-driver';
     if (selectedSeat === seatNumber) return 'seat-selected';
     const status = seatStatuses[seatNumber] || 'DISPONIBLE';
     if (status === 'PAGADO') return 'seat-occupied';
@@ -53,6 +53,10 @@ export default function SeatMap({
       <h3 className="seat-map-title">{t('booking.selectSeat', 'Selecciona tu asiento')}</h3>
       
       <div className="seat-map-legend">
+        <div className="legend-item">
+          <div className="seat-demo seat-driver">1</div>
+          <span>Conductor</span>
+        </div>
         <div className="legend-item">
           <div className="seat-demo seat-available"></div>
           <span>{t('booking.available', 'Disponible')}</span>
@@ -72,23 +76,16 @@ export default function SeatMap({
       </div>
 
       <div className="vehicle-layout">
-        {/* Driver Section */}
-        <div className="driver-section">
-          <div className="driver-seat" title="Conductor"><FaCar /></div>
-        </div>
-
         {/* Rows */}
         <div className="rows-container">
           {layout.filas.map((row) => (
             <div key={`row-${row.fila}`} className="seat-row">
-              {/* Posibles posiciones: izq, cen-izq, cen, cen-der, der */}
-              {/* Para estandarizar el layout, usamos CSS Grid en base al vehículo */}
               {row.asientos.map((seat) => (
                 <button
                   key={`seat-${seat.n}`}
                   className={`seat-btn pos-${seat.pos} ${getSeatClass(seat.n)}`}
                   onClick={() => handleSeatClick(seat.n, seatStatuses[seat.n] || 'DISPONIBLE')}
-                  disabled={disabled || seatStatuses[seat.n] === 'PAGADO' || seatStatuses[seat.n] === 'BLOQUEADO'}
+                  disabled={disabled || seat.n === 1 || seatStatuses[seat.n] === 'PAGADO' || seatStatuses[seat.n] === 'BLOQUEADO'}
                   aria-label={`Asiento ${seat.n}`}
                 >
                   <span className="seat-number">{seat.n}</span>

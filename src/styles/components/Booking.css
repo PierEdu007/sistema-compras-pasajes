@@ -115,21 +115,23 @@
 
 .seat-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
   position: relative;
 }
 
 /* Position mapping using grid columns */
 .pos-izq { grid-column: 1; }
-.pos-cen-izq { grid-column: 2; }
-.pos-cen { 
-  grid-column: 2; 
-  transform: translateX(calc(50% + 0.25rem));
-  z-index: 2;
+.pos-cen { grid-column: 2; }
+.pos-der { grid-column: 3; }
+
+.seat-driver {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  cursor: not-allowed !important;
+  font-weight: 700;
 }
-.pos-cen-der { grid-column: 3; }
-.pos-der { grid-column: 4; }
 
 .seat-btn {
   width: 100%;
