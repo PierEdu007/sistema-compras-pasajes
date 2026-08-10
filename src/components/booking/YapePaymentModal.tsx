@@ -94,10 +94,10 @@ export default function YapePaymentModal({
 
           <div className="yape-qr-section">
             <div className="yape-qr-box">
-              {/* Vector Yape QR Code Image */}
+              {/* Real Scannable Yape QR Code Image */}
               <div className="qr-image-wrapper">
                 <img 
-                  src="/yape-qr.svg" 
+                  src="/yape-qr.png" 
                   alt="Código QR Yape" 
                   style={{ width: '180px', height: '180px', borderRadius: '12px', objectFit: 'contain', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} 
                 />
