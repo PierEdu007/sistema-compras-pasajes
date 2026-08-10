@@ -78,12 +78,14 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
           } else {
             setErrorMsg('RUC no encontrado en SUNAT. Por favor ingresa los datos manualmente.');
           }
+        } else if (res.status === 404) {
+          setLookupSuccessMsg('ℹ️ Este RUC no se encontró en la base gratuita. Por favor ingresa la Razón Social manualmente.');
         } else {
-          setErrorMsg('No se obtuvo respuesta de SUNAT. Por favor ingresa la Razón Social y Dirección Fiscal manualmente.');
+          setLookupSuccessMsg('ℹ️ No se pudo consultar este RUC automáticamente. Ingresa los datos manualmente.');
         }
       } catch (err: any) {
         console.error('Error al consultar RUC:', err);
-        setErrorMsg('No se pudo conectar con SUNAT. Por favor ingresa la Razón Social manualmente.');
+        setErrorMsg('Error de conexión al consultar SUNAT. Por favor ingresa la Razón Social manualmente.');
       } finally {
         setLoadingLookup(false);
       }
@@ -122,14 +124,16 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
             }));
             setLookupSuccessMsg(`✅ RENIEC: Nombres y Apellidos identificados (${nombres} ${apellidos})`);
           } else {
-            setErrorMsg('DNI no encontrado en RENIEC. Por favor ingresa tus nombres y apellidos.');
+            setLookupSuccessMsg('ℹ️ DNI válido pero sin datos disponibles en la consulta gratuita. Ingresa tus datos manualmente.');
           }
+        } else if (res.status === 404) {
+          setLookupSuccessMsg('ℹ️ Este DNI no se encontró en la base gratuita. Por favor ingresa tus nombres y apellidos manualmente.');
         } else {
-          setErrorMsg('No se obtuvo respuesta de RENIEC. Por favor ingresa tus nombres y apellidos manualmente.');
+          setLookupSuccessMsg('ℹ️ No se pudo consultar este DNI automáticamente. Por favor ingresa tus datos manualmente.');
         }
       } catch (err: any) {
         console.error('Error al consultar DNI:', err);
-        setErrorMsg('No se pudo conectar con RENIEC. Por favor ingresa tus nombres y apellidos manualmente.');
+        setErrorMsg('Error de conexión al consultar RENIEC. Por favor ingresa tus datos manualmente.');
       } finally {
         setLoadingLookup(false);
       }
