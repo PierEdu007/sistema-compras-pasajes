@@ -33,13 +33,13 @@ export default function YapePaymentModal({
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
 
-  const YAPE_NUMBER = '987 654 321';
-  const YAPE_TITULAR = "Inversiones K'intu S.A.C.";
+  const YAPE_NUMBER = '997 475 405';
+  const YAPE_TITULAR = "Inversiones Tunky Chasky S.R.L. / K'intu";
 
   if (!isOpen) return null;
 
   const handleCopyNumber = () => {
-    navigator.clipboard.writeText('987654321');
+    navigator.clipboard.writeText('997475405');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -94,47 +94,13 @@ export default function YapePaymentModal({
 
           <div className="yape-qr-section">
             <div className="yape-qr-box">
-              {/* Custom SVG QR simulation with Yape Styling */}
+              {/* Real Yape QR Code Image */}
               <div className="qr-image-wrapper">
-                <svg viewBox="0 0 200 200" width="160" height="160" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="200" height="200" fill="#ffffff" rx="12" />
-                  {/* Position detection patterns */}
-                  <rect x="15" y="15" width="45" height="45" fill="#742284" rx="4" />
-                  <rect x="22" y="22" width="31" height="31" fill="#ffffff" rx="2" />
-                  <rect x="29" y="29" width="17" height="17" fill="#742284" rx="1" />
-
-                  <rect x="140" y="15" width="45" height="45" fill="#742284" rx="4" />
-                  <rect x="147" y="22" width="31" height="31" fill="#ffffff" rx="2" />
-                  <rect x="154" y="29" width="17" height="17" fill="#742284" rx="1" />
-
-                  <rect x="15" y="140" width="45" height="45" fill="#742284" rx="4" />
-                  <rect x="22" y="147" width="31" height="31" fill="#ffffff" rx="2" />
-                  <rect x="29" y="154" width="17" height="17" fill="#742284" rx="1" />
-
-                  {/* QR code simulated data blocks */}
-                  <rect x="70" y="20" width="15" height="15" fill="#00d2b8" />
-                  <rect x="95" y="20" width="10" height="25" fill="#742284" />
-                  <rect x="115" y="35" width="15" height="10" fill="#742284" />
-                  
-                  <rect x="20" y="70" width="25" height="10" fill="#742284" />
-                  <rect x="55" y="70" width="20" height="20" fill="#00d2b8" />
-                  <rect x="85" y="65" width="30" height="30" fill="#742284" rx="4" />
-                  <text x="100" y="85" fill="#ffffff" fontSize="12" fontWeight="bold" textAnchor="middle">YAPE</text>
-
-                  <rect x="125" y="70" width="25" height="15" fill="#742284" />
-                  <rect x="160" y="70" width="20" height="20" fill="#00d2b8" />
-
-                  <rect x="20" y="95" width="15" height="25" fill="#00d2b8" />
-                  <rect x="45" y="100" width="30" height="10" fill="#742284" />
-                  <rect x="130" y="95" width="15" height="25" fill="#742284" />
-                  <rect x="155" y="100" width="25" height="15" fill="#00d2b8" />
-
-                  <rect x="70" y="140" width="20" height="20" fill="#742284" />
-                  <rect x="100" y="145" width="25" height="15" fill="#00d2b8" />
-                  <rect x="135" y="140" width="20" height="40" fill="#742284" />
-                  <rect x="70" y="170" width="30" height="15" fill="#00d2b8" />
-                  <rect x="110" y="170" width="15" height="15" fill="#742284" />
-                </svg>
+                <img 
+                  src="/yape-qr.jpg" 
+                  alt="Código QR Yape" 
+                  style={{ width: '160px', height: '160px', borderRadius: '12px', objectFit: 'contain', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} 
+                />
               </div>
               <div className="yape-qr-caption">
                 <FaQrcode /> Escanea desde tu app Yape
