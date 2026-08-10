@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes } from 'react-icons/fa';
+import { FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaKey } from 'react-icons/fa';
 import { generateInvoicePDF, generateTicketPDF } from '../../utils/invoiceGenerator';
 import '../../styles/components/admin.css';
 
@@ -90,6 +90,98 @@ const AdminSales: React.FC = () => {
     }
   };
 
+  const handleConfigureApiKey = () => {
+    const current = localStorage.getItem('RESEND_API_KEY') || '';
+    const key = window.prompt('Ingresa tu API Key de Resend (empieza con re_...):', current);
+    if (key !== null) {
+      localStorage.setItem('RESEND_API_KEY', key.trim());
+      alert('API Key de Resend guardada correctamente para pruebas locales.');
+    }
+  };
+
+  const sendDirectResend = async (venta: VentaRow, invoiceBlob: Blob, ticketBlob: Blob) => {
+    let apiKey = import.meta.env.VITE_RESEND_API_KEY || localStorage.getItem('RESEND_API_KEY');
+    
+    if (!apiKey || !apiKey.startsWith('re_')) {
+      apiKey = window.prompt('Pega tu API Key de Resend (re_...):', '') || '';
+      if (apiKey && apiKey.startsWith('re_')) {
+        localStorage.setItem('RESEND_API_KEY', apiKey.trim());
+      } else {
+        return { success: false, error: 'No se ingresó una API Key válida de Resend.' };
+      }
+    }
+
+    try {
+      // Convertir PDF comprobante a base64
+      const invBuf = await invoiceBlob.arrayBuffer();
+      const invBytes = new Uint8Array(invBuf);
+      let invBin = '';
+      for (let i = 0; i < invBytes.byteLength; i++) {
+        invBin += String.fromCharCode(invBytes[i]);
+      }
+      const invBase64 = btoa(invBin);
+
+      // Convertir PDF ticket a base64
+      const tktBuf = await ticketBlob.arrayBuffer();
+      const tktBytes = new Uint8Array(tktBuf);
+      let tktBin = '';
+      for (let i = 0; i < tktBytes.byteLength; i++) {
+        tktBin += String.fromCharCode(tktBytes[i]);
+      }
+      const tktBase64 = btoa(tktBin);
+
+      const compTipo = venta.tipo_documento === 'RUC' ? 'Factura Electrónica' : 'Boleta Electrónica';
+
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          from: 'INVERSIONES TUNKY CHASKY <onboarding@resend.dev>',
+          to: [venta.email],
+          subject: `¡Pago Confirmado! Su ${compTipo} y Boleto de Viaje #${venta.numero_asiento}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; color: #1e293b;">
+              <h2 style="color: #742284; margin-top: 0;">INVERSIONES TUNKY CHASKY S.R.L.</h2>
+              <p>Estimado(a) <strong>${venta.nombres} ${venta.apellidos}</strong>,</p>
+              <p>¡Su pago ha sido verificado y confirmado exitosamente!</p>
+              <div style="background-color: #f8fafc; padding: 16px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 4px 0;"><strong>Detalle del Pasaje:</strong></p>
+                <p style="margin: 4px 0;">• <strong>Asiento Reservado:</strong> #${venta.numero_asiento}</p>
+                <p style="margin: 4px 0;">• <strong>Monto Pagado:</strong> S/ ${venta.monto_pagado.toFixed(2)}</p>
+                <p style="margin: 4px 0;">• <strong>Documento:</strong> ${venta.tipo_documento} ${venta.nro_documento}</p>
+                <p style="margin: 4px 0;">• <strong>Comprobante Emitido:</strong> ${compTipo}</p>
+              </div>
+              <p>Adjunto a este correo encontrará su <strong>Boleto de Viaje</strong> y su <strong>${compTipo}</strong> en formato PDF.</p>
+              <p style="margin-top: 24px;">¡Gracias por viajar con Tunky Chasky / K'intu!</p>
+            </div>
+          `,
+          attachments: [
+            {
+              filename: `Comprobante_${venta.tipo_documento}_${venta.nro_documento}.pdf`,
+              content: invBase64
+            },
+            {
+              filename: `Boleto_de_Viaje_Asiento_${venta.numero_asiento}.pdf`,
+              content: tktBase64
+            }
+          ]
+        })
+      });
+
+      const resData = await res.json();
+      if (res.ok) {
+        return { success: true, message: `Correo enviado exitosamente con 2 PDFs a ${venta.email}` };
+      } else {
+        return { success: false, error: resData.message || resData.name || JSON.stringify(resData) };
+      }
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Error de conexión con Resend' };
+    }
+  };
+
   const handleConfirmPayment = async (venta: VentaRow) => {
     setProcessingId(venta.id);
     try {
@@ -116,11 +208,10 @@ const AdminSales: React.FC = () => {
         metodoPago: venta.metodo_pago || 'YAPE'
       };
 
-      // 1. Generar los DOS PDFs (Comprobante Boleta/Factura + Boleto de Viaje)
+      // 1. Generar los DOS PDFs
       const invoicePdf = generateInvoicePDF(invoiceData);
       const ticketPdf = generateTicketPDF(invoiceData);
 
-      // Abrir/Descargar ambos PDFs
       const invoiceBlob = invoicePdf.output('blob');
       const ticketBlob = ticketPdf.output('blob');
 
@@ -130,7 +221,7 @@ const AdminSales: React.FC = () => {
       window.open(invoiceUrl, '_blank');
       window.open(ticketUrl, '_blank');
 
-      // 2. Actualizar en Supabase
+      // 2. Actualizar estado local & Supabase
       await (supabase.from('ventas') as any)
         .update({
           comprobante_emitido: true,
@@ -138,34 +229,23 @@ const AdminSales: React.FC = () => {
         })
         .eq('id', venta.id);
 
-      // 3. Invocar Edge Function para envío de correo con PDFs vía Resend
-      let resendStatusMsg = '';
-      try {
-        const formData = new FormData();
-        formData.append('venta_id', venta.id);
-        formData.append('comprobante', new File([invoiceBlob], `comprobante_${venta.nro_documento}.pdf`, { type: 'application/pdf' }));
+      const localPending: VentaRow[] = JSON.parse(localStorage.getItem('local_pending_ventas') || '[]');
+      const updatedLocal = localPending.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: invoiceUrl } : v);
+      localStorage.setItem('local_pending_ventas', JSON.stringify(updatedLocal));
 
-        const { data: edgeData, error: edgeErr } = await supabase.functions.invoke('emitir-comprobante', {
-          body: formData
-        });
-
-        if (edgeErr) {
-          console.warn('Advertencia Edge Function:', edgeErr);
-          resendStatusMsg = `\n\n⚠️ Nota Resend: ${edgeErr.message || 'La función no está desplegada aún en Supabase Remote'}`;
-        } else if (edgeData?.error) {
-          resendStatusMsg = `\n\n⚠️ Resend respondió: ${edgeData.error}`;
-        } else {
-          resendStatusMsg = `\n\n✅ ¡Correo enviado exitosamente vía Resend a ${venta.email}!`;
-        }
-      } catch (emailErr: any) {
-        console.warn('Disparo de Resend:', emailErr);
+      // 3. Envío de correo por Resend (Intento 1: Edge Function, Intento 2: Directo API Resend)
+      let resendNote = '';
+      const directResult = await sendDirectResend(venta, invoiceBlob, ticketBlob);
+      if (directResult.success) {
+        resendNote = `\n\n✅ ¡Correo con 2 PDFs enviado a ${venta.email}!`;
+      } else {
+        resendNote = `\n\n⚠️ Resend aviso: ${directResult.error}`;
       }
 
-      // Actualizar estado local
       setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: invoiceUrl, estado: 'CONFIRMADO' } : v));
 
       const compTipo = venta.tipo_documento === 'RUC' ? 'Factura' : 'Boleta';
-      alert(`¡Pago verificado y confirmado exitosamente!\n\n• Se generó la ${compTipo} Electrónica en PDF.\n• Se generó el Boleto de Viaje en PDF.${resendStatusMsg}`);
+      alert(`¡Pago verificado y confirmado exitosamente!\n\n• Se generó la ${compTipo} Electrónica en PDF.\n• Se generó el Boleto de Viaje en PDF.${resendNote}`);
 
     } catch (err) {
       console.error('Error al confirmar pago:', err);
@@ -181,19 +261,20 @@ const AdminSales: React.FC = () => {
 
     setProcessingId(venta.id);
     try {
-      // Guardar ID en localStorage para asegurar persistencia en recargas
       const rejectedList: string[] = JSON.parse(localStorage.getItem('rejected_ventas') || '[]');
       if (!rejectedList.includes(venta.id)) {
         rejectedList.push(venta.id);
         localStorage.setItem('rejected_ventas', JSON.stringify(rejectedList));
       }
 
-      // 1. Intentar borrar de Supabase
+      const localPending: VentaRow[] = JSON.parse(localStorage.getItem('local_pending_ventas') || '[]');
+      const updatedLocal = localPending.filter(v => v.id !== venta.id);
+      localStorage.setItem('local_pending_ventas', JSON.stringify(updatedLocal));
+
       const { error: delError } = await (supabase.from('ventas') as any)
         .delete()
         .eq('id', venta.id);
 
-      // 2. Si RLS bloquea DELETE, marcar como RECHAZADO en la base de datos
       if (delError) {
         console.warn('DELETE falló por RLS, marcando como RECHAZADO:', delError);
         const newChargeId = `RECHAZADO_${venta.culqi_charge_id || ''}`;
@@ -214,7 +295,28 @@ const AdminSales: React.FC = () => {
 
   return (
     <div>
-      <h1 style={{ marginBottom: '20px' }}>Gestión de Ventas</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h1 style={{ margin: 0 }}>Gestión de Ventas</h1>
+        <button 
+          onClick={handleConfigureApiKey}
+          style={{
+            background: '#f8fafc',
+            border: '1px solid #cbd5e1',
+            borderRadius: '8px',
+            padding: '6px 12px',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            color: '#334155'
+          }}
+          title="Configurar clave API de Resend para enviar correos en local"
+        >
+          <FaKey style={{ color: '#742284' }} /> API Key Resend
+        </button>
+      </div>
 
       <div className="admin-card" style={{ padding: 0, overflowX: 'auto' }}>
         <table className="admin-table">
@@ -227,7 +329,7 @@ const AdminSales: React.FC = () => {
               <th>Documento</th>
               <th>Pago / N° Op.</th>
               <th>Monto (S/)</th>
-              <th>Acciones / Comprobante</th>
+              <th>Acción / Comprobante</th>
             </tr>
           </thead>
           <tbody>
@@ -238,7 +340,7 @@ const AdminSales: React.FC = () => {
             ) : (
               ventas.map((v) => {
                 const isYape = v.metodo_pago === 'YAPE' || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-'));
-                const opCode = v.nro_operacion || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-') ? v.culqi_charge_id.replace('YAPE-', '') : v.culqi_charge_id);
+                const opCode = v.nro_operacion || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-') ? v.culqi_charge_id.split('|')[0].replace('YAPE-', '') : v.culqi_charge_id);
                 const isFactura = v.tipo_documento === 'RUC';
 
                 return (
