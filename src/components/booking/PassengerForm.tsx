@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaCreditCard, FaFileInvoice, FaSpinner } from 'react-icons/fa';
+import { FaCreditCard, FaFileInvoice, FaSpinner, FaSearch, FaCheck } from 'react-icons/fa';
 
 export interface PassengerData {
   tipo_documento: 'DNI' | 'RUC' | 'CE' | 'PASAPORTE';
@@ -47,22 +47,38 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
     if (errorMsg) setErrorMsg('');
   };
 
-  // Función para consultar SUNAT (RUC) o RENIEC (DNI) automáticamente
+  // Función para consultar SUNAT (RUC) o RENIEC (DNI) con fallback anti-CORS
   const fetchDocumentoData = async (doc: string, tipo: string) => {
-    if (tipo === 'RUC' && doc.length === 11 && /^(10|20)[0-9]{9}$/.test(doc)) {
+    const cleanDoc = doc.trim();
+    if (tipo === 'RUC') {
+      if (!/^(10|20)[0-9]{9}$/.test(cleanDoc)) {
+        setErrorMsg('El RUC debe tener 11 dígitos numéricos y comenzar con 10 o 20.');
+        return;
+      }
+
       setLoadingLookup(true);
       setLookupSuccessMsg('');
       setErrorMsg('');
 
       try {
-        // Intento 1: API APIS Peru / Net
-        let res = await fetch(`https://api.apis.net.pe/v1/ruc?numero=${doc}`).catch(() => null);
-        if (!res || !res.ok) {
-          res = await fetch(`https://dniruc.apisperu.com/api/v1/ruc/${doc}`).catch(() => null);
+        let data: any = null;
+
+        // Intento 1: Directo a la API pública de SUNAT
+        try {
+          const res = await fetch(`https://api.apis.net.pe/v1/ruc?numero=${cleanDoc}`);
+          if (res.ok) data = await res.json();
+        } catch (_e1) {
+          // Intento 2: Proxy AllOrigins para bypass de CORS
+          try {
+            const proxyRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://api.apis.net.pe/v1/ruc?numero=' + cleanDoc)}`);
+            if (proxyRes.ok) {
+              const proxyData = await proxyRes.json();
+              if (proxyData.contents) data = JSON.parse(proxyData.contents);
+            }
+          } catch (_e2) {}
         }
 
-        if (res && res.ok) {
-          const data = await res.json();
+        if (data) {
           const razonSocial = data.nombre || data.razonSocial || data.razon_social || '';
           const direccion = data.direccion || data.direccionFiscal || data.direccion_fiscal || 'CUSCO, PERU';
 
@@ -72,23 +88,47 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
               razon_social: razonSocial,
               direccion_fiscal: direccion
             }));
-            setLookupSuccessMsg(`✅ SUNAT: Razón Social y Dirección comprobadas para ${razonSocial}`);
+            setLookupSuccessMsg(`✅ SUNAT: Razón Social obtenida (${razonSocial})`);
+          } else {
+            setErrorMsg('RUC no encontrado en SUNAT. Ingresa los datos manualmente.');
           }
         } else {
-          console.warn('No se obtuvo respuesta automatica de SUNAT, el usuario puede ingresarlo manualmente.');
+          setErrorMsg('No se pudo conectar con SUNAT automáticamente. Por favor ingresa la Razón Social.');
         }
       } catch (err) {
         console.warn('Error al consultar RUC:', err);
       } finally {
         setLoadingLookup(false);
       }
-    } else if (tipo === 'DNI' && doc.length === 8 && /^[0-9]{8}$/.test(doc)) {
+    } else if (tipo === 'DNI') {
+      if (!/^[0-9]{8}$/.test(cleanDoc)) {
+        setErrorMsg('El DNI debe contener exactamente 8 dígitos numéricos.');
+        return;
+      }
+
       setLoadingLookup(true);
       setLookupSuccessMsg('');
+      setErrorMsg('');
+
       try {
-        const res = await fetch(`https://api.apis.net.pe/v1/dni?numero=${doc}`).catch(() => null);
-        if (res && res.ok) {
-          const data = await res.json();
+        let data: any = null;
+
+        // Intento 1: Directo a API RENIEC
+        try {
+          const res = await fetch(`https://api.apis.net.pe/v1/dni?numero=${cleanDoc}`);
+          if (res.ok) data = await res.json();
+        } catch (_e1) {
+          // Intento 2: Proxy AllOrigins para bypass de CORS
+          try {
+            const proxyRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://api.apis.net.pe/v1/dni?numero=' + cleanDoc)}`);
+            if (proxyRes.ok) {
+              const proxyData = await proxyRes.json();
+              if (proxyData.contents) data = JSON.parse(proxyData.contents);
+            }
+          } catch (_e2) {}
+        }
+
+        if (data) {
           let nombres = data.nombres || '';
           let apellidos = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
 
@@ -108,8 +148,12 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
               nombres: nombres,
               apellidos: apellidos
             }));
-            setLookupSuccessMsg(`✅ RENIEC: Nombres y Apellidos identificados (${nombres} ${apellidos})`);
+            setLookupSuccessMsg(`✅ RENIEC: Datos obtenidos (${nombres} ${apellidos})`);
+          } else {
+            setErrorMsg('DNI no encontrado en RENIEC. Por favor escribe tus nombres y apellidos.');
           }
+        } else {
+          setErrorMsg('No se pudo conectar con RENIEC automáticamente. Por favor escribe tus nombres y apellidos.');
         }
       } catch (err) {
         console.warn('Error al consultar DNI:', err);
@@ -216,11 +260,12 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
             <span>{isRuc ? 'N° RUC' : t('booking.docNumber', 'N° Documento')} <span style={{color: 'red'}}>*</span></span>
             {loadingLookup && (
               <span style={{ fontSize: '0.75rem', color: '#0284c7', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <FaSpinner className="spin" /> Consultando SUNAT...
+                <FaSpinner className="spin" /> Consultando...
               </span>
             )}
           </label>
-          <div style={{ position: 'relative' }}>
+          
+          <div style={{ display: 'flex', gap: '6px' }}>
             <input 
               type="text" 
               name="nro_documento" 
@@ -230,8 +275,34 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
               disabled={disabled}
               required
               maxLength={isRuc ? 11 : isDni ? 8 : 15}
-              placeholder={isRuc ? 'Ej: 20608425676 (11 dígitos)' : 'Ej: 75622278 (8 dígitos)'}
+              placeholder={isRuc ? 'Ej: 20608425676' : 'Ej: 75622278'}
             />
+
+            {(isRuc || isDni) && (
+              <button
+                type="button"
+                onClick={() => fetchDocumentoData(formData.nro_documento, formData.tipo_documento)}
+                disabled={disabled || loadingLookup || !formData.nro_documento}
+                style={{
+                  background: 'var(--color-primary)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '0 12px',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px'
+                }}
+                title={`Buscar datos en ${isRuc ? 'SUNAT' : 'RENIEC'}`}
+              >
+                {loadingLookup ? <FaSpinner className="spin" /> : <FaSearch />}
+                <span>Buscar</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -243,10 +314,13 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
             color: '#166534',
             padding: '0.5rem 0.8rem',
             borderRadius: '8px',
-            fontSize: '0.8rem',
-            fontWeight: 600
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
           }}>
-            {lookupSuccessMsg}
+            <FaCheck /> {lookupSuccessMsg}
           </div>
         )}
 
@@ -264,7 +338,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
                 onChange={handleChange}
                 disabled={disabled}
                 required={isRuc}
-                placeholder="Ej: CORPORACION BJR IMPORT SUR S.A.C. (Autocompletado SUNAT)"
+                placeholder="Ej: CORPORACION BJR IMPORT SUR S.A.C."
               />
             </div>
 
@@ -280,14 +354,14 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
                 onChange={handleChange}
                 disabled={disabled}
                 required={isRuc}
-                placeholder="Ej: Cal. Enrique Barron Nro. 1024, Lima (Autocompletado SUNAT)"
+                placeholder="Ej: Cal. Enrique Barron Nro. 1024, Lima"
               />
             </div>
           </>
         )}
 
         <div className="form-group">
-          <label className="form-label">{t('booking.firstName', 'Nombres')}</label>
+          <label className="form-label">{t('booking.firstName', 'Nombres')} <span style={{color: 'red'}}>*</span></label>
           <input 
             type="text" 
             name="nombres" 
@@ -300,7 +374,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
         </div>
 
         <div className="form-group">
-          <label className="form-label">{t('booking.lastName', 'Apellidos')}</label>
+          <label className="form-label">{t('booking.lastName', 'Apellidos')} <span style={{color: 'red'}}>*</span></label>
           <input 
             type="text" 
             name="apellidos" 
