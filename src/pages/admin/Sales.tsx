@@ -129,6 +129,7 @@ const AdminSales: React.FC = () => {
         .eq('id', venta.id);
 
       // 3. Invocar Edge Function para envío de correo con PDFs vía Resend
+      let resendStatusMsg = '';
       try {
         const formData = new FormData();
         formData.append('venta_id', venta.id);
@@ -139,19 +140,22 @@ const AdminSales: React.FC = () => {
         });
 
         if (edgeErr) {
-          console.warn('Advertencia al invocar emitir-comprobante:', edgeErr);
+          console.warn('Advertencia Edge Function:', edgeErr);
+          resendStatusMsg = `\n\n⚠️ Nota Resend: ${edgeErr.message || 'La función no está desplegada aún en Supabase Remote'}`;
+        } else if (edgeData?.error) {
+          resendStatusMsg = `\n\n⚠️ Resend respondió: ${edgeData.error}`;
         } else {
-          console.log('Respuesta de envío por Resend:', edgeData);
+          resendStatusMsg = `\n\n✅ ¡Correo enviado exitosamente vía Resend a ${venta.email}!`;
         }
-      } catch (emailErr) {
-        console.warn('Disparo de Resend completado/ignorado:', emailErr);
+      } catch (emailErr: any) {
+        console.warn('Disparo de Resend:', emailErr);
       }
 
       // Actualizar estado local
       setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: invoiceUrl, estado: 'CONFIRMADO' } : v));
 
       const compTipo = venta.tipo_documento === 'RUC' ? 'Factura' : 'Boleta';
-      alert(`¡Pago verificado y confirmado exitosamente!\n\n• Se generó la ${compTipo} Electrónica en PDF.\n• Se generó el Boleto de Viaje en PDF.\n• Se envió la notificación por Resend al correo (${venta.email}).`);
+      alert(`¡Pago verificado y confirmado exitosamente!\n\n• Se generó la ${compTipo} Electrónica en PDF.\n• Se generó el Boleto de Viaje en PDF.${resendStatusMsg}`);
 
     } catch (err) {
       console.error('Error al confirmar pago:', err);
