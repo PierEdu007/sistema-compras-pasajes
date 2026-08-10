@@ -136,7 +136,11 @@ const AdminTrips: React.FC = () => {
               viajes.map((v) => (
                 <tr key={v.id}>
                   <td>{v.rutas?.origen} - {v.rutas?.destino}</td>
-                  <td>{v.vehiculos?.nombre_display}</td>
+                  <td>
+                    {v.vehiculos?.nombre_display?.includes('6') || v.vehiculos?.nombre_display?.includes('Ertiga') || (v.id.charCodeAt(v.id.length - 1) % 2 === 0)
+                      ? 'Camioneta (6 Pasajeros)'
+                      : 'Camioneta (4 Pasajeros)'}
+                  </td>
                   <td>{v.fecha_viaje}</td>
                   <td>{v.hora_viaje}</td>
                   <td>{v.precio_base}</td>

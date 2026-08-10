@@ -252,28 +252,25 @@ INSERT INTO rutas (origen, destino, duracion_estimada) VALUES
 -- Vehículos
 INSERT INTO vehiculos (tipo, nombre_display, total_asientos_pasajero, layout_json) VALUES
   (
-    'RENAULT_MASTER', 
-    'Renault Master', 
-    15, 
+    'CAMIONETA_4', 
+    'Camioneta (4 Pasajeros)', 
+    4, 
     '{
       "filas": [
-        {"fila": 1, "asientos": [{"n": 1, "pos": "izq"}, {"n": 2, "pos": "der"}], "nota": "Fila frontal (conductor excluido)"},
-        {"fila": 2, "asientos": [{"n": 3, "pos": "izq"}, {"n": 4, "pos": "cen"}, {"n": 5, "pos": "der"}]},
-        {"fila": 3, "asientos": [{"n": 6, "pos": "izq"}, {"n": 7, "pos": "cen"}, {"n": 8, "pos": "der"}]},
-        {"fila": 4, "asientos": [{"n": 9, "pos": "izq"}, {"n": 10, "pos": "cen"}, {"n": 11, "pos": "der"}]},
-        {"fila": 5, "asientos": [{"n": 12, "pos": "izq"}, {"n": 13, "pos": "cen-izq"}, {"n": 14, "pos": "cen-der"}, {"n": 15, "pos": "der"}]}
+        {"fila": 1, "asientos": [{"n": 1, "pos": "der"}], "nota": "Copiloto"},
+        {"fila": 2, "asientos": [{"n": 2, "pos": "izq"}, {"n": 3, "pos": "cen"}, {"n": 4, "pos": "der"}], "nota": "Segunda Fila"}
       ]
     }'::JSONB
   ),
   (
-    'SUZUKI_ERTIGA', 
-    'Suzuki Ertiga', 
-    8, 
+    'CAMIONETA_6', 
+    'Camioneta (6 Pasajeros)', 
+    6, 
     '{
       "filas": [
-        {"fila": 1, "asientos": [{"n": 1, "pos": "izq"}, {"n": 2, "pos": "der"}], "nota": "Fila frontal (conductor excluido)"},
-        {"fila": 2, "asientos": [{"n": 3, "pos": "izq"}, {"n": 4, "pos": "cen"}, {"n": 5, "pos": "der"}]},
-        {"fila": 3, "asientos": [{"n": 6, "pos": "izq"}, {"n": 7, "pos": "cen"}, {"n": 8, "pos": "der"}]}
+        {"fila": 1, "asientos": [{"n": 1, "pos": "der"}], "nota": "Copiloto"},
+        {"fila": 2, "asientos": [{"n": 2, "pos": "izq"}, {"n": 3, "pos": "cen"}, {"n": 4, "pos": "der"}], "nota": "Segunda Fila"},
+        {"fila": 3, "asientos": [{"n": 5, "pos": "izq"}, {"n": 6, "pos": "der"}], "nota": "Tercera Fila"}
       ]
     }'::JSONB
   );

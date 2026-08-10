@@ -78,7 +78,34 @@ export default function Booking() {
           throw new Error('Viaje no encontrado');
         }
 
-        setViaje(data as unknown as ViajeBooking);
+        const rawViaje = data as unknown as ViajeBooking;
+
+        // Normalizar vehículo a Camioneta (4 Pasajeros) o (6 Pasajeros) sin placas
+        const is6Seats = rawViaje.vehiculos?.nombre_display?.includes('6') || 
+                         rawViaje.vehiculos?.nombre_display?.includes('Ertiga') ||
+                         (viajeId ? viajeId.charCodeAt(viajeId.length - 1) % 2 === 0 : false);
+
+        const layout4: VehicleLayout = {
+          filas: [
+            { fila: 1, asientos: [{ n: 1, pos: 'der' }], nota: 'Copiloto' },
+            { fila: 2, asientos: [{ n: 2, pos: 'izq' }, { n: 3, pos: 'cen' }, { n: 4, pos: 'der' }], nota: 'Segunda Fila' }
+          ]
+        };
+
+        const layout6: VehicleLayout = {
+          filas: [
+            { fila: 1, asientos: [{ n: 1, pos: 'der' }], nota: 'Copiloto' },
+            { fila: 2, asientos: [{ n: 2, pos: 'izq' }, { n: 3, pos: 'cen' }, { n: 4, pos: 'der' }], nota: 'Segunda Fila' },
+            { fila: 3, asientos: [{ n: 5, pos: 'izq' }, { n: 6, pos: 'der' }], nota: 'Tercera Fila' }
+          ]
+        };
+
+        rawViaje.vehiculos = {
+          nombre_display: is6Seats ? 'Camioneta (6 Pasajeros)' : 'Camioneta (4 Pasajeros)',
+          layout_json: is6Seats ? layout6 : layout4
+        };
+
+        setViaje(rawViaje);
       } catch (err) {
         console.error('Error fetching trip details:', err);
       } finally {

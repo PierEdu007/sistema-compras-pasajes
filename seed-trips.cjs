@@ -2,22 +2,33 @@ const { createClient } = require('@supabase/supabase-js');
 
 const supabase = createClient(
   'https://ybnenttufdztznupgigk.supabase.co',
-  'sb_secret_VT0L5Gxn4fwmS31KwJs7NA_BAj8X8i1'
+  'sb_publishable_Mdx2PoPGjjz1S7FtJpSucw__QkNvuMF'
 );
+
+const layout4 = {
+  filas: [
+    { fila: 1, asientos: [{ n: 1, pos: 'der' }], nota: 'Copiloto' },
+    { fila: 2, asientos: [{ n: 2, pos: 'izq' }, { n: 3, pos: 'cen' }, { n: 4, pos: 'der' }], nota: 'Segunda Fila' }
+  ]
+};
+
+const layout6 = {
+  filas: [
+    { fila: 1, asientos: [{ n: 1, pos: 'der' }], nota: 'Copiloto' },
+    { fila: 2, asientos: [{ n: 2, pos: 'izq' }, { n: 3, pos: 'cen' }, { n: 4, pos: 'der' }], nota: 'Segunda Fila' },
+    { fila: 3, asientos: [{ n: 5, pos: 'izq' }, { n: 6, pos: 'der' }], nota: 'Tercera Fila' }
+  ]
+};
 
 async function seed() {
   const { data: rutas } = await supabase.from('rutas').select('id');
-  const { data: vehiculos } = await supabase.from('vehiculos').select('*').eq('tipo', 'RENAULT_MASTER');
-  const renaultLayout = vehiculos[0].layout_json;
   
   await supabase.from('vehiculos').upsert([
-    { tipo: 'RENAULT_MASTER_1', nombre_display: 'Renault Master (Placa 1)', total_asientos_pasajero: 15, layout_json: renaultLayout },
-    { tipo: 'RENAULT_MASTER_2', nombre_display: 'Renault Master (Placa 2)', total_asientos_pasajero: 15, layout_json: renaultLayout },
-    { tipo: 'RENAULT_MASTER_3', nombre_display: 'Renault Master (Placa 3)', total_asientos_pasajero: 15, layout_json: renaultLayout },
-    { tipo: 'RENAULT_MASTER_4', nombre_display: 'Renault Master (Placa 4)', total_asientos_pasajero: 15, layout_json: renaultLayout }
+    { tipo: 'CAMIONETA_4', nombre_display: 'Camioneta (4 Pasajeros)', total_asientos_pasajero: 4, layout_json: layout4, activo: true },
+    { tipo: 'CAMIONETA_6', nombre_display: 'Camioneta (6 Pasajeros)', total_asientos_pasajero: 6, layout_json: layout6, activo: true }
   ]);
   
-  const { data: allVehiculos } = await supabase.from('vehiculos').select('id').like('tipo', 'RENAULT_MASTER_%');
+  const { data: allVehiculos } = await supabase.from('vehiculos').select('id').eq('activo', true);
   
   const schedules = ['03:00:00', '06:00:00', '08:00:00', '10:00:00', '12:00:00', '14:00:00', '16:00:00', '18:00:00', '20:00:00', '22:00:00'];
   const today = new Date();
@@ -35,7 +46,7 @@ async function seed() {
         batch.push({ ruta_id: ruta.id, vehiculo_id: vId, fecha_viaje: dateStr, hora_viaje: time, precio_base: 45.00, estado: 'ACTIVO' });
       }
     }
-    // insert batch
+    
     const { error } = await supabase.from('viajes').insert(batch);
     if (error && error.code !== '23505') {
        console.log('Error in day ' + d, error.message);
@@ -43,4 +54,5 @@ async function seed() {
   }
   console.log('Seeding listo.');
 }
+
 seed();
