@@ -288,6 +288,18 @@ const AdminSales: React.FC = () => {
       const updatedLocal = localPending.filter(v => v.id !== venta.id);
       localStorage.setItem('local_pending_ventas', JSON.stringify(updatedLocal));
 
+      // Liberar y desocupar el asiento en la base de datos (asientos_bloqueos)
+      if (venta.viaje_id && venta.numero_asiento) {
+        try {
+          await (supabase.from('asientos_bloqueos') as any)
+            .delete()
+            .eq('viaje_id', venta.viaje_id)
+            .eq('numero_asiento', venta.numero_asiento);
+        } catch (bErr) {
+          console.warn('Error al desocupar asiento en asientos_bloqueos:', bErr);
+        }
+      }
+
       const { error: delError } = await (supabase.from('ventas') as any)
         .delete()
         .eq('id', venta.id);
