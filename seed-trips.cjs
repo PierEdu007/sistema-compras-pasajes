@@ -43,7 +43,7 @@ async function seed() {
       const ruta = rutas[r];
       const vId = allVehiculos[r % allVehiculos.length].id;
       for (const time of schedules) {
-        batch.push({ ruta_id: ruta.id, vehiculo_id: vId, fecha_viaje: dateStr, hora_viaje: time, precio_base: 45.00, estado: 'ACTIVO' });
+        batch.push({ ruta_id: ruta.id, vehiculo_id: vId, fecha_viaje: dateStr, hora_viaje: time, precio_base: 50.00, estado: 'ACTIVO' });
       }
     }
     
