@@ -120,15 +120,18 @@ export default function Booking() {
   const fetchSeatStatuses = async (vId: string) => {
     try {
       const [{ data: ventasData }, { data: bloqueosData }] = await Promise.all([
-        supabase.from('ventas').select('numero_asiento').eq('viaje_id', vId),
+        supabase.from('ventas').select('id, numero_asiento, culqi_charge_id').eq('viaje_id', vId),
         supabase.from('asientos_bloqueos').select('numero_asiento, estado, expira_at').eq('viaje_id', vId)
       ]);
 
+      const rejectedList: string[] = JSON.parse(localStorage.getItem('rejected_ventas') || '[]');
       const statuses: Record<number, SeatStatus> = {};
 
       if (ventasData) {
         for (const v of (ventasData as any[])) {
-          statuses[v.numero_asiento] = 'PAGADO';
+          if (!v.culqi_charge_id?.startsWith('RECHAZADO_') && !rejectedList.includes(v.id)) {
+            statuses[v.numero_asiento] = 'PAGADO';
+          }
         }
       }
 
