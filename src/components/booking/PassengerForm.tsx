@@ -47,7 +47,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
     if (errorMsg) setErrorMsg('');
   };
 
-  // Función para consultar SUNAT (RUC) o RENIEC (DNI) eliminando la cabecera Referer local
+  // Función para consultar SUNAT (RUC) o RENIEC (DNI) via proxy local (sin CORS)
   const fetchDocumentoData = async (doc: string, tipo: string) => {
     const cleanDoc = doc.trim();
 
@@ -62,33 +62,9 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
       setErrorMsg('');
 
       try {
-        let data: any = null;
-
-        // Intento 1: Directo con no-referrer para bypass de bloqueos por localhost
-        try {
-          const res = await fetch(`https://api.apis.net.pe/v1/ruc?numero=${cleanDoc}`, {
-            referrerPolicy: 'no-referrer'
-          });
-          if (res.ok) {
-            data = await res.json();
-          } else {
-            console.warn('API RUC status:', res.status);
-          }
-        } catch (e1) {
-          console.warn('Error directo RUC:', e1);
-        }
-
-        // Intento 2: Fallback público alternativo
-        if (!data) {
-          try {
-            const res2 = await fetch(`https://dniruc.apisperu.com/api/v1/ruc/${cleanDoc}`, {
-              referrerPolicy: 'no-referrer'
-            });
-            if (res2.ok) data = await res2.json();
-          } catch (_e2) {}
-        }
-
-        if (data) {
+        const res = await fetch(`/api/ruc?numero=${cleanDoc}`);
+        if (res.ok) {
+          const data = await res.json();
           const razonSocial = data.nombre || data.razonSocial || data.razon_social || '';
           const direccion = data.direccion || data.direccionFiscal || data.direccion_fiscal || 'CUSCO, PERU';
 
@@ -107,7 +83,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
         }
       } catch (err: any) {
         console.error('Error al consultar RUC:', err);
-        setErrorMsg(`Error al consultar SUNAT: ${err.message || 'Sin conexión'}`);
+        setErrorMsg('No se pudo conectar con SUNAT. Por favor ingresa la Razón Social manualmente.');
       } finally {
         setLoadingLookup(false);
       }
@@ -122,33 +98,9 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
       setErrorMsg('');
 
       try {
-        let data: any = null;
-
-        // Intento 1: Directo a API RENIEC con no-referrer
-        try {
-          const res = await fetch(`https://api.apis.net.pe/v1/dni?numero=${cleanDoc}`, {
-            referrerPolicy: 'no-referrer'
-          });
-          if (res.ok) {
-            data = await res.json();
-          } else {
-            console.warn('API DNI status:', res.status);
-          }
-        } catch (e1) {
-          console.warn('Error directo DNI:', e1);
-        }
-
-        // Intento 2: Fallback público alternativo
-        if (!data) {
-          try {
-            const res2 = await fetch(`https://dniruc.apisperu.com/api/v1/dni/${cleanDoc}`, {
-              referrerPolicy: 'no-referrer'
-            });
-            if (res2.ok) data = await res2.json();
-          } catch (_e2) {}
-        }
-
-        if (data) {
+        const res = await fetch(`/api/dni?numero=${cleanDoc}`);
+        if (res.ok) {
+          const data = await res.json();
           let nombres = data.nombres || '';
           let apellidos = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
 
@@ -177,7 +129,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
         }
       } catch (err: any) {
         console.error('Error al consultar DNI:', err);
-        setErrorMsg(`Error al consultar RENIEC: ${err.message || 'Sin conexión'}`);
+        setErrorMsg('No se pudo conectar con RENIEC. Por favor ingresa tus nombres y apellidos manualmente.');
       } finally {
         setLoadingLookup(false);
       }
