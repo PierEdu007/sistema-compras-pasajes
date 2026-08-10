@@ -179,8 +179,43 @@ export default function Booking() {
       if (!insertError && insertedData) {
         ventaId = (insertedData as { id: string }).id;
       } else if (insertError) {
-        console.error('Error final al insertar venta:', insertError);
+        console.error('Error al insertar venta en Supabase:', insertError);
       }
+
+      // Guardar respaldo local de la venta para visibilidad inmediata en /admin/ventas
+      const newVentaRecord = {
+        id: ventaId,
+        viaje_id: viaje.id,
+        numero_asiento: selectedSeat,
+        tipo_documento: pendingPassengerData.tipo_documento,
+        nro_documento: pendingPassengerData.nro_documento,
+        nombres: pendingPassengerData.nombres,
+        apellidos: pendingPassengerData.apellidos,
+        email: pendingPassengerData.email,
+        telefono: pendingPassengerData.telefono,
+        monto_pagado: viaje.precio_base,
+        culqi_charge_id: chargeId,
+        metodo_pago: 'YAPE',
+        nro_operacion: yapeData.nro_operacion,
+        razon_social: pendingPassengerData.razon_social,
+        direccion_fiscal: pendingPassengerData.direccion_fiscal,
+        descripcion_opcional: pendingPassengerData.descripcion_opcional,
+        comprobante_emitido: false,
+        comprobante_url: null,
+        created_at: new Date().toISOString(),
+        viajes: {
+          fecha_viaje: viaje.fecha_viaje,
+          hora_viaje: viaje.hora_viaje,
+          rutas: {
+            origen: viaje.rutas.origen,
+            destino: viaje.rutas.destino
+          }
+        }
+      };
+
+      const localVentas = JSON.parse(localStorage.getItem('local_pending_ventas') || '[]');
+      localVentas.unshift(newVentaRecord);
+      localStorage.setItem('local_pending_ventas', JSON.stringify(localVentas));
 
       setIsYapeModalOpen(false);
       navigate(`/confirmacion/${ventaId}`, {

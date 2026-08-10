@@ -42,7 +42,7 @@ const AdminSales: React.FC = () => {
   const fetchVentas = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error: _err } = await supabase
         .from('ventas')
         .select(`
           id,
@@ -65,10 +65,20 @@ const AdminSales: React.FC = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      const localPending: VentaRow[] = JSON.parse(localStorage.getItem('local_pending_ventas') || '[]');
       const allData = (data as unknown as VentaRow[]) || [];
+
+      const merged = [...localPending, ...allData];
+      const uniqueMap = new Map<string, VentaRow>();
+      merged.forEach(item => {
+        if (!uniqueMap.has(item.id)) {
+          uniqueMap.set(item.id, item);
+        }
+      });
+      const combined = Array.from(uniqueMap.values());
+
       const rejectedList: string[] = JSON.parse(localStorage.getItem('rejected_ventas') || '[]');
-      const activeVentas = allData.filter(v => 
+      const activeVentas = combined.filter(v => 
         !v.culqi_charge_id?.startsWith('RECHAZADO_') && 
         !rejectedList.includes(v.id)
       );

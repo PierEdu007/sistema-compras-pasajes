@@ -54,7 +54,7 @@ const AdminDashboard: React.FC = () => {
       setViajesActivosCount(viajesCount || 0);
 
       // 2. Fetch Ventas
-      const { data: salesData, error: salesErr } = await supabase
+      const { data: salesData, error: _salesErr } = await supabase
         .from('ventas')
         .select(`
           id,
@@ -77,15 +77,26 @@ const AdminDashboard: React.FC = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (!salesErr && salesData) {
-        const rejectedList: string[] = JSON.parse(localStorage.getItem('rejected_ventas') || '[]');
-        const allSales = (salesData as unknown as DashboardVenta[]).filter(v => 
-          !v.culqi_charge_id?.startsWith('RECHAZADO_') && 
-          !rejectedList.includes(v.id)
-        );
+      const localPending: DashboardVenta[] = JSON.parse(localStorage.getItem('local_pending_ventas') || '[]');
+      const allData = (salesData as unknown as DashboardVenta[]) || [];
 
-        // Ventas confirmadas (comprobante_emitido === true)
-        const confirmed = allSales.filter(v => v.comprobante_emitido);
+      const merged = [...localPending, ...allData];
+      const uniqueMap = new Map<string, DashboardVenta>();
+      merged.forEach(item => {
+        if (!uniqueMap.has(item.id)) {
+          uniqueMap.set(item.id, item);
+        }
+      });
+      const combined = Array.from(uniqueMap.values());
+
+      const rejectedList: string[] = JSON.parse(localStorage.getItem('rejected_ventas') || '[]');
+      const allSales = combined.filter(v => 
+        !v.culqi_charge_id?.startsWith('RECHAZADO_') && 
+        !rejectedList.includes(v.id)
+      );
+
+      // Ventas confirmadas (comprobante_emitido === true)
+      const confirmed = allSales.filter(v => v.comprobante_emitido);
         const pending = allSales.filter(v => !v.comprobante_emitido);
 
         setConfirmedVentas(confirmed);
@@ -95,7 +106,6 @@ const AdminDashboard: React.FC = () => {
         // Sumar monto total acumulado de confirmadas
         const totalSum = confirmed.reduce((acc, current) => acc + (current.monto_pagado || 0), 0);
         setTotalVentasHoy(totalSum);
-      }
     } catch (err) {
       console.error('Error cargando métricas del dashboard:', err);
     } finally {
