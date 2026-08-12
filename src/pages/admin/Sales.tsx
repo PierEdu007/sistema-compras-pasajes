@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaKey } from 'react-icons/fa';
+import { FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaKey, FaServer } from 'react-icons/fa';
 import { generateInvoicePDF, generateTicketPDF } from '../../utils/invoiceGenerator';
+import { SunatConfigModal } from '../../components/admin/SunatConfigModal';
+import { emitirComprobanteSunat, getSunatConfig } from '../../services/sunatService';
 import '../../styles/components/admin.css';
 
 interface VentaRow {
@@ -34,6 +36,7 @@ const AdminSales: React.FC = () => {
   const [ventas, setVentas] = useState<VentaRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [isSunatModalOpen, setIsSunatModalOpen] = useState(false);
 
   useEffect(() => {
     fetchVentas();
@@ -237,16 +240,49 @@ const AdminSales: React.FC = () => {
       window.open(invoiceUrl, '_blank');
       window.open(ticketUrl, '_blank');
 
+      // 1. Emisión automática a SUNAT vía API PSE / Nubefact si está habilitado
+      let sunatNote = '';
+      let finalInvoiceUrl = invoiceUrl;
+
+      const sunatConfig = getSunatConfig();
+      if (sunatConfig.enabled) {
+        const sunatRes = await emitirComprobanteSunat({
+          ventaId: venta.id,
+          tipoDocumento: venta.tipo_documento,
+          nroDocumento: venta.nro_documento,
+          nombres: venta.nombres,
+          apellidos: venta.apellidos,
+          email: venta.email,
+          razonSocial,
+          direccionFiscal,
+          origen: venta.viajes?.rutas?.origen || 'CUSCO',
+          destino: venta.viajes?.rutas?.destino || 'QUILLABAMBA',
+          asiento: venta.numero_asiento,
+          monto: venta.monto_pagado,
+          fechaViaje: venta.viajes?.fecha_viaje || '',
+          horaViaje: venta.viajes?.hora_viaje || ''
+        });
+
+        if (sunatRes.success) {
+          sunatNote = `\n\n✅ ¡Comprobante SUNAT Emitido y Aceptado! (Serie: ${sunatRes.serie}-${sunatRes.numero})`;
+          if (sunatRes.pdfUrl) {
+            finalInvoiceUrl = sunatRes.pdfUrl;
+          }
+        } else {
+          sunatNote = `\n\n⚠️ SUNAT Aviso: ${sunatRes.error}`;
+        }
+      }
+
       // 2. Actualizar estado local & Supabase
       await (supabase.from('ventas') as any)
         .update({
           comprobante_emitido: true,
-          comprobante_url: invoiceUrl
+          comprobante_url: finalInvoiceUrl
         })
         .eq('id', venta.id);
 
       const localPending: VentaRow[] = JSON.parse(localStorage.getItem('local_pending_ventas') || '[]');
-      const updatedLocal = localPending.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: invoiceUrl } : v);
+      const updatedLocal = localPending.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl } : v);
       localStorage.setItem('local_pending_ventas', JSON.stringify(updatedLocal));
 
       // 3. Envío de correo por Resend (Intento 1: Edge Function, Intento 2: Directo API Resend)
@@ -258,10 +294,10 @@ const AdminSales: React.FC = () => {
         resendNote = `\n\n⚠️ Resend aviso: ${directResult.error}`;
       }
 
-      setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: invoiceUrl, estado: 'CONFIRMADO' } : v));
+      setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, estado: 'CONFIRMADO' } : v));
 
       const compTipo = venta.tipo_documento === 'RUC' ? 'Factura' : 'Boleta';
-      alert(`¡Pago verificado y confirmado exitosamente!\n\n• Se generó la ${compTipo} Electrónica en PDF.\n• Se generó el Boleto de Viaje en PDF.${resendNote}`);
+      alert(`¡Pago verificado y confirmado exitosamente!\n\n• Se generó la ${compTipo} Electrónica en PDF.\n• Se generó el Boleto de Viaje en PDF.${sunatNote}${resendNote}`);
 
     } catch (err) {
       console.error('Error al confirmar pago:', err);
@@ -325,26 +361,54 @@ const AdminSales: React.FC = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 style={{ margin: 0 }}>Gestión de Ventas</h1>
-        <button 
-          onClick={handleConfigureApiKey}
-          style={{
-            background: '#f8fafc',
-            border: '1px solid #cbd5e1',
-            borderRadius: '8px',
-            padding: '6px 12px',
-            fontSize: '0.85rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            color: '#334155'
-          }}
-          title="Configurar clave API de Resend para enviar correos en local"
-        >
-          <FaKey style={{ color: '#742284' }} /> API Key Resend
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            onClick={() => setIsSunatModalOpen(true)}
+            style={{
+              background: 'linear-gradient(135deg, #0f4c81, #742284)',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '8px 14px',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 6px rgba(15, 76, 129, 0.25)'
+            }}
+            title="Configurar conexión de Facturación Electrónica a SUNAT (Nubefact / PSE)"
+          >
+            <FaServer /> Configuración SUNAT (PSE)
+          </button>
+
+          <button 
+            onClick={handleConfigureApiKey}
+            style={{
+              background: '#f8fafc',
+              border: '1px solid #cbd5e1',
+              borderRadius: '8px',
+              padding: '6px 12px',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              color: '#334155'
+            }}
+            title="Configurar clave API de Resend para enviar correos en local"
+          >
+            <FaKey style={{ color: '#742284' }} /> API Key Resend
+          </button>
+        </div>
       </div>
+
+      <SunatConfigModal
+        isOpen={isSunatModalOpen}
+        onClose={() => setIsSunatModalOpen(false)}
+      />
 
       <div className="admin-card" style={{ padding: 0, overflowX: 'auto' }}>
         <table className="admin-table">
