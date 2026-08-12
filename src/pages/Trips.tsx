@@ -15,6 +15,59 @@ interface ViajeCalculado {
   asientos_libres: number;
 }
 
+const headerBannerStyle: React.CSSProperties = {
+  background: 'linear-gradient(135deg, #0f4c81 0%, #742284 100%)',
+  color: '#ffffff',
+  padding: '24px 28px',
+  borderRadius: '16px',
+  margin: '20px 0 32px 0',
+  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+  display: 'flex',
+  flexWrap: 'wrap',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  gap: '16px'
+};
+
+const routeTitleStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '12px',
+  fontSize: '1.75rem',
+  fontWeight: 800,
+  fontFamily: 'var(--font-heading)',
+  color: '#ffffff',
+  letterSpacing: '0.5px'
+};
+
+const dateBadgeStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '8px',
+  backgroundColor: '#0f172a',
+  color: '#facc15',
+  padding: '8px 16px',
+  borderRadius: '20px',
+  fontSize: '1rem',
+  fontWeight: 'bold',
+  marginTop: '12px',
+  textTransform: 'capitalize',
+  border: '2px solid #facc15',
+  boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+};
+
+const changeBtnStyle: React.CSSProperties = {
+  border: '2px solid rgba(255, 255, 255, 0.6)',
+  background: 'rgba(255, 255, 255, 0.15)',
+  color: '#ffffff',
+  padding: '10px 20px',
+  borderRadius: '10px',
+  cursor: 'pointer',
+  fontWeight: 700,
+  fontSize: '0.95rem',
+  transition: 'all 0.2s ease'
+};
+
 export default function Trips() {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -35,7 +88,6 @@ export default function Trips() {
 
     setLoading(true);
     try {
-      // 1. Buscar el ID de la ruta
       const { data: rutaData } = await supabase
         .from('rutas')
         .select('id')
@@ -44,7 +96,6 @@ export default function Trips() {
         .single();
 
       if (rutaData) {
-        // 2. Buscar viajes para esa ruta y fecha
         let query = supabase
           .from('viajes')
           .select(`
@@ -60,7 +111,6 @@ export default function Trips() {
           .eq('fecha_viaje', fechaParam)
           .eq('estado', 'ACTIVO');
 
-        // Si es hoy, no mostrar viajes de horas pasadas
         const today = new Date();
         const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
         
@@ -75,7 +125,6 @@ export default function Trips() {
         if (viajesData && viajesData.length > 0) {
           const viajeIds = (viajesData as any[]).map(v => v.id);
 
-          // 3. Consultar todos los bloqueos/ventas activas para estos viajes
           const { data: bloqueosData } = await supabase
             .from('asientos_bloqueos')
             .select('viaje_id, numero_asiento, estado, expira_at')
@@ -83,8 +132,7 @@ export default function Trips() {
 
           const now = new Date();
 
-          // 4. Mapear y calcular asientos libres para cada viaje
-          const listaCalculada: ViajeCalculado[] = viajesData.map((v: any) => {
+          const listaCalculada: ViajeCalculado[] = (viajesData as any[]).map((v: any) => {
             const rawNombre = v.vehiculos?.nombre_display || '';
             const rawTotal = v.vehiculos?.total_asientos_pasajero || 4;
 
@@ -92,7 +140,6 @@ export default function Trips() {
             const totalAsientos = is6Seats ? 6 : 4;
             const vehiculoNombre = is6Seats ? 'Camioneta (6 Pasajeros)' : 'Camioneta (4 Pasajeros)';
 
-            // Contar asientos ocupados o bloqueados vigentes
             const ocupadosCount = (bloqueosData || []).filter((b: any) => {
               if (b.viaje_id !== v.id) return false;
               if (b.estado === 'PAGADO') return true;
@@ -133,7 +180,6 @@ export default function Trips() {
   useEffect(() => {
     fetchViajes();
 
-    // Suscribirse a cambios en tiempo real en la tabla asientos_bloqueos
     const channel = supabase
       .channel('trips-realtime-seats')
       .on(
@@ -164,28 +210,29 @@ export default function Trips() {
 
   return (
     <div className="trips-page">
-      <div className="search-summary">
-        <div className="container">
-          <div className="summary-content">
-            <div>
-              <div className="route-info">
-                <span>{origenParam}</span>
-                <span className="route-arrow"><FaArrowRight /></span>
-                <span>{destinoParam}</span>
-              </div>
-              <div className="date-info">
-                <FaCalendarAlt /> {fechaParam ? formatDate(fechaParam) : ''}
-              </div>
-            </div>
-            
-            <button className="btn-change-search" onClick={() => navigate('/')}>
-              {t('search.change', 'Cambiar búsqueda')}
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div className="container">
+        <div style={headerBannerStyle}>
+          <div>
+            <div style={routeTitleStyle}>
+              <span>{origenParam}</span>
+              <span style={{ color: '#facc15', fontSize: '1.4rem', display: 'flex', alignItems: 'center' }}><FaArrowRight /></span>
+              <span>{destinoParam}</span>
+            </div>
+
+            <div style={dateBadgeStyle}>
+              <FaCalendarAlt style={{ color: '#facc15' }} />
+              <span>{fechaParam ? formatDate(fechaParam) : ''}</span>
+            </div>
+          </div>
+
+          <button 
+            onClick={() => navigate('/')}
+            style={changeBtnStyle}
+          >
+            {t('search.change', 'Cambiar búsqueda')}
+          </button>
+        </div>
+
         {loading ? (
           <div className="text-center py-5">
             <h3 style={{color: 'var(--color-primary)'}}>{t('common.loading', 'Cargando viajes...')}</h3>
