@@ -1,6 +1,8 @@
 {
   "nav": {
     "home": "Inicio",
+    "rutas": "Rutas",
+    "ubicanos": "Ubícanos",
     "terms": "Términos y Condiciones",
     "blog": "Blog",
     "buyTicket": "Comprar Pasaje",
