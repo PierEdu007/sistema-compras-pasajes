@@ -76,6 +76,10 @@ export default function SeatMap({
       </div>
 
       <div className="vehicle-layout">
+        {/* Espejos laterales (Side Mirrors) */}
+        <div className="vehicle-mirror-left" />
+        <div className="vehicle-mirror-right" />
+
         {/* Rows */}
         <div className="rows-container">
           {layout.filas.map((row) => (
