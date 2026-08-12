@@ -133,7 +133,7 @@ const AdminSales: React.FC = () => {
       const compTipo = venta.tipo_documento === 'RUC' ? 'Factura Electrónica' : 'Boleta Electrónica';
 
       const emailPayload = {
-        from: 'INVERSIONES TUNKY CHASKY <onboarding@resend.dev>',
+        from: 'INVERSIONES TUNKY CHASKY <reservas@turismotunkychasky.com.pe>',
         to: [venta.email],
         subject: `¡Pago Confirmado! Su ${compTipo} y Boleto de Viaje #${venta.numero_asiento}`,
         html: `
