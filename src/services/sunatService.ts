@@ -169,3 +169,64 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
     };
   }
 }
+
+/**
+ * Anular Comprobante Electrónico (Comunicación de Baja ante SUNAT)
+ */
+export async function anularComprobanteSunat(
+  tipoComprobante: 'BOLETA' | 'FACTURA',
+  serie: string,
+  numero: number,
+  motivo: string,
+  customConfig?: SunatConfig
+): Promise<SunatResponse> {
+  const config = customConfig || getSunatConfig();
+
+  if (!config.enabled || !config.apiUrl || !config.apiToken) {
+    return {
+      success: false,
+      error: 'Facturación SUNAT no configurada.'
+    };
+  }
+
+  const payload = {
+    operacion: 'generar_anulacion',
+    tipo_de_comprobante: tipoComprobante === 'FACTURA' ? 1 : 2,
+    serie: serie,
+    numero: numero,
+    motivo: motivo || 'Cancelación de viaje a solicitud del pasajero'
+  };
+
+  try {
+    const response = await fetch(config.apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${config.apiToken}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || result.errors) {
+      return {
+        success: false,
+        error: result.errors || result.message || 'Error al anular en SUNAT'
+      };
+    }
+
+    return {
+      success: true,
+      pdfUrl: result.enlace_del_pdf,
+      xmlUrl: result.enlace_del_xml,
+      cdrUrl: result.enlace_del_cdr,
+      sunatMessage: result.sunat_description || 'Comprobante Anulado Correctamente ante SUNAT'
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err.message || 'Error de comunicación al anular con SUNAT'
+    };
+  }
+}
