@@ -1,67 +1,162 @@
 {
   "nav": {
     "home": "Inicio",
-    "terms": "Términos y condiciones",
+    "terms": "Términos y Condiciones",
     "blog": "Blog",
-    "buyTicket": "Comprar pasaje",
+    "buyTicket": "Comprar Pasaje",
     "language": "Idioma"
   },
   "hero": {
     "title": "Viaja seguro de Cusco a Quillabamba",
     "subtitle": "Seguridad y confort a tu servicio",
-    "searchBtn": "Buscar viajes"
+    "buyTicket": "Compra tu pasaje",
+    "searchBtn": "Buscar Viajes"
   },
   "search": {
     "origin": "Origen",
     "destination": "Destino",
-    "date": "Fecha",
+    "date": "Fecha de viaje",
     "time": "Hora",
     "search": "Buscar",
     "noResults": "No se encontraron viajes disponibles",
     "seatsAvailable": "{{count}} asientos disponibles",
     "price": "Precio",
-    "selectTrip": "Seleccionar viaje"
+    "selectTrip": "Seleccionar Viaje"
   },
   "benefits": {
     "title": "¿Por qué viajar con nosotros?",
     "security": {
       "title": "Seguridad",
-      "desc": "Unidades modernas con GPS y conductores certificados para tu tranquilidad."
+      "desc": "Unidades modernas equipadas con GPS y conductores profesionales certificados para tu tranquilidad."
     },
     "comfort": {
       "title": "Comodidad",
-      "desc": "Asientos reclinables y espacios amplios para un viaje placentero."
+      "desc": "Asientos reclinables y espacios amplios diseñados para un viaje placentero y relajante."
     },
     "punctuality": {
       "title": "Puntualidad",
-      "desc": "Cumplimos con los horarios establecidos para que planifiques sin preocupaciones."
+      "desc": "Cumplimos estrictamente con los horarios establecidos para que planifiques sin preocupaciones."
+    },
+    "cargo": {
+      "title": "ENCOMIENDAS Y GIROS:",
+      "desc": "Envío rápido y seguro de sobres, paquetes y giros de dinero con máxima confiabilidad."
+    },
+    "departures": {
+      "title": "SALIDAS DIARIAS:",
+      "desc": "Programación constante hacia Hidroeléctrica, Quillabamba, Lima y rutas estratégicas."
+    },
+    "drivers": {
+      "title": "CONDUCTORES EXPERTOS:",
+      "desc": "Conductores profesionales con amplia experiencia en rutas altoandinas y de selva."
     }
   },
   "about": {
-    "title": "Sobre nosotros",
-    "description": "Líderes en transporte terrestre interurbano y logística de encomiendas en la región Cusco."
+    "title": "Sobre Nosotros",
+    "description": "Inversiones Tunki Chasky S.R.L. es una empresa líder en transporte terrestre interurbano y logística de encomiendas en la región Cusco. Con camionetas modernas de 3 filas, ofrecemos un servicio Formal, Seguro, Confiable y Puntual para satisfacer las necesidades de nuestros usuarios."
+  },
+  "dest": {
+    "title": "Rutas y Destinos",
+    "subtitle": "Transporte de Pasajeros",
+    "enquire": "Consultar Ahora",
+    "express": "Express",
+    "comfort": "Confort",
+    "daily": "Diario",
+    "jungle": "Selva",
+    "fast": "Rápido",
+    "valley": "Valle",
+    "frequent": "Frecuente",
+    "train": "Tren",
+    "punctual": "Puntual",
+    "direct": "Directo",
+    "executive": "Ejecutivo",
+    "veloz": "Veloz",
+    "secure": "Seguro",
+    "1": {
+      "title": "Ruta a Machu Picchu",
+      "desc": "Servicio directo y veloz para turistas y locales buscando puntualidad hacia Hidroeléctrica."
+    },
+    "2": {
+      "title": "Ruta de la Convención",
+      "desc": "Viajes diarios por la ruta Málaga con conductores expertos en montaña."
+    },
+    "3": {
+      "title": "Ruta Quellouno",
+      "desc": "Conexión rápida y segura hacia el cálido valle de Quellouno todos los días."
+    },
+    "4": {
+      "title": "Ruta Valle Sagrado",
+      "desc": "Transporte frecuente hacia el corazón de Calca en camionetas modernas."
+    },
+    "5": {
+      "title": "Conexión Trenes",
+      "desc": "Llega a tiempo para tu tren a Machu Picchu con nuestro servicio ejecutivo."
+    },
+    "6": {
+      "title": "Ruta Nacional",
+      "desc": "Servicio especial hacia la capital con GPS y monitoreo 24/7."
+    },
+    "7": {
+      "title": "Ruta Interurbana",
+      "desc": "La opción más veloz y segura para viajar hacia Abancay."
+    }
+  },
+  "test": {
+    "title": "Lo que dicen nuestros pasajeros",
+    "subtitle": "Testimonios",
+    "1": {
+      "text": "\"Excelente servicio, muy rápido y las camionetas son muy cómodas. Recomendado al 100%.\"",
+      "role": "Pasajero Frecuente"
+    },
+    "2": {
+      "text": "\"La mejor opción para enviar encomiendas a Quillabamba. Muy confiables y puntuales.\"",
+      "role": "Comerciante"
+    },
+    "3": {
+      "text": "\"Viaje seguro y cómodo desde Cusco a Machu Picchu / Hidroeléctrica. Conductores certificados.\"",
+      "role": "Turista"
+    }
+  },
+  "map": {
+    "title": "Encuéntranos en",
+    "subtitle": "Visítanos",
+    "cusco": "Terminal Cusco",
+    "quillabamba": "Terminal Quillabamba"
   },
   "booking": {
-    "selectSeat": "Selecciona tu asiento",
-    "yourSelection": "Tu selección",
+    "selectSeat": "Selecciona Tu Asiento",
+    "yourSelection": "Tu Selección",
     "occupied": "Ocupado",
     "available": "Disponible",
-    "blocked": "Bloqueado",
-    "passengerData": "Datos del pasajero",
+    "blocked": "En Proceso",
+    "driver": "Conductor",
+    "passengerData": "Datos del Pasajero",
     "firstName": "Nombres",
     "lastName": "Apellidos",
     "docType": "Tipo de documento",
     "docNumber": "Número de documento",
     "email": "Correo electrónico",
     "phone": "Teléfono",
+    "needInvoice": "¿Deseas Factura Electrónica?",
+    "ruc": "Número de RUC",
+    "companyName": "Razón Social",
+    "fiscalAddress": "Dirección Fiscal",
+    "notes": "Notas adicionales",
     "pay": "Pagar",
-    "timer": "Tiempo restante",
+    "timer": "Tiempo Restante",
     "timeLeft": "Te quedan {{minutes}}:{{seconds}} para completar tu compra",
     "seatExpired": "Tu reserva de asiento ha expirado. Por favor, selecciona otro asiento.",
-    "confirmPurchase": "Confirmar compra"
+    "confirmPurchase": "Confirmar Compra",
+    "proceedPayment": "Proceder al Pago"
+  },
+  "yape": {
+    "title": "Confirmar Pago por Yape",
+    "scanQr": "Escanea el código QR o transfiere al número:",
+    "amountToPay": "Monto a pagar:",
+    "operationNumber": "Número de Operación (Yape):",
+    "confirmBtn": "Confirmar y Finalizar Reserva"
   },
   "confirmation": {
-    "title": "¡Compra confirmada!",
+    "title": "¡Compra Confirmada!",
     "subtitle": "Tu pasaje ha sido registrado exitosamente",
     "tripDetails": "Detalles del viaje",
     "passengerDetails": "Datos del pasajero",
@@ -84,16 +179,16 @@
     "close": "Cerrar"
   },
   "admin": {
-    "login": "Iniciar sesión",
-    "dashboard": "Panel de administración",
+    "login": "Iniciar Sesión",
+    "dashboard": "Panel de Administración",
     "trips": "Viajes",
     "sales": "Ventas",
-    "logout": "Cerrar sesión",
-    "createTrip": "Crear viaje",
-    "editTrip": "Editar viaje",
-    "uploadInvoice": "Subir comprobante",
-    "sendInvoice": "Enviar comprobante",
-    "invoiceSent": "Comprobante enviado",
-    "pendingInvoices": "Comprobantes pendientes"
+    "logout": "Cerrar Sesión",
+    "createTrip": "Crear Viaje",
+    "editTrip": "Editar Viaje",
+    "uploadInvoice": "Subir Comprobante",
+    "sendInvoice": "Enviar Comprobante",
+    "invoiceSent": "Comprobante Enviado",
+    "pendingInvoices": "Comprobantes Pendientes"
   }
 }

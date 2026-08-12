@@ -73,7 +73,7 @@ export default function Header() {
           </div>
           <div className="social-links">
             <a href="#" target="_blank" rel="noreferrer"><FaFacebook /></a>
-            <a href="#" target="_blank" rel="noreferrer"><FaInstagram /></a>
+            <a href="https://www.instagram.com/tunkychasky01?igsh=MWdtMnZ3Nml3dzlrcQ==" target="_blank" rel="noreferrer"><FaInstagram /></a>
             <a href="https://wa.me/51997475405" target="_blank" rel="noreferrer"><FaWhatsapp /> +51 997 475 405</a>
           </div>
         </div>

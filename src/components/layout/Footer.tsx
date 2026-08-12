@@ -39,7 +39,7 @@ export default function Footer() {
             <h4>{t('footer.followUs', 'Síguenos')}</h4>
             <div className="footer-social">
               <a href="#" target="_blank" rel="noreferrer"><FaFacebook /> Facebook</a>
-              <a href="#" target="_blank" rel="noreferrer"><FaInstagram /> Instagram</a>
+              <a href="https://www.instagram.com/tunkychasky01?igsh=MWdtMnZ3Nml3dzlrcQ==" target="_blank" rel="noreferrer"><FaInstagram /> Instagram</a>
               <a href="https://wa.me/51997475405" target="_blank" rel="noreferrer"><FaWhatsapp /> WhatsApp</a>
             </div>
             <div className="footer-links">

@@ -1,77 +1,172 @@
 {
   "nav": {
     "home": "Home",
-    "terms": "Terms and conditions",
+    "terms": "Terms & Conditions",
     "blog": "Blog",
-    "buyTicket": "Buy ticket",
+    "buyTicket": "Buy Ticket",
     "language": "Language"
   },
   "hero": {
-    "title": "Travel safely from Cusco to Quillabamba",
+    "title": "Travel Safely from Cusco to Quillabamba",
     "subtitle": "Safety and comfort at your service",
-    "searchBtn": "Search trips"
+    "buyTicket": "Buy your ticket",
+    "searchBtn": "Search Trips"
   },
   "search": {
     "origin": "Origin",
     "destination": "Destination",
-    "date": "Date",
+    "date": "Travel Date",
     "time": "Time",
     "search": "Search",
     "noResults": "No available trips found",
     "seatsAvailable": "{{count}} seats available",
     "price": "Price",
-    "selectTrip": "Select trip"
+    "selectTrip": "Select Trip"
   },
   "benefits": {
-    "title": "Why travel with us?",
+    "title": "Why Travel With Us?",
     "security": {
       "title": "Safety",
-      "desc": "Modern units with GPS and certified drivers for your peace of mind."
+      "desc": "Modern vehicles equipped with GPS and certified professional drivers for your peace of mind."
     },
     "comfort": {
       "title": "Comfort",
-      "desc": "Reclining seats and spacious areas for a pleasant journey."
+      "desc": "Spacious reclining seats designed for a pleasant and relaxing journey."
     },
     "punctuality": {
       "title": "Punctuality",
-      "desc": "We meet established schedules so you can plan without worries."
+      "desc": "Strict adherence to established departure schedules so you can plan hassle-free."
+    },
+    "cargo": {
+      "title": "PARCELS & MONEY TRANSFERS:",
+      "desc": "Fast and secure shipping of envelopes, packages, and money transfers."
+    },
+    "departures": {
+      "title": "DAILY DEPARTURES:",
+      "desc": "Regular schedules to Hidroeléctrica, Quillabamba, Lima, and key regional routes."
+    },
+    "drivers": {
+      "title": "EXPERT DRIVERS:",
+      "desc": "Licensed professional drivers experienced in high Andean and jungle terrain."
     }
   },
   "about": {
-    "title": "About us",
-    "description": "Leaders in intercity ground transportation and parcel logistics in the Cusco region."
+    "title": "About Us",
+    "description": "Inversiones Tunki Chasky S.R.L. is a leading intercity passenger transport and parcel logistics company in the Cusco region. Operating modern 3-row vehicles, we deliver Formal, Safe, Reliable, and Punctual services for all travelers."
+  },
+  "dest": {
+    "title": "Routes and Destinations",
+    "subtitle": "Passenger Transport",
+    "enquire": "Inquire Now",
+    "express": "Express",
+    "comfort": "Comfort",
+    "daily": "Daily",
+    "jungle": "Jungle",
+    "fast": "Fast",
+    "valley": "Valley",
+    "frequent": "Frequent",
+    "train": "Train",
+    "punctual": "Punctual",
+    "direct": "Direct",
+    "executive": "Executive",
+    "veloz": "Fast",
+    "secure": "Safe",
+    "1": {
+      "title": "Machu Picchu Route",
+      "desc": "Direct and fast connection for tourists and locals seeking punctuality to Hidroeléctrica."
+    },
+    "2": {
+      "title": "La Convención Route",
+      "desc": "Daily trips via the Málaga pass with experienced mountain drivers."
+    },
+    "3": {
+      "title": "Quellouno Route",
+      "desc": "Safe and quick transport connection to the Quellouno tropical valley every day."
+    },
+    "4": {
+      "title": "Sacred Valley Route",
+      "desc": "Frequent transport to the heart of Calca in modern vehicles."
+    },
+    "5": {
+      "title": "Train Connection",
+      "desc": "Arrive on time for your train to Machu Picchu with our executive service."
+    },
+    "6": {
+      "title": "National Route",
+      "desc": "Special service to the capital with GPS and 24/7 real-time monitoring."
+    },
+    "7": {
+      "title": "Intercity Route",
+      "desc": "The fastest and safest option for traveling to Abancay."
+    }
+  },
+  "test": {
+    "title": "What Our Passengers Say",
+    "subtitle": "Testimonials",
+    "1": {
+      "text": "\"Excellent service, very fast and the vehicles are very comfortable. 100% recommended.\"",
+      "role": "Frequent Passenger"
+    },
+    "2": {
+      "text": "\"The best option for sending parcels to Quillabamba. Highly reliable and punctual.\"",
+      "role": "Merchant"
+    },
+    "3": {
+      "text": "\"Safe and comfortable journey from Cusco to Machu Picchu / Hidroeléctrica. Certified drivers.\"",
+      "role": "Tourist"
+    }
+  },
+  "map": {
+    "title": "Find Us At",
+    "subtitle": "Visit Us",
+    "cusco": "Cusco Terminal",
+    "quillabamba": "Quillabamba Terminal"
   },
   "booking": {
-    "selectSeat": "Select your seat",
-    "yourSelection": "Your selection",
+    "selectSeat": "Select Your Seat",
+    "yourSelection": "Your Selection",
     "occupied": "Occupied",
     "available": "Available",
     "blocked": "Blocked",
-    "passengerData": "Passenger information",
-    "firstName": "First name",
-    "lastName": "Last name",
-    "docType": "Document type",
-    "docNumber": "Document number",
-    "email": "Email",
-    "phone": "Phone",
+    "driver": "Driver",
+    "passengerData": "Passenger Information",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "docType": "Document Type",
+    "docNumber": "Document Number",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "needInvoice": "Do you need a Tax Invoice (Factura)?",
+    "ruc": "RUC Number",
+    "companyName": "Company Name",
+    "fiscalAddress": "Fiscal Address",
+    "notes": "Additional Notes",
     "pay": "Pay",
-    "timer": "Time remaining",
+    "timer": "Time Remaining",
     "timeLeft": "You have {{minutes}}:{{seconds}} left to complete your purchase",
     "seatExpired": "Your seat reservation has expired. Please select another seat.",
-    "confirmPurchase": "Confirm purchase"
+    "confirmPurchase": "Confirm Purchase",
+    "proceedPayment": "Proceed to Payment"
+  },
+  "yape": {
+    "title": "Confirm Payment via Yape",
+    "scanQr": "Scan the QR code or transfer to the number:",
+    "amountToPay": "Amount to pay:",
+    "operationNumber": "Operation Number (Yape):",
+    "confirmBtn": "Confirm and Complete Booking"
   },
   "confirmation": {
-    "title": "Purchase confirmed!",
+    "title": "Purchase Confirmed!",
     "subtitle": "Your ticket has been successfully registered",
-    "tripDetails": "Trip details",
-    "passengerDetails": "Passenger details",
-    "seatNumber": "Seat number",
+    "tripDetails": "Trip Details",
+    "passengerDetails": "Passenger Details",
+    "seatNumber": "Seat Number",
     "thankYou": "Thank you for traveling with Tunky Chasky!"
   },
   "footer": {
     "officeCusco": "Cusco Office",
     "officeQuillabamba": "Quillabamba Office",
-    "followUs": "Follow us",
+    "followUs": "Follow Us",
     "rights": "All rights reserved",
     "company": "Tunky Chasky"
   },
@@ -84,16 +179,16 @@
     "close": "Close"
   },
   "admin": {
-    "login": "Log in",
-    "dashboard": "Admin dashboard",
+    "login": "Log In",
+    "dashboard": "Admin Dashboard",
     "trips": "Trips",
     "sales": "Sales",
-    "logout": "Log out",
-    "createTrip": "Create trip",
-    "editTrip": "Edit trip",
-    "uploadInvoice": "Upload invoice",
-    "sendInvoice": "Send invoice",
-    "invoiceSent": "Invoice sent",
-    "pendingInvoices": "Pending invoices"
+    "logout": "Log Out",
+    "createTrip": "Create Trip",
+    "editTrip": "Edit Trip",
+    "uploadInvoice": "Upload Invoice",
+    "sendInvoice": "Send Invoice",
+    "invoiceSent": "Invoice Sent",
+    "pendingInvoices": "Pending Invoices"
   }
 }
