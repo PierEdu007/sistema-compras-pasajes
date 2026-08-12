@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaArrowRight, FaCalendarAlt, FaMap } from 'react-icons/fa';
@@ -6,17 +6,13 @@ import { supabase } from '../lib/supabase';
 import TripCard from '../components/trips/TripCard';
 import '../styles/components/Trips.css';
 
-// Interfaz extendida para el join
-interface ViajeWithDetails {
+interface ViajeCalculado {
   id: string;
   hora_viaje: string;
   precio_base: number;
-  vehiculos: {
-    nombre_display: string;
-    total_asientos_pasajero: number;
-  };
-  // Nota: En una app real, los asientos libres se calcularían con una consulta más compleja
-  // o una vista de Supabase que reste los bloqueados/pagados.
+  vehiculo_nombre: string;
+  total_asientos: number;
+  asientos_libres: number;
 }
 
 export default function Trips() {
@@ -29,97 +25,148 @@ export default function Trips() {
   const fechaParam = searchParams.get('fecha');
 
   const [loading, setLoading] = useState(true);
-  const [viajes, setViajes] = useState<ViajeWithDetails[]>([]);
+  const [viajes, setViajes] = useState<ViajeCalculado[]>([]);
 
-  useEffect(() => {
-    // Si faltan parámetros, redirigir a inicio
+  const fetchViajes = useCallback(async () => {
     if (!origenParam || !destinoParam || !fechaParam) {
       navigate('/');
       return;
     }
 
-    const fetchViajes = async () => {
-      setLoading(true);
-      try {
-        // 1. Buscar el ID de la ruta
-        const { data: rutaData } = await supabase
-          .from('rutas')
-          .select('id')
-          .eq('origen', origenParam)
-          .eq('destino', destinoParam)
-          .single();
+    setLoading(true);
+    try {
+      // 1. Buscar el ID de la ruta
+      const { data: rutaData } = await supabase
+        .from('rutas')
+        .select('id')
+        .eq('origen', origenParam)
+        .eq('destino', destinoParam)
+        .single();
 
-        if (rutaData) {
-          // 2. Buscar viajes para esa ruta y fecha
-          let query = supabase
-            .from('viajes')
-            .select(`
-              id,
-              hora_viaje,
-              precio_base,
-              vehiculos (
-                nombre_display,
-                total_asientos_pasajero
-              )
-            `)
-            .eq('ruta_id', (rutaData as { id: string }).id)
-            .eq('fecha_viaje', fechaParam)
-            .eq('estado', 'ACTIVO');
+      if (rutaData) {
+        // 2. Buscar viajes para esa ruta y fecha
+        let query = supabase
+          .from('viajes')
+          .select(`
+            id,
+            hora_viaje,
+            precio_base,
+            vehiculos (
+              nombre_display,
+              total_asientos_pasajero
+            )
+          `)
+          .eq('ruta_id', (rutaData as { id: string }).id)
+          .eq('fecha_viaje', fechaParam)
+          .eq('estado', 'ACTIVO');
 
-          // Si es hoy, no mostrar viajes de horas pasadas
-          const today = new Date();
-          const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-          
-          if (fechaParam === todayStr) {
-            const currentHour = String(today.getHours()).padStart(2, '0');
-            const currentMinute = String(today.getMinutes()).padStart(2, '0');
-            query = query.gte('hora_viaje', `${currentHour}:${currentMinute}:00`);
-          }
+        // Si es hoy, no mostrar viajes de horas pasadas
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        
+        if (fechaParam === todayStr) {
+          const currentHour = String(today.getHours()).padStart(2, '0');
+          const currentMinute = String(today.getMinutes()).padStart(2, '0');
+          query = query.gte('hora_viaje', `${currentHour}:${currentMinute}:00`);
+        }
 
-          const { data: viajesData } = await query.order('hora_viaje', { ascending: true });
+        const { data: viajesData } = await query.order('hora_viaje', { ascending: true });
 
-          if (viajesData && viajesData.length > 0) {
-            setViajes(viajesData as unknown as ViajeWithDetails[]);
-          } else {
-            setViajes([]);
-          }
+        if (viajesData && viajesData.length > 0) {
+          const viajeIds = (viajesData as any[]).map(v => v.id);
+
+          // 3. Consultar todos los bloqueos/ventas activas para estos viajes
+          const { data: bloqueosData } = await supabase
+            .from('asientos_bloqueos')
+            .select('viaje_id, numero_asiento, estado, expira_at')
+            .in('viaje_id', viajeIds);
+
+          const now = new Date();
+
+          // 4. Mapear y calcular asientos libres para cada viaje
+          const listaCalculada: ViajeCalculado[] = viajesData.map((v: any) => {
+            const rawNombre = v.vehiculos?.nombre_display || '';
+            const rawTotal = v.vehiculos?.total_asientos_pasajero || 4;
+
+            const is6Seats = rawNombre.includes('6') || rawTotal === 6;
+            const totalAsientos = is6Seats ? 6 : 4;
+            const vehiculoNombre = is6Seats ? 'Camioneta (6 Pasajeros)' : 'Camioneta (4 Pasajeros)';
+
+            // Contar asientos ocupados o bloqueados vigentes
+            const ocupadosCount = (bloqueosData || []).filter((b: any) => {
+              if (b.viaje_id !== v.id) return false;
+              if (b.estado === 'PAGADO') return true;
+              if (b.estado === 'BLOQUEADO') {
+                const expDate = new Date(b.expira_at);
+                return expDate > now;
+              }
+              return false;
+            }).length;
+
+            const asientosLibres = Math.max(0, totalAsientos - ocupadosCount);
+
+            return {
+              id: v.id,
+              hora_viaje: v.hora_viaje,
+              precio_base: v.precio_base,
+              vehiculo_nombre: vehiculoNombre,
+              total_asientos: totalAsientos,
+              asientos_libres: asientosLibres,
+            };
+          });
+
+          setViajes(listaCalculada);
         } else {
           setViajes([]);
         }
-      } catch (error) {
-        console.error('Error fetching trips:', error);
+      } else {
         setViajes([]);
-      } finally {
-        setLoading(false);
       }
-    };
-
-    fetchViajes();
+    } catch (error) {
+      console.error('Error fetching trips:', error);
+      setViajes([]);
+    } finally {
+      setLoading(false);
+    }
   }, [origenParam, destinoParam, fechaParam, navigate]);
 
+  useEffect(() => {
+    fetchViajes();
 
+    // Suscribirse a cambios en tiempo real en la tabla asientos_bloqueos
+    const channel = supabase
+      .channel('trips-realtime-seats')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'asientos_bloqueos' },
+        () => fetchViajes()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchViajes]);
 
   const formatDate = (dateStr: string) => {
     try {
-      const date = new Date(dateStr + 'T12:00:00'); // Evitar problemas de timezone
+      const date = new Date(dateStr + 'T12:00:00');
       return new Intl.DateTimeFormat('es-PE', { 
         weekday: 'long', 
         year: 'numeric', 
         month: 'long', 
         day: 'numeric' 
       }).format(date);
-    } catch (e) {
+    } catch (_e) {
       return dateStr;
     }
   };
 
   return (
-    <div className="page-trips fade-in">
-      
-      {/* Resumen de búsqueda superior */}
-      <div className="search-summary-header">
+    <div className="trips-page">
+      <div className="search-summary">
         <div className="container">
-          <div className="search-summary-content">
+          <div className="summary-content">
             <div>
               <div className="route-info">
                 <span>{origenParam}</span>
@@ -151,10 +198,9 @@ export default function Trips() {
                 id={viaje.id}
                 hora_viaje={viaje.hora_viaje}
                 precio_base={viaje.precio_base}
-                vehiculo_nombre={viaje.vehiculos.nombre_display}
-                total_asientos={viaje.vehiculos.total_asientos_pasajero}
-                // Mostrar 100% disponibles hasta que se implemente el conteo real
-                asientos_libres={viaje.vehiculos.total_asientos_pasajero}
+                vehiculo_nombre={viaje.vehiculo_nombre}
+                total_asientos={viaje.total_asientos}
+                asientos_libres={viaje.asientos_libres}
               />
             ))}
           </div>
@@ -169,7 +215,6 @@ export default function Trips() {
           </div>
         )}
       </div>
-      
     </div>
   );
 }
