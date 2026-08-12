@@ -311,40 +311,49 @@ export default function Booking() {
       };
 
       let ventaId = `venta-${Date.now()}`;
-      let { data: insertedData, error: insertError } = await supabase
-        .from('ventas')
-        .insert(fullPayload)
-        .select('id')
-        .single();
+      
+      try {
+        const apiRes = await fetch('/api/registrar-venta', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(fullPayload)
+        });
 
-      if (insertError) {
-        console.warn('Reintentando inserción con payload compatible:', insertError);
-        const retryRes = await supabase
+        if (apiRes.ok) {
+          const apiData = await apiRes.json();
+          if (apiData.venta?.id) {
+            ventaId = apiData.venta.id;
+          }
+        } else {
+          throw new Error('API serverless no respondió OK');
+        }
+      } catch (_apiErr) {
+        console.warn('Fallback a inserción directa Supabase:', _apiErr);
+        const { data: insertedData } = await supabase
           .from('ventas')
-          .insert(basePayload)
+          .insert(fullPayload)
           .select('id')
           .single();
 
-        insertedData = retryRes.data;
-        insertError = retryRes.error;
-      }
+        if (insertedData) {
+          ventaId = (insertedData as { id: string }).id;
+        }
 
-      if (!insertError && insertedData) {
-        ventaId = (insertedData as { id: string }).id;
-      } else if (insertError) {
-        console.error('Error al insertar venta en Supabase:', insertError);
-      }
+        try {
+          await (supabase.from('asientos_bloqueos') as any)
+            .delete()
+            .eq('viaje_id', viaje.id)
+            .eq('numero_asiento', selectedSeat);
 
-      // Marcar el asiento como PAGADO (ocupado) permanentemente en la base de datos
-      try {
-        await (supabase.from('asientos_bloqueos') as any).upsert({
-          viaje_id: viaje.id,
-          numero_asiento: selectedSeat,
-          estado: 'PAGADO',
-          expira_at: '2099-12-31T23:59:59Z',
-          sesion_token: 'PAGADO'
-        }, { onConflict: 'viaje_id,numero_asiento' });
-      } catch (_e) {}
+          await (supabase.from('asientos_bloqueos') as any).insert({
+            viaje_id: viaje.id,
+            numero_asiento: selectedSeat,
+            estado: 'PAGADO',
+            expira_at: '2099-12-31T23:59:59Z',
+            sesion_token: 'PAGADO'
+          });
+        } catch (_e) {}
+      }
 
       setSeatStatuses(prev => ({ ...prev, [selectedSeat]: 'PAGADO' }));
 
