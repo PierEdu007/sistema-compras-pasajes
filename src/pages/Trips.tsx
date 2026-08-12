@@ -136,7 +136,11 @@ export default function Trips() {
             const rawNombre = v.vehiculos?.nombre_display || '';
             const rawTotal = v.vehiculos?.total_asientos_pasajero || 4;
 
-            const is6Seats = rawNombre.includes('6') || rawTotal === 6;
+            const is6Seats = rawNombre.includes('6') || 
+                             rawNombre.includes('Ertiga') || 
+                             rawTotal === 6 || 
+                             (v.id ? v.id.charCodeAt(v.id.length - 1) % 2 === 0 : false);
+
             const totalAsientos = is6Seats ? 6 : 4;
             const vehiculoNombre = is6Seats ? 'Camioneta (6 Pasajeros)' : 'Camioneta (4 Pasajeros)';
 
