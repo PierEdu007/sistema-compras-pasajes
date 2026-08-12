@@ -31,7 +31,7 @@ export default function Footer() {
             <ul className="footer-contact">
               <li><FaMapMarkerAlt /> Av. Antonio Lorena 318, Santiago, Cusco</li>
               <li><FaPhoneAlt /> +51 997 475 405</li>
-              <li><FaEnvelope /> reservas@tunkichasky.com</li>
+              <li><FaEnvelope /> reservas@turismotunkychasky.com.pe</li>
             </ul>
           </div>
 
