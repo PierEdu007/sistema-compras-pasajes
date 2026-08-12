@@ -6,20 +6,31 @@
   padding-bottom: var(--spacing-2xl);
 }
 
-.search-summary-header {
-  background-color: var(--color-primary-dark);
-  color: var(--color-white);
-  padding: var(--spacing-lg) 0;
-  margin-bottom: var(--spacing-xl);
+.search-summary {
+  background: linear-gradient(135deg, #0f4c81, #742284);
+  color: #ffffff;
+  padding: 1.5rem 0;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
+.search-summary-header {
+  background: linear-gradient(135deg, #0f4c81, #742284);
+  color: #ffffff;
+  padding: 1.5rem 0;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.summary-content,
 .search-summary-content {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 0.75rem;
 }
 
 @media (min-width: 768px) {
+  .summary-content,
   .search-summary-content {
     flex-direction: row;
     justify-content: space-between;
@@ -31,36 +42,43 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ffffff;
   font-family: var(--font-heading);
 }
 
 .route-arrow {
-  color: var(--color-white);
+  color: #facc15;
 }
 
 .date-info {
-  font-size: 1.125rem;
-  color: var(--color-accent-vibrant);
+  font-size: 1.15rem;
+  color: #facc15;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-top: 0.25rem;
+  text-transform: capitalize;
 }
 
 .btn-change-search {
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: transparent;
-  color: var(--color-white);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: 700;
   transition: all var(--transition-fast);
   font-family: var(--font-body);
 }
 
 .btn-change-search:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  color: #0f4c81;
+  border-color: #ffffff;
 }
 
 /* Trip Card */

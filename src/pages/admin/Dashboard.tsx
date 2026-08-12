@@ -1,7 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
-import { FaMoneyBillWave, FaBus, FaFileInvoiceDollar, FaQrcode, FaCheckCircle, FaFilePdf, FaClock } from 'react-icons/fa';
+import { 
+  FaMoneyBillWave, 
+  FaBus, 
+  FaFileInvoiceDollar, 
+  FaQrcode, 
+  FaCheckCircle, 
+  FaFilePdf, 
+  FaClock, 
+  FaUserTag, 
+  FaBuilding, 
+  FaChartLine, 
+  FaChair, 
+  FaRoute 
+} from 'react-icons/fa';
 import { generateInvoicePDF } from '../../utils/invoiceGenerator';
 import '../../styles/components/admin.css';
 
@@ -27,6 +40,22 @@ interface DashboardVenta {
   };
 }
 
+interface FrequentClient {
+  nro_documento: string;
+  nombres: string;
+  apellidos: string;
+  tipo_documento: string;
+  total_compras: number;
+  monto_acumulado: number;
+}
+
+interface FrequentCompany {
+  ruc: string;
+  razon_social: string;
+  total_facturas: number;
+  monto_acumulado: number;
+}
+
 const AdminDashboard: React.FC = () => {
   const { user, role } = useAuth();
 
@@ -36,6 +65,13 @@ const AdminDashboard: React.FC = () => {
   const [boletosEmitidosCount, setBoletosEmitidosCount] = useState(0);
   const [pendientesCount, setPendientesCount] = useState(0);
   const [confirmedVentas, setConfirmedVentas] = useState<DashboardVenta[]>([]);
+
+  // Inteligencia de Negocios
+  const [frequentClients, setFrequentClients] = useState<FrequentClient[]>([]);
+  const [frequentCompanies, setFrequentCompanies] = useState<FrequentCompany[]>([]);
+  const [topSeatNumber, setTopSeatNumber] = useState<string>('-');
+  const [topRouteName, setTopRouteName] = useState<string>('-');
+  const [avgTicketPrice, setAvgTicketPrice] = useState<number>(0);
 
   useEffect(() => {
     fetchDashboardData();
@@ -90,22 +126,115 @@ const AdminDashboard: React.FC = () => {
       const combined = Array.from(uniqueMap.values());
 
       const rejectedList: string[] = JSON.parse(localStorage.getItem('rejected_ventas') || '[]');
-      const allSales = combined.filter(v => 
+      const validSales = combined.filter(v => 
         !v.culqi_charge_id?.startsWith('RECHAZADO_') && 
         !rejectedList.includes(v.id)
       );
 
-      // Ventas confirmadas (comprobante_emitido === true)
-      const confirmed = allSales.filter(v => v.comprobante_emitido);
-        const pending = allSales.filter(v => !v.comprobante_emitido);
+      // Ventas confirmadas vs pendientes
+      const confirmed = validSales.filter(v => v.comprobante_emitido);
+      const pending = validSales.filter(v => !v.comprobante_emitido);
 
-        setConfirmedVentas(confirmed);
-        setBoletosEmitidosCount(confirmed.length);
-        setPendientesCount(pending.length);
+      setConfirmedVentas(confirmed);
+      setBoletosEmitidosCount(confirmed.length);
+      setPendientesCount(pending.length);
 
-        // Sumar monto total acumulado de confirmadas
-        const totalSum = confirmed.reduce((acc, current) => acc + (current.monto_pagado || 0), 0);
-        setTotalVentasHoy(totalSum);
+      // Sumar monto total acumulado de confirmadas
+      const totalSum = confirmed.reduce((acc, current) => acc + (current.monto_pagado || 0), 0);
+      setTotalVentasHoy(totalSum);
+
+      if (confirmed.length > 0) {
+        setAvgTicketPrice(totalSum / confirmed.length);
+      }
+
+      // --- CÁLCULO DE CLIENTES MÁS FRECUENTES ---
+      const clientMap = new Map<string, FrequentClient>();
+      const companyMap = new Map<string, FrequentCompany>();
+      const seatCounts: Record<number, number> = {};
+      const routeCounts: Record<string, number> = {};
+
+      validSales.forEach(v => {
+        // Clientes frecuentes
+        const clientKey = `${v.tipo_documento}_${v.nro_documento}`;
+        const existingClient = clientMap.get(clientKey);
+        if (existingClient) {
+          existingClient.total_compras += 1;
+          existingClient.monto_acumulado += Number(v.monto_pagado || 0);
+        } else {
+          clientMap.set(clientKey, {
+            nro_documento: v.nro_documento,
+            nombres: v.nombres,
+            apellidos: v.apellidos,
+            tipo_documento: v.tipo_documento,
+            total_compras: 1,
+            monto_acumulado: Number(v.monto_pagado || 0)
+          });
+        }
+
+        // Empresas frecuentes (Facturas)
+        const parts = (v.culqi_charge_id || '').split('|');
+        const razonSocial = parts.find(p => p.startsWith('RS:'))?.replace('RS:', '') || '';
+        
+        if (v.tipo_documento === 'RUC' || razonSocial) {
+          const compKey = v.nro_documento || razonSocial;
+          const existingComp = companyMap.get(compKey);
+          if (existingComp) {
+            existingComp.total_facturas += 1;
+            existingComp.monto_acumulado += Number(v.monto_pagado || 0);
+          } else {
+            companyMap.set(compKey, {
+              ruc: v.nro_documento,
+              razon_social: razonSocial || `${v.nombres} ${v.apellidos}`,
+              total_facturas: 1,
+              monto_acumulado: Number(v.monto_pagado || 0)
+            });
+          }
+        }
+
+        // Conteo de asientos preferidos
+        if (v.numero_asiento) {
+          seatCounts[v.numero_asiento] = (seatCounts[v.numero_asiento] || 0) + 1;
+        }
+
+        // Conteo de rutas más vendidas
+        const routeName = v.viajes?.rutas ? `${v.viajes.rutas.origen} ➔ ${v.viajes.rutas.destino}` : 'CUSCO ➔ QUILLABAMBA';
+        routeCounts[routeName] = (routeCounts[routeName] || 0) + 1;
+      });
+
+      // Ordenar Clientes Frecuentes por cantidad de compras
+      const sortedClients = Array.from(clientMap.values())
+        .sort((a, b) => b.total_compras - a.total_compras)
+        .slice(0, 5);
+      setFrequentClients(sortedClients);
+
+      // Ordenar Empresas Frecuentes
+      const sortedCompanies = Array.from(companyMap.values())
+        .sort((a, b) => b.total_facturas - a.total_facturas)
+        .slice(0, 5);
+      setFrequentCompanies(sortedCompanies);
+
+      // Determinar Asiento más solicitado
+      let maxSeat = '-';
+      let maxSeatCount = 0;
+      Object.entries(seatCounts).forEach(([seat, count]) => {
+        if (count > maxSeatCount) {
+          maxSeatCount = count;
+          maxSeat = `Asiento #${seat} (${seat === '2' ? 'Copiloto' : 'Pasajero'})`;
+        }
+      });
+      setTopSeatNumber(maxSeat);
+
+      // Determinar Ruta más demandada
+      let maxRoute = 'CUSCO ➔ QUILLABAMBA';
+      let maxRouteCount = 0;
+      Object.entries(routeCounts).forEach(([route, count]) => {
+        if (count > maxRouteCount) {
+          maxRouteCount = count;
+          maxRoute = route;
+        }
+      });
+      setTopRouteName(maxRoute);
+
     } catch (err) {
       console.error('Error cargando métricas del dashboard:', err);
     } finally {
@@ -144,13 +273,12 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div>
-      <h1 style={{ marginBottom: '20px' }}>Dashboard</h1>
+      <h1 style={{ marginBottom: '20px' }}>Dashboard de Administración</h1>
 
       {/* Tarjeta de Bienvenida */}
-      <div className="admin-card" style={{ marginBottom: '20px' }}>
-        <h3>Bienvenido/a al Sistema de Ventas</h3>
-        <p>Has ingresado como: <strong>{user?.email}</strong></p>
-        <p>Rol de usuario: <span className="badge badge-primary" style={{ background: '#742284', color: '#fff', padding: '2px 8px', borderRadius: '8px' }}>{role || 'ADMIN'}</span></p>
+      <div className="admin-card" style={{ marginBottom: '20px', background: 'linear-gradient(135deg, #0f4c81, #742284)', color: '#fff' }}>
+        <h3 style={{ margin: 0, color: '#fff', fontSize: '1.4rem' }}>Inversiones Tunky Chasky S.R.L.</h3>
+        <p style={{ margin: '5px 0 0 0', opacity: 0.9 }}>Bienvenido, <strong>{user?.email}</strong> | Rol: <span style={{ background: '#facc15', color: '#0f4c81', fontWeight: 'bold', padding: '2px 8px', borderRadius: '8px' }}>{role || 'ADMIN'}</span></p>
       </div>
 
       {/* Tarjetas de Métricas Estadísticas */}
@@ -180,9 +308,106 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* SECCIÓN DE INTELIGENCIA DE NEGOCIO Y DATOS IMPORTANTES DE LA EMPRESA */}
+      <h2 style={{ fontSize: '1.25rem', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <FaChartLine style={{ color: '#0f4c81' }} /> Indicadores Clave de Empresa
+      </h2>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+        <div className="admin-card" style={{ borderLeft: '4px solid #0f4c81' }}>
+          <h4 style={{ margin: '0 0 10px 0', color: '#0f4c81', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <FaRoute /> Ruta Más Solicitada
+          </h4>
+          <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#1e293b', margin: 0 }}>{topRouteName}</p>
+        </div>
+
+        <div className="admin-card" style={{ borderLeft: '4px solid #742284' }}>
+          <h4 style={{ margin: '0 0 10px 0', color: '#742284', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <FaChair /> Asiento Más Preferido
+          </h4>
+          <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#1e293b', margin: 0 }}>{topSeatNumber}</p>
+        </div>
+
+        <div className="admin-card" style={{ borderLeft: '4px solid #10b981' }}>
+          <h4 style={{ margin: '0 0 10px 0', color: '#10b981', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <FaMoneyBillWave /> Ticket Promedio
+          </h4>
+          <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#1e293b', margin: 0 }}>
+            S/ {avgTicketPrice > 0 ? avgTicketPrice.toFixed(2) : '50.00'} por pasaje
+          </p>
+        </div>
+      </div>
+
+      {/* SECCIÓN DE CLIENTES MÁS FRECUENTES Y EMPRESAS FRECUENTES */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+        
+        {/* Tabla: Clientes Más Frecuentes */}
+        <div className="admin-card" style={{ padding: '15px' }}>
+          <h3 style={{ margin: '0 0 15px 0', fontSize: '1.1rem', color: '#0f4c81', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FaUserTag /> Clientes Más Frecuentes (Pasajeros)
+          </h3>
+          <table className="admin-table" style={{ fontSize: '0.85rem' }}>
+            <thead>
+              <tr>
+                <th>Pasajero</th>
+                <th>DNI / Doc</th>
+                <th>Viajes</th>
+                <th>Invertido</th>
+              </tr>
+            </thead>
+            <tbody>
+              {frequentClients.length === 0 ? (
+                <tr><td colSpan={4} style={{ textAlign: 'center', color: '#64748b' }}>No hay registros de clientes aún.</td></tr>
+              ) : (
+                frequentClients.map((client, idx) => (
+                  <tr key={idx}>
+                    <td><strong>{client.nombres} {client.apellidos}</strong></td>
+                    <td>{client.nro_documento}</td>
+                    <td><span className="badge badge-primary" style={{ background: '#0f4c81', color: '#fff', padding: '2px 8px', borderRadius: '10px' }}>{client.total_compras} viajes</span></td>
+                    <td><strong style={{ color: '#10b981' }}>S/ {client.monto_acumulado.toFixed(2)}</strong></td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Tabla: Empresas Más Frecuentes */}
+        <div className="admin-card" style={{ padding: '15px' }}>
+          <h3 style={{ margin: '0 0 15px 0', fontSize: '1.1rem', color: '#742284', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FaBuilding /> Empresas Más Frecuentes (RUC)
+          </h3>
+          <table className="admin-table" style={{ fontSize: '0.85rem' }}>
+            <thead>
+              <tr>
+                <th>Razón Social / Empresa</th>
+                <th>RUC</th>
+                <th>Facturas</th>
+                <th>Total Facturado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {frequentCompanies.length === 0 ? (
+                <tr><td colSpan={4} style={{ textAlign: 'center', color: '#64748b' }}>No hay facturas registradas a empresas aún.</td></tr>
+              ) : (
+                frequentCompanies.map((comp, idx) => (
+                  <tr key={idx}>
+                    <td><strong>{comp.razon_social}</strong></td>
+                    <td>{comp.ruc || '-'}</td>
+                    <td><span className="badge badge-primary" style={{ background: '#742284', color: '#fff', padding: '2px 8px', borderRadius: '10px' }}>{comp.total_facturas} facturas</span></td>
+                    <td><strong style={{ color: '#10b981' }}>S/ {comp.monto_acumulado.toFixed(2)}</strong></td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
       {/* Sección de Ventas Confirmadas */}
       <h2 style={{ fontSize: '1.25rem', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <FaCheckCircle style={{ color: '#10b981' }} /> Ventas Confirmadas
+        <FaCheckCircle style={{ color: '#10b981' }} /> Ventas Confirmadas Recientes
       </h2>
 
       <div className="admin-card" style={{ padding: 0, overflowX: 'auto' }}>
