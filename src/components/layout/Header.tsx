@@ -69,7 +69,7 @@ export default function Header() {
         <div className="container">
           <div className="contact-info">
             <span><FaPhoneAlt /> +51 997 475 405</span>
-            <span><FaEnvelope /> reservas@tunkichasky.com</span>
+            <span><FaEnvelope /> tunkychaskyoficial@gmail.com</span>
           </div>
           <div className="social-links">
             <a href="#" target="_blank" rel="noreferrer"><FaFacebook /></a>
