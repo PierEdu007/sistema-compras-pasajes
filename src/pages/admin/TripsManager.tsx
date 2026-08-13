@@ -56,9 +56,31 @@ const AdminTrips: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchViajes();
-    fetchOptions();
+    cleanupOldTrips().then(() => {
+      fetchViajes();
+      fetchOptions();
+    });
   }, []);
+
+  // Eliminar viajes con más de 7 días de antigüedad (solo viajes, no ventas)
+  const cleanupOldTrips = async () => {
+    try {
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const cutoffDate = weekAgo.toISOString().substring(0, 10);
+
+      const { error } = await supabase
+        .from('viajes')
+        .delete()
+        .lt('fecha_viaje', cutoffDate);
+
+      if (error) {
+        console.warn('No se pudieron eliminar viajes antiguos (posible restricción RLS):', error.message);
+      }
+    } catch (err) {
+      console.warn('Error en limpieza de viajes antiguos:', err);
+    }
+  };
 
   const fetchViajes = async () => {
     try {
