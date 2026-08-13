@@ -56,6 +56,18 @@ interface FrequentCompany {
   monto_acumulado: number;
 }
 
+interface PeakDayData {
+  dayName: string;
+  count: number;
+  percentage: number;
+}
+
+interface PeakHourData {
+  hourLabel: string;
+  count: number;
+  percentage: number;
+}
+
 const AdminDashboard: React.FC = () => {
   const { user, role } = useAuth();
 
@@ -72,6 +84,8 @@ const AdminDashboard: React.FC = () => {
   const [topSeatNumber, setTopSeatNumber] = useState<string>('-');
   const [topRouteName, setTopRouteName] = useState<string>('-');
   const [avgTicketPrice, setAvgTicketPrice] = useState<number>(0);
+  const [peakDays, setPeakDays] = useState<PeakDayData[]>([]);
+  const [peakHours, setPeakHours] = useState<PeakHourData[]>([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -200,6 +214,60 @@ const AdminDashboard: React.FC = () => {
         const routeName = v.viajes?.rutas ? `${v.viajes.rutas.origen} ➔ ${v.viajes.rutas.destino}` : 'CUSCO ➔ QUILLABAMBA';
         routeCounts[routeName] = (routeCounts[routeName] || 0) + 1;
       });
+
+      // --- CÁLCULO DE DÍAS Y HORARIOS CON MÁS COMPRAS ---
+      const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const dayCounts: Record<string, number> = {
+        'Lunes': 0, 'Martes': 0, 'Miércoles': 0, 'Jueves': 0, 'Viernes': 0, 'Sábado': 0, 'Domingo': 0
+      };
+      const hourCounts: Record<string, number> = {};
+
+      const totalSalesEvaluated = validSales.length;
+
+      validSales.forEach(v => {
+        // Día de la semana (según fecha de creación o fecha de viaje)
+        const dateString = v.created_at || (v.viajes?.fecha_viaje ? `${v.viajes.fecha_viaje}T12:00:00` : '');
+        const dateObj = new Date(dateString);
+        if (!isNaN(dateObj.getTime())) {
+          const dayName = dayNames[dateObj.getDay()];
+          dayCounts[dayName] = (dayCounts[dayName] || 0) + 1;
+        }
+
+        // Hora más concurrida de salida/reserva
+        let hourLabel = '08:00 AM - 12:00 PM';
+        if (v.viajes?.hora_viaje) {
+          const hStr = v.viajes.hora_viaje.substring(0, 5);
+          const hNum = parseInt(hStr.split(':')[0], 10);
+          if (!isNaN(hNum)) {
+            if (hNum >= 4 && hNum < 8) hourLabel = '04:00 AM - 08:00 AM (Madrugada / Mañana Temprano)';
+            else if (hNum >= 8 && hNum < 12) hourLabel = '08:00 AM - 12:00 PM (Mañana)';
+            else if (hNum >= 12 && hNum < 16) hourLabel = '12:00 PM - 04:00 PM (Mediodía / Tarde)';
+            else if (hNum >= 16 && hNum < 20) hourLabel = '04:00 PM - 08:00 PM (Tarde / Noche)';
+            else hourLabel = '08:00 PM - 04:00 AM (Noche / Madrugada)';
+          } else {
+            hourLabel = `${hStr} HRS`;
+          }
+        }
+        hourCounts[hourLabel] = (hourCounts[hourLabel] || 0) + 1;
+      });
+
+      const sortedDays = Object.entries(dayCounts)
+        .map(([dayName, count]) => ({
+          dayName,
+          count,
+          percentage: totalSalesEvaluated > 0 ? Math.round((count / totalSalesEvaluated) * 100) : 0
+        }))
+        .sort((a, b) => b.count - a.count);
+      setPeakDays(sortedDays);
+
+      const sortedHours = Object.entries(hourCounts)
+        .map(([hourLabel, count]) => ({
+          hourLabel,
+          count,
+          percentage: totalSalesEvaluated > 0 ? Math.round((count / totalSalesEvaluated) * 100) : 0
+        }))
+        .sort((a, b) => b.count - a.count);
+      setPeakHours(sortedHours);
 
       // Ordenar Clientes Frecuentes por cantidad de compras
       const sortedClients = Array.from(clientMap.values())
@@ -336,6 +404,71 @@ const AdminDashboard: React.FC = () => {
             S/ {avgTicketPrice > 0 ? avgTicketPrice.toFixed(2) : '50.00'} por pasaje
           </p>
         </div>
+      </div>
+
+      {/* SECCIÓN DE DÍAS Y HORARIOS CON MÁS VENTAS (ANALYTICS INTELIGENTE) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+        
+        {/* Días con Más Compras */}
+        <div className="admin-card" style={{ padding: '20px' }}>
+          <h3 style={{ margin: '0 0 15px 0', fontSize: '1.1rem', color: '#0f4c81', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FaClock /> Días con Mayor Demanda de Pasajes
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {peakDays.length === 0 ? (
+              <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0 }}>No hay datos suficientes de ventas aún.</p>
+            ) : (
+              peakDays.slice(0, 5).map((d, idx) => (
+                <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 'bold', color: '#334155' }}>
+                    <span>{idx + 1}. {d.dayName}</span>
+                    <span style={{ color: '#0f4c81' }}>{d.count} pasajes ({d.percentage}%)</span>
+                  </div>
+                  <div style={{ width: '100%', height: '8px', backgroundColor: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{
+                      width: `${Math.max(d.percentage, 5)}%`,
+                      height: '100%',
+                      background: idx === 0 ? 'linear-gradient(90deg, #0f4c81, #38bdf8)' : '#94a3b8',
+                      borderRadius: '4px',
+                      transition: 'width 0.5s ease'
+                    }} />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Horarios Pico de Viaje y Compra */}
+        <div className="admin-card" style={{ padding: '20px' }}>
+          <h3 style={{ margin: '0 0 15px 0', fontSize: '1.1rem', color: '#742284', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FaChartLine /> Horarios de Mayor Afluencia (Horas Pico)
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {peakHours.length === 0 ? (
+              <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0 }}>No hay datos suficientes de horarios aún.</p>
+            ) : (
+              peakHours.slice(0, 5).map((h, idx) => (
+                <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 'bold', color: '#334155' }}>
+                    <span>{idx + 1}. {h.hourLabel}</span>
+                    <span style={{ color: '#742284' }}>{h.count} reservas ({h.percentage}%)</span>
+                  </div>
+                  <div style={{ width: '100%', height: '8px', backgroundColor: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{
+                      width: `${Math.max(h.percentage, 5)}%`,
+                      height: '100%',
+                      background: idx === 0 ? 'linear-gradient(90deg, #742284, #c084fc)' : '#cbd5e1',
+                      borderRadius: '4px',
+                      transition: 'width 0.5s ease'
+                    }} />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
       </div>
 
       {/* SECCIÓN DE CLIENTES MÁS FRECUENTES Y EMPRESAS FRECUENTES */}
