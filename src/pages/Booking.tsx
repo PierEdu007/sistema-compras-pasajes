@@ -298,16 +298,16 @@ export default function Booking() {
         nombres: pendingPassengerData.nombres,
         apellidos: pendingPassengerData.apellidos,
         email: pendingPassengerData.email,
-        telefono: pendingPassengerData.telefono,
+        telefono: pendingPassengerData.telefono || '997475405',
         monto_pagado: viaje.precio_base,
         culqi_charge_id: chargeId,
       };
 
       const fullPayload = {
         ...basePayload,
-        razon_social: pendingPassengerData.razon_social,
-        direccion_fiscal: pendingPassengerData.direccion_fiscal,
-        descripcion_opcional: pendingPassengerData.descripcion_opcional,
+        razon_social: pendingPassengerData.razon_social || null,
+        direccion_fiscal: pendingPassengerData.direccion_fiscal || null,
+        descripcion_opcional: pendingPassengerData.descripcion_opcional || null,
       };
 
       let ventaId = `venta-${Date.now()}`;
@@ -321,11 +321,14 @@ export default function Booking() {
 
         if (apiRes.ok) {
           const apiData = await apiRes.json();
-          if (apiData.venta?.id) {
+          if (apiData.success && apiData.venta?.id) {
             ventaId = apiData.venta.id;
+          } else {
+            throw new Error(apiData.error || 'API serverless devolvió respuesta sin venta ID');
           }
         } else {
-          throw new Error('API serverless no respondió OK');
+          const errBody = await apiRes.text();
+          throw new Error(`API serverless respondió status ${apiRes.status}: ${errBody}`);
         }
       } catch (_apiErr) {
         console.warn('Fallback a inserción directa Supabase:', _apiErr);

@@ -54,7 +54,7 @@ export async function onRequestPost(context) {
 
     if (!token) {
       return new Response(
-        JSON.stringify({ error: 'Error de autenticación con la base de datos' }),
+        JSON.stringify({ error: 'Error de autenticación con la base de datos Supabase' }),
         { status: 500, headers: corsHeaders }
       );
     }
@@ -75,7 +75,7 @@ export async function onRequestPost(context) {
       nombres,
       apellidos,
       email: email || '',
-      telefono: telefono || '',
+      telefono: telefono || '997475405',
       monto_pagado: Number(monto_pagado) || 50,
       culqi_charge_id: culqi_charge_id || `YAPE-${Date.now()}`,
       razon_social: razon_social || null,
@@ -88,6 +88,15 @@ export async function onRequestPost(context) {
       headers: authHeaders,
       body: JSON.stringify(fullPayload),
     });
+
+    if (!ventaRes.ok) {
+      const errText = await ventaRes.text();
+      console.error('Error al insertar en Supabase ventas:', errText);
+      return new Response(
+        JSON.stringify({ error: `Error DB (${ventaRes.status}): ${errText}` }),
+        { status: 500, headers: corsHeaders }
+      );
+    }
 
     const ventaData = await ventaRes.json();
 
@@ -114,11 +123,13 @@ export async function onRequestPost(context) {
 
     const bloqueoData = await bloqueoRes.json();
 
+    const createdVenta = Array.isArray(ventaData) ? ventaData[0] : ventaData;
+
     return new Response(
       JSON.stringify({
         success: true,
-        venta: ventaData[0] || ventaData,
-        bloqueo: bloqueoData[0] || bloqueoData,
+        venta: createdVenta,
+        bloqueo: Array.isArray(bloqueoData) ? bloqueoData[0] : bloqueoData,
       }),
       { status: 200, headers: corsHeaders }
     );
