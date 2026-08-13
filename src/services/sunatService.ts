@@ -54,12 +54,12 @@ export function getSunatConfig(): SunatConfig {
     }
   }
   return {
-    enabled: false,
-    apiUrl: 'https://api.nubefact.com/api/v1/DEMO_TUNKY_CHASKY',
-    apiToken: '',
-    serieBoleta: 'B001',
-    serieFactura: 'F001',
-    tipoIgv: 8 // Exonerado por transporte terrestre de pasajeros
+    enabled: true,
+    apiUrl: 'https://api.nubefact.com/api/v1/ad363ac5-880b-4f3f-be7a-247d2908a9d6',
+    apiToken: '3c4fcc1af04b48b4b3fe291e485c1fa061857d24cc8143ce9d73f312b4836cbc',
+    serieBoleta: 'BBB1',
+    serieFactura: 'FFF1',
+    tipoIgv: 8 // Exonerado por ley de transporte terrestre de pasajeros (IGV 0%)
   };
 }
 
@@ -133,21 +133,46 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
   };
 
   try {
-    const response = await fetch(config.apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.apiToken}`
-      },
-      body: JSON.stringify(payload)
-    });
+    let result: any;
+    let ok = false;
 
-    const result = await response.json();
+    // 1. Intentar primero enviar vía Serverless Proxy en Cloudflare (CORS-Free)
+    try {
+      const proxyRes = await fetch('/api/emitir-comprobante', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiUrl: config.apiUrl,
+          apiToken: config.apiToken,
+          payload
+        })
+      });
+      if (proxyRes.ok) {
+        result = await proxyRes.json();
+        ok = true;
+      }
+    } catch (_pErr) {
+      console.warn('Proxy serverless no disponible, haciendo fetch directo:', _pErr);
+    }
 
-    if (!response.ok || result.errors) {
+    // 2. Fallback: Fetch directo a NubeFact
+    if (!ok) {
+      const response = await fetch(config.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${config.apiToken}`
+        },
+        body: JSON.stringify(payload)
+      });
+      result = await response.json();
+      ok = response.ok;
+    }
+
+    if (!ok || result.errors) {
       return {
         success: false,
-        error: result.errors || result.message || 'Error en la respuesta del proveedor SUNAT'
+        error: typeof result.errors === 'string' ? result.errors : (result.message || 'Error en la respuesta del proveedor SUNAT')
       };
     }
 
