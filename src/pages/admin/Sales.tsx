@@ -16,6 +16,8 @@ interface VentaRow {
   nombres: string;
   apellidos: string;
   email: string;
+  telefono?: string;
+  created_at?: string;
   monto_pagado: number;
   culqi_charge_id?: string;
   metodo_pago?: string;
