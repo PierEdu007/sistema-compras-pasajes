@@ -76,7 +76,8 @@ const AdminTrips: React.FC = () => {
           rutas (id, origen, destino),
           vehiculos (id, nombre_display)
         `)
-        .order('fecha_viaje', { ascending: false });
+        .order('fecha_viaje', { ascending: true })
+        .order('hora_viaje', { ascending: true });
 
       if (error) throw error;
       setViajes((data as any) || []);

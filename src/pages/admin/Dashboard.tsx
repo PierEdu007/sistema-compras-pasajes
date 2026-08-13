@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
 import { 
@@ -13,7 +13,8 @@ import {
   FaBuilding, 
   FaChartLine, 
   FaChair, 
-  FaRoute 
+  FaRoute,
+  FaSearch
 } from 'react-icons/fa';
 import { generateInvoicePDF } from '../../utils/invoiceGenerator';
 import '../../styles/components/admin.css';
@@ -32,6 +33,8 @@ interface DashboardVenta {
   nro_operacion?: string;
   comprobante_emitido: boolean;
   comprobante_url: string | null;
+  nro_comprobante?: string;
+  estado_sunat?: string;
   created_at: string;
   viajes?: {
     fecha_viaje: string;
@@ -86,6 +89,17 @@ const AdminDashboard: React.FC = () => {
   const [avgTicketPrice, setAvgTicketPrice] = useState<number>(0);
   const [peakDays, setPeakDays] = useState<PeakDayData[]>([]);
   const [peakHours, setPeakHours] = useState<PeakHourData[]>([]);
+  const [dashboardSearch, setDashboardSearch] = useState('');
+
+  const filteredConfirmedVentas = useMemo(() => {
+    return confirmedVentas.filter(v => {
+      const opCode = v.nro_operacion || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-') ? v.culqi_charge_id.split('|')[0].replace('YAPE-', '') : v.culqi_charge_id) || '';
+      return !dashboardSearch || 
+        `${v.nro_documento} ${v.nombres} ${v.apellidos} ${opCode} ${v.id}`
+          .toLowerCase()
+          .includes(dashboardSearch.toLowerCase());
+    });
+  }, [confirmedVentas, dashboardSearch]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -118,6 +132,8 @@ const AdminDashboard: React.FC = () => {
           culqi_charge_id,
           comprobante_emitido,
           comprobante_url,
+          nro_comprobante,
+          estado_sunat,
           created_at,
           viajes (
             fecha_viaje,
@@ -539,11 +555,37 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Sección de Ventas Confirmadas */}
-      <h2 style={{ fontSize: '1.25rem', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <FaCheckCircle style={{ color: '#10b981' }} /> Ventas Confirmadas Recientes
-      </h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
+        <h2 style={{ fontSize: '1.25rem', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <FaCheckCircle style={{ color: '#10b981' }} /> Ventas Confirmadas Recientes
+        </h2>
 
-      <div className="admin-card" style={{ padding: 0, overflowX: 'auto' }}>
+        {/* Buscador Rápido por DNI/RUC/Nombre */}
+        <div style={{ position: 'relative', width: '280px' }}>
+          <input
+            type="text"
+            className="admin-form-control"
+            placeholder="Buscar DNI, RUC, Nombres..."
+            value={dashboardSearch}
+            onChange={(e) => setDashboardSearch(e.target.value)}
+            style={{ paddingLeft: '32px', fontSize: '0.85rem' }}
+          />
+          <FaSearch style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+        </div>
+      </div>
+
+      <div 
+        className="admin-card" 
+        style={{ 
+          padding: 0, 
+          overflowX: 'auto', 
+          maxHeight: '48vh', 
+          overflowY: 'auto', 
+          border: '1px solid #cbd5e1', 
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
+        }}
+      >
         <table className="admin-table">
           <thead>
             <tr>
@@ -552,6 +594,8 @@ const AdminDashboard: React.FC = () => {
               <th>Asiento</th>
               <th>Pasajero</th>
               <th>Documento</th>
+              <th>N° Comprobante</th>
+              <th>Estado SUNAT</th>
               <th>Pago</th>
               <th>Monto</th>
               <th>Comprobante</th>
@@ -559,11 +603,11 @@ const AdminDashboard: React.FC = () => {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={8} style={{ textAlign: 'center' }}>Cargando ventas confirmadas...</td></tr>
-            ) : confirmedVentas.length === 0 ? (
-              <tr><td colSpan={8} style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>No hay ventas confirmadas aún. Confirma los pagos pendientes en el menú de Ventas.</td></tr>
+              <tr><td colSpan={10} style={{ textAlign: 'center' }}>Cargando ventas confirmadas...</td></tr>
+            ) : filteredConfirmedVentas.length === 0 ? (
+              <tr><td colSpan={10} style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>No se encontraron ventas confirmadas que coincidan con la búsqueda.</td></tr>
             ) : (
-              confirmedVentas.map((v) => {
+              filteredConfirmedVentas.map((v) => {
                 const isYape = v.metodo_pago === 'YAPE' || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-'));
                 const opCode = v.nro_operacion || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-') ? v.culqi_charge_id.split('|')[0].replace('YAPE-', '') : v.culqi_charge_id);
                 const isFactura = v.tipo_documento === 'RUC';
@@ -582,6 +626,37 @@ const AdminDashboard: React.FC = () => {
                       <span style={{ display: 'block', fontSize: '0.75em', color: isFactura ? '#0284c7' : '#16a34a' }}>
                         ({isFactura ? 'Factura' : 'Boleta'})
                       </span>
+                    </td>
+                    <td>
+                      {(() => {
+                        if (v.nro_comprobante) return <span style={{ fontWeight: 'bold', color: '#0f4c81', fontFamily: 'monospace' }}>{v.nro_comprobante}</span>;
+                        const isF = v.tipo_documento === 'RUC';
+                        const serie = isF ? 'F001' : 'B001';
+                        const num = String(parseInt(v.id.replace(/\D/g, '').slice(-4) || '1', 10)).padStart(4, '0');
+                        return <span style={{ fontWeight: 'bold', color: '#0f4c81', fontFamily: 'monospace' }}>{serie}-{num}</span>;
+                      })()}
+                    </td>
+                    <td>
+                      {(() => {
+                        const estado = v.estado_sunat || 'ACEPTADO';
+                        const isAnulado = estado === 'ANULADO';
+                        return (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '3px 10px',
+                            borderRadius: '12px',
+                            fontSize: '0.78em',
+                            fontWeight: 'bold',
+                            background: isAnulado ? '#fee2e2' : '#dcfce7',
+                            color: isAnulado ? '#dc2626' : '#16a34a',
+                            border: `1px solid ${isAnulado ? '#fca5a5' : '#86efac'}`
+                          }}>
+                            {isAnulado ? '✕ Anulado' : '✓ Aceptado'}
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td>
                       {isYape ? (

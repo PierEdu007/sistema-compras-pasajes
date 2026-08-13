@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
-import { FaBell, FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaKey, FaServer } from 'react-icons/fa';
+import { FaBell, FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaKey, FaServer, FaSearch, FaFilter, FaSync } from 'react-icons/fa';
 import { generateInvoicePDF, generateTicketPDF } from '../../utils/invoiceGenerator';
 import { SunatConfigModal } from '../../components/admin/SunatConfigModal';
 import { emitirComprobanteSunat, getSunatConfig } from '../../services/sunatService';
@@ -25,6 +25,8 @@ interface VentaRow {
   descripcion_opcional?: string;
   comprobante_emitido: boolean;
   comprobante_url: string | null;
+  nro_comprobante?: string;
+  estado_sunat?: string;
   estado?: string;
   viajes: {
     fecha_viaje: string;
@@ -41,6 +43,40 @@ const AdminSales: React.FC = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(() => {
     return typeof Notification !== 'undefined' && Notification.permission === 'granted';
   });
+
+  // Filtros de búsqueda
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterDocType, setFilterDocType] = useState('TODOS');
+  const [filterStatus, setFilterStatus] = useState('TODOS');
+  const [filterFecha, setFilterFecha] = useState('');
+
+  const filteredVentas = useMemo(() => {
+    return ventas.filter(v => {
+      // 1. Búsqueda por DNI, RUC, Nombres, Apellidos, N° Operación, Email o Teléfono
+      const opCode = v.nro_operacion || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-') ? v.culqi_charge_id.split('|')[0].replace('YAPE-', '') : v.culqi_charge_id) || '';
+      
+      const searchMatch = !searchQuery || 
+        `${v.nro_documento} ${v.nombres} ${v.apellidos} ${v.email} ${v.telefono} ${opCode} ${v.id}`
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
+
+      // 2. Tipo de Documento (DNI, RUC)
+      const docMatch = filterDocType === 'TODOS' || v.tipo_documento === filterDocType;
+
+      // 3. Estado (EMITIDO vs PENDIENTE)
+      const statusMatch = filterStatus === 'TODOS' || 
+        (filterStatus === 'EMITIDO' && v.comprobante_emitido) || 
+        (filterStatus === 'PENDIENTE' && !v.comprobante_emitido);
+
+      // 4. Fecha de viaje / creación
+      const fechaMatch = !filterFecha || (() => {
+        const vDate = (v.viajes?.fecha_viaje || v.created_at || '').substring(0, 10);
+        return vDate === filterFecha;
+      })();
+
+      return searchMatch && docMatch && statusMatch && fechaMatch;
+    });
+  }, [ventas, searchQuery, filterDocType, filterStatus, filterFecha]);
 
   const handleToggleNotifications = async () => {
     const granted = await requestNotificationPermission();
@@ -99,6 +135,8 @@ const AdminSales: React.FC = () => {
           culqi_charge_id,
           comprobante_emitido,
           comprobante_url,
+          nro_comprobante,
+          estado_sunat,
           viajes (
             fecha_viaje,
             hora_viaje,
@@ -485,12 +523,113 @@ const AdminSales: React.FC = () => {
         </div>
       </div>
 
+      {/* BARRA DE FILTROS Y BÚSQUEDA DE VENTAS */}
+      <div className="admin-card" style={{ marginBottom: '20px', padding: '16px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#0f4c81', fontWeight: 'bold' }}>
+          <FaFilter /> <span>Filtros de Ventas (Búsqueda por DNI, RUC, Nombres o N° Operación)</span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+          {/* Búsqueda por DNI/RUC/Nombre */}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#475569', marginBottom: '4px' }}>
+              DNI, RUC, Nombres o N° Yape:
+            </label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type="text"
+                className="admin-form-control"
+                placeholder="Ej. 72849102, 206132..., Juan..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ paddingLeft: '32px' }}
+              />
+              <FaSearch style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            </div>
+          </div>
+
+          {/* Tipo de Documento */}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#475569', marginBottom: '4px' }}>
+              Tipo de Documento:
+            </label>
+            <select
+              className="admin-form-control"
+              value={filterDocType}
+              onChange={(e) => setFilterDocType(e.target.value)}
+            >
+              <option value="TODOS">Todos (Boletas y Facturas)</option>
+              <option value="DNI">Solo DNI (Boleta)</option>
+              <option value="RUC">Solo RUC (Factura)</option>
+            </select>
+          </div>
+
+          {/* Estado de Venta */}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#475569', marginBottom: '4px' }}>
+              Estado del Pago:
+            </label>
+            <select
+              className="admin-form-control"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="TODOS">Todos los Pagos</option>
+              <option value="PENDIENTE">⏳ Pendientes por Confirmar</option>
+              <option value="EMITIDO">✅ Confirmados / Emitidos</option>
+            </select>
+          </div>
+
+          {/* Fecha */}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#475569', marginBottom: '4px' }}>
+              Filtrar por Fecha:
+            </label>
+            <input
+              type="date"
+              className="admin-form-control"
+              value={filterFecha}
+              onChange={(e) => setFilterFecha(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {(searchQuery || filterDocType !== 'TODOS' || filterStatus !== 'TODOS' || filterFecha) && (
+          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'bold' }}>
+              Mostrando {filteredVentas.length} venta(s) de {ventas.length} en total
+            </span>
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setFilterDocType('TODOS');
+                setFilterStatus('TODOS');
+                setFilterFecha('');
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#ef4444',
+                cursor: 'pointer',
+                fontSize: '0.85rem',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <FaSync /> Limpiar Filtros
+            </button>
+          </div>
+        )}
+      </div>
+
       <SunatConfigModal
         isOpen={isSunatModalOpen}
         onClose={() => setIsSunatModalOpen(false)}
       />
 
-      <div className="admin-card" style={{ padding: 0, overflowX: 'auto' }}>
+      <div className="admin-card" style={{ padding: 0, overflowX: 'auto', maxHeight: '58vh', overflowY: 'auto', border: '1px solid #cbd5e1', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
         <table className="admin-table">
           <thead>
             <tr>
@@ -499,6 +638,8 @@ const AdminSales: React.FC = () => {
               <th>Asiento</th>
               <th>Pasajero</th>
               <th>Documento</th>
+              <th>N° Comprobante</th>
+              <th>Estado SUNAT</th>
               <th>Pago / N° Op.</th>
               <th>Monto (S/)</th>
               <th>Acción / Comprobante</th>
@@ -506,11 +647,11 @@ const AdminSales: React.FC = () => {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={8} style={{ textAlign: 'center' }}>Cargando ventas...</td></tr>
-            ) : ventas.length === 0 ? (
-              <tr><td colSpan={8} style={{ textAlign: 'center' }}>No hay ventas registradas</td></tr>
+              <tr><td colSpan={10} style={{ textAlign: 'center' }}>Cargando ventas...</td></tr>
+            ) : filteredVentas.length === 0 ? (
+              <tr><td colSpan={10} style={{ textAlign: 'center', color: '#64748b', padding: '25px' }}>No se encontraron ventas con los filtros seleccionados</td></tr>
             ) : (
-              ventas.map((v) => {
+              filteredVentas.map((v) => {
                 const isYape = v.metodo_pago === 'YAPE' || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-'));
                 const opCode = v.nro_operacion || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-') ? v.culqi_charge_id.split('|')[0].replace('YAPE-', '') : v.culqi_charge_id);
                 const isFactura = v.tipo_documento === 'RUC';
@@ -529,6 +670,39 @@ const AdminSales: React.FC = () => {
                       <div style={{ fontSize: '0.75em', color: isFactura ? '#0369a1' : '#15803d' }}>
                         ({isFactura ? 'Factura' : 'Boleta'})
                       </div>
+                    </td>
+                    <td>
+                      {(() => {
+                        if (v.nro_comprobante) return <span style={{ fontWeight: 'bold', color: '#0f4c81', fontFamily: 'monospace' }}>{v.nro_comprobante}</span>;
+                        if (!v.comprobante_emitido) return <span style={{ color: '#94a3b8', fontSize: '0.85em' }}>—</span>;
+                        const isF = v.tipo_documento === 'RUC';
+                        const serie = isF ? 'F001' : 'B001';
+                        const num = String(parseInt(v.id.replace(/\D/g, '').slice(-4) || '1', 10)).padStart(4, '0');
+                        return <span style={{ fontWeight: 'bold', color: '#0f4c81', fontFamily: 'monospace' }}>{serie}-{num}</span>;
+                      })()}
+                    </td>
+                    <td>
+                      {(() => {
+                        if (!v.comprobante_emitido) return <span style={{ color: '#94a3b8', fontSize: '0.85em' }}>—</span>;
+                        const estado = v.estado_sunat || 'ACEPTADO';
+                        const isAnulado = estado === 'ANULADO';
+                        return (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '3px 10px',
+                            borderRadius: '12px',
+                            fontSize: '0.78em',
+                            fontWeight: 'bold',
+                            background: isAnulado ? '#fee2e2' : '#dcfce7',
+                            color: isAnulado ? '#dc2626' : '#16a34a',
+                            border: `1px solid ${isAnulado ? '#fca5a5' : '#86efac'}`
+                          }}>
+                            {isAnulado ? '✕ Anulado' : '✓ Aceptado'}
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td>
                       {isYape ? (
