@@ -147,17 +147,20 @@ export default function YapePaymentModal({
 
             <div className="form-group">
               <label className="form-label" htmlFor="telefono_yape">
-                Número de Celular desde el que Yapeaste <small>(Opcional)</small>
+                Número de Celular desde el que Yapeaste <small style={{ color: '#64748b' }}>(Opcional)</small>
               </label>
               <input
                 id="telefono_yape"
                 type="tel"
                 className="form-control"
-                placeholder="Ej: 987654321"
+                placeholder="Dejar en blanco si es el mismo celular del pasajero"
                 value={telefonoYape}
                 onChange={(e) => setTelefonoYape(e.target.value)}
                 disabled={disabled}
               />
+              <small className="help-text" style={{ display: 'block', marginTop: '4px', color: '#64748b', fontSize: '0.75rem' }}>
+                Si no ingresas un número, se usará automáticamente el teléfono del pasajero registrado anteriormente.
+              </small>
             </div>
 
             {error && <div className="yape-error-alert">{error}</div>}

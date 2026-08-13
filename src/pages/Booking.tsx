@@ -279,6 +279,14 @@ export default function Booking() {
 
     setIsProcessing(true);
     try {
+      // Si el cliente puso un teléfono en el modal de Yape, se usa ese.
+      // Si no puso nada (está en blanco), se usa automáticamente el teléfono ingresado en el cuestionario anterior.
+      const finalTelefono = (yapeData.telefono_yape && yapeData.telefono_yape.trim().length >= 6)
+        ? yapeData.telefono_yape.trim()
+        : (pendingPassengerData.telefono && pendingPassengerData.telefono.trim() !== ''
+            ? pendingPassengerData.telefono.trim()
+            : '997475405');
+
       let chargeId = `YAPE-${yapeData.nro_operacion}`;
       if (pendingPassengerData.razon_social) {
         chargeId += `|RS:${pendingPassengerData.razon_social}`;
@@ -298,7 +306,7 @@ export default function Booking() {
         nombres: pendingPassengerData.nombres,
         apellidos: pendingPassengerData.apellidos,
         email: pendingPassengerData.email,
-        telefono: pendingPassengerData.telefono || '997475405',
+        telefono: finalTelefono,
         monto_pagado: viaje.precio_base,
         culqi_charge_id: chargeId,
       };
