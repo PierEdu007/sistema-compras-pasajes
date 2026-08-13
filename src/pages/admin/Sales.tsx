@@ -168,24 +168,44 @@ const AdminSales: React.FC = () => {
 
       let res: Response | null = null;
       try {
-        res = await fetch('https://api.resend.com/emails', {
+        // Intento 1: Servidor Edge Cloudflare /api/enviar-correo (CORS free)
+        res = await fetch('/api/enviar-correo', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify(emailPayload)
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: venta.email,
+            subject: emailPayload.subject,
+            html: emailPayload.html,
+            attachments: emailPayload.attachments,
+            apiKey
+          })
         });
-      } catch (_corsErr) {
-        console.warn('Direct fetch blocked by CORS, using proxy...');
-        res = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.resend.com/emails'), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify(emailPayload)
-        });
+
+        if (!res.ok) {
+          throw new Error('Serverless /api/enviar-correo devolvió error, intentando fallback...');
+        }
+      } catch (_serverErr) {
+        console.warn('Fallback a llamada directa Resend:', _serverErr);
+        try {
+          res = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify(emailPayload)
+          });
+        } catch (_corsErr) {
+          console.warn('Direct fetch blocked by CORS, using proxy...');
+          res = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.resend.com/emails'), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify(emailPayload)
+          });
+        }
       }
 
       if (res && res.ok) {
