@@ -20,6 +20,18 @@ export default defineConfig({
         secure: true,
         rewrite: (path) => path.replace(/^\/api\/ruc/, '/v1/ruc'),
       },
+      // Proxy local para NubeFact Facturación Electrónica (Evita CORS en localhost)
+      '/api/emitir-comprobante': {
+        target: 'https://api.nubefact.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: () => '/api/v1/ad363ac5-880b-4f3f-be7a-247d2908a9d6',
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Authorization', 'Bearer 3c4fcc1af04b48b4b3fe291e485c1fa061857d24cc8143ce9d73f312b4836cbc');
+          });
+        }
+      },
     },
   },
 })

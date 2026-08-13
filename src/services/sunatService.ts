@@ -136,7 +136,7 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
     let result: any;
     let ok = false;
 
-    // 1. Intentar primero enviar vía Serverless Proxy en Cloudflare (CORS-Free)
+    // 1. Intentar enviar vía Proxy en dev/prod (Evita CORS en navegador)
     try {
       const proxyRes = await fetch('/api/emitir-comprobante', {
         method: 'POST',
@@ -147,26 +147,30 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
           payload
         })
       });
-      if (proxyRes.ok) {
-        result = await proxyRes.json();
-        ok = true;
-      }
-    } catch (_pErr) {
-      console.warn('Proxy serverless no disponible, haciendo fetch directo:', _pErr);
-    }
 
-    // 2. Fallback: Fetch directo a NubeFact
-    if (!ok) {
-      const response = await fetch(config.apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${config.apiToken}`
-        },
-        body: JSON.stringify(payload)
-      });
-      result = await response.json();
-      ok = response.ok;
+      result = await proxyRes.json();
+      ok = proxyRes.ok;
+    } catch (_pErr) {
+      console.warn('Proxy local/serverless falló, intentando fetch directo:', _pErr);
+      // Fallback: Fetch directo a NubeFact
+      try {
+        const directRes = await fetch(config.apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${config.apiToken}`
+          },
+          body: JSON.stringify(payload)
+        });
+        result = await directRes.json();
+        ok = directRes.ok;
+      } catch (dErr: any) {
+        console.error('Fetch directo a NubeFact falló por CORS:', dErr);
+        return {
+          success: false,
+          error: 'Servicio de Facturación Electrónica no disponible temporalmente en este entorno (CORS / Red).'
+        };
+      }
     }
 
     if (!ok || result.errors) {
