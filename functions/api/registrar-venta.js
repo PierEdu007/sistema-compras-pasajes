@@ -24,9 +24,6 @@ export async function onRequestPost(context) {
       telefono,
       monto_pagado,
       culqi_charge_id,
-      razon_social,
-      direccion_fiscal,
-      descripcion_opcional,
     } = body;
 
     if (!viaje_id || !numero_asiento || !nombres || !apellidos) {
@@ -66,7 +63,7 @@ export async function onRequestPost(context) {
       'Prefer': 'return=representation',
     };
 
-    // 2. Insert into ventas table
+    // 2. Insert into ventas table (ONLY schema valid columns)
     const fullPayload = {
       viaje_id,
       numero_asiento: Number(numero_asiento),
@@ -78,9 +75,6 @@ export async function onRequestPost(context) {
       telefono: telefono || '997475405',
       monto_pagado: Number(monto_pagado) || 50,
       culqi_charge_id: culqi_charge_id || `YAPE-${Date.now()}`,
-      razon_social: razon_social || null,
-      direccion_fiscal: direccion_fiscal || null,
-      descripcion_opcional: descripcion_opcional || null,
     };
 
     const ventaRes = await fetch(`${SUPABASE_URL}/rest/v1/ventas`, {

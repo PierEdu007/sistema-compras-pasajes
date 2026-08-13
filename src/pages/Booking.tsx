@@ -290,7 +290,7 @@ export default function Booking() {
         chargeId += `|DESC:${pendingPassengerData.descripcion_opcional}`;
       }
 
-      const basePayload: any = {
+      const fullPayload = {
         viaje_id: viaje.id,
         numero_asiento: selectedSeat,
         tipo_documento: pendingPassengerData.tipo_documento,
@@ -301,13 +301,6 @@ export default function Booking() {
         telefono: pendingPassengerData.telefono || '997475405',
         monto_pagado: viaje.precio_base,
         culqi_charge_id: chargeId,
-      };
-
-      const fullPayload = {
-        ...basePayload,
-        razon_social: pendingPassengerData.razon_social || null,
-        direccion_fiscal: pendingPassengerData.direccion_fiscal || null,
-        descripcion_opcional: pendingPassengerData.descripcion_opcional || null,
       };
 
       let ventaId = `venta-${Date.now()}`;
@@ -332,8 +325,8 @@ export default function Booking() {
         }
       } catch (_apiErr) {
         console.warn('Fallback a inserción directa Supabase:', _apiErr);
-        const { data: insertedData } = await supabase
-          .from('ventas')
+        const { data: insertedData } = await (supabase
+          .from('ventas') as any)
           .insert(fullPayload)
           .select('id')
           .single();
