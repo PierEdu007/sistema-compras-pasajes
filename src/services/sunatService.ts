@@ -96,11 +96,11 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
     ? data.razonSocial 
     : `${data.nombres} ${data.apellidos}`.trim();
 
-  // Payload según estándar UBL 2.1 Nubefact / PSE
   const payload = {
     operacion: 'generar_comprobante',
     tipo_de_comprobante: tipoComprobante,
     serie: serie,
+    codigo_unico: data.ventaId || `VENTA-${Date.now()}`,
     sunat_transaction: 1, // Venta Interna
     cliente_tipo_de_documento: docTipoSunat,
     cliente_numero_de_documento: data.nroDocumento,
