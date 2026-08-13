@@ -43,7 +43,11 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    let finalVal = value;
+    if (['nombres', 'apellidos', 'razon_social', 'direccion_fiscal', 'descripcion_opcional'].includes(name)) {
+      finalVal = value.toUpperCase();
+    }
+    setFormData(prev => ({ ...prev, [name]: finalVal }));
     if (errorMsg) setErrorMsg('');
   };
 
@@ -65,8 +69,8 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
         const res = await fetch(`/api/ruc?numero=${cleanDoc}`);
         if (res.ok) {
           const data = await res.json();
-          const razonSocial = data.nombre || data.razonSocial || data.razon_social || '';
-          const direccion = data.direccion || data.direccionFiscal || data.direccion_fiscal || 'CUSCO, PERU';
+          const razonSocial = (data.nombre || data.razonSocial || data.razon_social || '').toUpperCase();
+          const direccion = (data.direccion || data.direccionFiscal || data.direccion_fiscal || 'CUSCO, PERU').toUpperCase();
 
           if (razonSocial) {
             setFormData(prev => ({
@@ -96,16 +100,16 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
         const res = await fetch(`/api/dni?numero=${cleanDoc}`);
         if (res.ok) {
           const data = await res.json();
-          let nombres = data.nombres || '';
-          let apellidos = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
+          let nombres = (data.nombres || '').toUpperCase();
+          let apellidos = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim().toUpperCase();
 
           if (!nombres && data.nombre) {
             const parts = data.nombre.trim().split(/\s+/);
             if (parts.length >= 3) {
-              apellidos = `${parts[0]} ${parts[1]}`;
-              nombres = parts.slice(2).join(' ');
+              apellidos = `${parts[0]} ${parts[1]}`.toUpperCase();
+              nombres = parts.slice(2).join(' ').toUpperCase();
             } else {
-              nombres = data.nombre;
+              nombres = data.nombre.toUpperCase();
             }
           }
 
@@ -151,22 +155,37 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
         return;
       }
       if (!formData.razon_social?.trim()) {
-        setErrorMsg('Por favor ingresa la Razón Social de la empresa.');
+        setErrorMsg('Por favor ingresa o verifica la Razón Social.');
         return;
       }
       if (!formData.direccion_fiscal?.trim()) {
-        setErrorMsg('Por favor ingresa la Dirección Fiscal de la empresa.');
+        setErrorMsg('Por favor ingresa la Dirección Fiscal.');
         return;
       }
-    } else {
-      if (doc.length < 6 || doc.length > 15) {
-        setErrorMsg('El número de documento debe tener entre 6 y 15 caracteres.');
-        return;
-      }
+    } else if (doc.length < 6 || doc.length > 15) {
+      setErrorMsg('El número de documento debe tener entre 6 y 15 caracteres.');
+      return;
     }
 
-    setErrorMsg('');
-    onSubmit(formData);
+    if (!formData.nombres?.trim() || !formData.apellidos?.trim()) {
+      setErrorMsg('Por favor ingresa los Nombres y Apellidos del pasajero.');
+      return;
+    }
+
+    // Convertir todo a MAYÚSCULAS para mayor orden y legibilidad legal en boletas/facturas
+    const upperData: PassengerData = {
+      ...formData,
+      nro_documento: doc,
+      nombres: formData.nombres.trim().toUpperCase(),
+      apellidos: formData.apellidos.trim().toUpperCase(),
+      email: formData.email.trim().toLowerCase(),
+      telefono: formData.telefono.trim(),
+      razon_social: formData.razon_social ? formData.razon_social.trim().toUpperCase() : '',
+      direccion_fiscal: formData.direccion_fiscal ? formData.direccion_fiscal.trim().toUpperCase() : '',
+      descripcion_opcional: formData.descripcion_opcional ? formData.descripcion_opcional.trim().toUpperCase() : ''
+    };
+
+    onSubmit(upperData);
   };
 
   return (

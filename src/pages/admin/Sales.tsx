@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaKey, FaServer } from 'react-icons/fa';
+import { FaBell, FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaKey, FaServer } from 'react-icons/fa';
 import { generateInvoicePDF, generateTicketPDF } from '../../utils/invoiceGenerator';
 import { SunatConfigModal } from '../../components/admin/SunatConfigModal';
 import { emitirComprobanteSunat, getSunatConfig } from '../../services/sunatService';
+import { requestNotificationPermission, notifyNewSale } from '../../utils/notificationHelper';
 import '../../styles/components/admin.css';
 
 interface VentaRow {
@@ -37,9 +38,47 @@ const AdminSales: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [isSunatModalOpen, setIsSunatModalOpen] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(() => {
+    return typeof Notification !== 'undefined' && Notification.permission === 'granted';
+  });
+
+  const handleToggleNotifications = async () => {
+    const granted = await requestNotificationPermission();
+    setNotificationsEnabled(granted);
+    if (granted) {
+      alert('🔔 ¡Notificaciones activadas exitosamente! Recibirás sonido, vibración y aviso en pantalla cuando un pasajero confirme un pago.');
+    } else {
+      alert('⚠️ Para recibir notificaciones, por favor autoriza el permiso en tu navegador o celular.');
+    }
+  };
 
   useEffect(() => {
     fetchVentas();
+
+    // Listener Realtime Supabase para Notificaciones de Pagos en Vivo
+    const channel = supabase
+      .channel('admin-ventas-realtime')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'ventas' },
+        (payload) => {
+          const newVenta = payload.new as any;
+          if (newVenta) {
+            notifyNewSale({
+              nombres: newVenta.nombres || 'Pasajero',
+              apellidos: newVenta.apellidos || '',
+              numero_asiento: newVenta.numero_asiento || 0,
+              monto_pagado: newVenta.monto_pagado || 0
+            });
+            fetchVentas();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchVentas = async () => {
@@ -381,7 +420,28 @@ const AdminSales: React.FC = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 style={{ margin: 0 }}>Gestión de Ventas</h1>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            onClick={handleToggleNotifications}
+            style={{
+              background: notificationsEnabled ? '#10b981' : '#f59e0b',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '8px 14px',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+            }}
+            title="Activa avisos en pantalla, vibración y sonido en tu celular/laptop cuando haya compras"
+          >
+            <FaBell /> {notificationsEnabled ? '🔔 Notificaciones Activas' : '🔔 Activar Notificaciones'}
+          </button>
+
           <button 
             onClick={() => setIsSunatModalOpen(true)}
             style={{
