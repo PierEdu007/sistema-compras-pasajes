@@ -131,8 +131,13 @@ const AdminTrips: React.FC = () => {
       const rutaMatch = filterRuta === 'TODAS' || v.ruta_id === filterRuta || 
         `${v.rutas?.origen} - ${v.rutas?.destino}` === filterRuta;
 
-      // 3. Filtro por Fecha
-      const fechaMatch = !filterFecha || v.fecha_viaje === filterFecha;
+      // 3. Filtro por Fecha (Normalización YYYY-MM-DD)
+      const fechaMatch = !filterFecha || (() => {
+        if (!v.fecha_viaje) return false;
+        const vDateStr = v.fecha_viaje.trim().substring(0, 10);
+        const filterDateStr = filterFecha.trim().substring(0, 10);
+        return vDateStr === filterDateStr;
+      })();
 
       // 4. Filtro por Estado
       const estadoMatch = filterEstado === 'TODOS' || v.estado === filterEstado;
@@ -140,6 +145,16 @@ const AdminTrips: React.FC = () => {
       return searchMatch && rutaMatch && fechaMatch && estadoMatch;
     });
   }, [viajes, searchQuery, filterRuta, filterFecha, filterEstado]);
+
+  const handleSetToday = () => {
+    const today = new Date().toISOString().substring(0, 10);
+    setFilterFecha(today);
+  };
+
+  const handleSetTomorrow = () => {
+    const tom = new Date(Date.now() + 86400000).toISOString().substring(0, 10);
+    setFilterFecha(tom);
+  };
 
   // Limpiar Filtros
   const handleClearFilters = () => {
@@ -317,11 +332,47 @@ const AdminTrips: React.FC = () => {
             </select>
           </div>
 
-          {/* Filtro por Fecha */}
+          {/* Filtro por Fecha con Botones Rápidos HOY / MAÑANA */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#475569', marginBottom: '4px' }}>
-              Filtrar por Fecha:
-            </label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#475569' }}>
+                Filtrar por Fecha:
+              </label>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <button
+                  type="button"
+                  onClick={handleSetToday}
+                  style={{
+                    padding: '2px 6px',
+                    fontSize: '0.7rem',
+                    borderRadius: '4px',
+                    border: '1px solid #0f4c81',
+                    background: filterFecha === new Date().toISOString().substring(0, 10) ? '#0f4c81' : '#f0f9ff',
+                    color: filterFecha === new Date().toISOString().substring(0, 10) ? '#fff' : '#0f4c81',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  HOY
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSetTomorrow}
+                  style={{
+                    padding: '2px 6px',
+                    fontSize: '0.7rem',
+                    borderRadius: '4px',
+                    border: '1px solid #742284',
+                    background: filterFecha === new Date(Date.now() + 86400000).toISOString().substring(0, 10) ? '#742284' : '#faf5ff',
+                    color: filterFecha === new Date(Date.now() + 86400000).toISOString().substring(0, 10) ? '#fff' : '#742284',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  MAÑANA
+                </button>
+              </div>
+            </div>
             <input
               type="date"
               className="admin-form-control"
@@ -350,7 +401,10 @@ const AdminTrips: React.FC = () => {
 
         {/* Botón limpiar filtros si hay algún filtro aplicado */}
         {(searchQuery || filterRuta !== 'TODAS' || filterFecha || filterEstado !== 'TODOS') && (
-          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
+          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'bold' }}>
+              Mostrando {filteredViajes.length} viaje(s) de {viajes.length} en total
+            </span>
             <button
               onClick={handleClearFilters}
               style={{
@@ -371,8 +425,19 @@ const AdminTrips: React.FC = () => {
         )}
       </div>
 
-      {/* TABLA DE VIAJES */}
-      <div className="admin-card" style={{ padding: 0, overflowX: 'auto' }}>
+      {/* TABLA DE VIAJES EN UN CONTENEDOR CON SU PROPIA BARRA DE DESPLAZAMIENTO (BOX CONTAINER) */}
+      <div 
+        className="admin-card" 
+        style={{ 
+          padding: 0, 
+          overflowX: 'auto', 
+          maxHeight: '56vh', 
+          overflowY: 'auto', 
+          border: '1px solid #cbd5e1', 
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
+        }}
+      >
         <table className="admin-table">
           <thead>
             <tr>

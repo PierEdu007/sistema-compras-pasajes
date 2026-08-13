@@ -18,8 +18,15 @@ const AdminLayout: React.FC = () => {
   return (
     <div className="admin-layout">
       <aside className="admin-sidebar">
-        <div className="admin-sidebar-header">
-          Admin Panel
+        <div className="admin-sidebar-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>Admin Panel</span>
+          <button 
+            onClick={logout} 
+            title="Cerrar Sesión Rápidamente" 
+            style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center' }}
+          >
+            <FaSignOutAlt />
+          </button>
         </div>
         <nav className="admin-sidebar-nav">
           <NavLink 
