@@ -212,7 +212,29 @@ const AdminSales: React.FC = () => {
     }
   };
 
-  const sendDirectResend = async (venta: VentaRow, invoiceBlob: Blob, ticketBlob: Blob) => {
+  const fetchUrlAsBase64 = async (url: string): Promise<string | null> => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      const buf = await res.arrayBuffer();
+      const bytes = new Uint8Array(buf);
+      let bin = '';
+      for (let i = 0; i < bytes.byteLength; i++) {
+        bin += String.fromCharCode(bytes[i]);
+      }
+      return btoa(bin);
+    } catch (e) {
+      console.warn('Error convirtiendo URL a Base64:', url, e);
+      return null;
+    }
+  };
+
+  const sendDirectResend = async (
+    venta: VentaRow, 
+    ticketBlob: Blob, 
+    sunatData?: { pdfUrl?: string; xmlUrl?: string; serie?: string; numero?: number },
+    fallbackInvoiceBlob?: Blob
+  ) => {
     const DEFAULT_RESEND_KEY = typeof window !== 'undefined' ? atob('cmVfR0NvV0hmV1VfRGd5UEJyOWd0VjkzWEJjdVNFQWZ6Z0ti') : '';
     let apiKey = import.meta.env.VITE_RESEND_API_KEY || localStorage.getItem('RESEND_API_KEY') || DEFAULT_RESEND_KEY;
     
@@ -224,16 +246,7 @@ const AdminSales: React.FC = () => {
     }
 
     try {
-      // Convertir PDF comprobante a base64
-      const invBuf = await invoiceBlob.arrayBuffer();
-      const invBytes = new Uint8Array(invBuf);
-      let invBin = '';
-      for (let i = 0; i < invBytes.byteLength; i++) {
-        invBin += String.fromCharCode(invBytes[i]);
-      }
-      const invBase64 = btoa(invBin);
-
-      // Convertir PDF ticket a base64
+      // 1. Convertir PDF ticket a base64 (Boleto de Viaje)
       const tktBuf = await ticketBlob.arrayBuffer();
       const tktBytes = new Uint8Array(tktBuf);
       let tktBin = '';
@@ -242,38 +255,81 @@ const AdminSales: React.FC = () => {
       }
       const tktBase64 = btoa(tktBin);
 
+      const attachments: { filename: string; content: string }[] = [
+        {
+          filename: `Boleto_de_Viaje_Asiento_${venta.numero_asiento}.pdf`,
+          content: tktBase64
+        }
+      ];
+
+      let pdfDownloadHtml = '';
+      let xmlDownloadHtml = '';
+
+      // 2. Si existen PDF y XML de NubeFact, obtenerlos y adjuntarlos
+      if (sunatData?.pdfUrl) {
+        const nubefactPdfBase64 = await fetchUrlAsBase64(sunatData.pdfUrl);
+        if (nubefactPdfBase64) {
+          attachments.push({
+            filename: `SUNAT_Comprobante_${sunatData.serie || 'BBB1'}-${sunatData.numero || 1}.pdf`,
+            content: nubefactPdfBase64
+          });
+        }
+        pdfDownloadHtml = `<p style="margin: 8px 0;"><a href="${sunatData.pdfUrl}" target="_blank" style="background-color: #0f4c81; color: #ffffff; padding: 10px 16px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">📄 Descargar Comprobante PDF Oficial (NubeFact / SUNAT)</a></p>`;
+      }
+
+      if (sunatData?.xmlUrl) {
+        const nubefactXmlBase64 = await fetchUrlAsBase64(sunatData.xmlUrl);
+        if (nubefactXmlBase64) {
+          attachments.push({
+            filename: `SUNAT_Comprobante_${sunatData.serie || 'BBB1'}-${sunatData.numero || 1}.xml`,
+            content: nubefactXmlBase64
+          });
+        }
+        xmlDownloadHtml = `<p style="margin: 8px 0;"><a href="${sunatData.xmlUrl}" target="_blank" style="background-color: #742284; color: #ffffff; padding: 10px 16px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">📑 Descargar Archivo XML UBL 2.1 (Validez Legal SUNAT)</a></p>`;
+      }
+
+      // Fallback si NubeFact no devolvió PDF
+      if (!sunatData?.pdfUrl && fallbackInvoiceBlob) {
+        const invBuf = await fallbackInvoiceBlob.arrayBuffer();
+        const invBytes = new Uint8Array(invBuf);
+        let invBin = '';
+        for (let i = 0; i < invBytes.byteLength; i++) {
+          invBin += String.fromCharCode(invBytes[i]);
+        }
+        attachments.push({
+          filename: `Comprobante_${venta.tipo_documento}_${venta.nro_documento}.pdf`,
+          content: btoa(invBin)
+        });
+      }
+
       const compTipo = venta.tipo_documento === 'RUC' ? 'Factura Electrónica' : 'Boleta Electrónica';
 
       const emailPayload = {
         from: 'INVERSIONES TUNKY CHASKY <reservas@turismotunkychasky.com.pe>',
         to: [venta.email],
-        subject: `¡Pago Confirmado! Su ${compTipo} y Boleto de Viaje #${venta.numero_asiento}`,
+        subject: `¡Pago Confirmado! Su ${compTipo} NubeFact y Boleto de Viaje #${venta.numero_asiento}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; color: #1e293b;">
             <h2 style="color: #742284; margin-top: 0;">INVERSIONES TUNKY CHASKY S.R.L.</h2>
             <p>Estimado(a) <strong>${venta.nombres} ${venta.apellidos}</strong>,</p>
             <p>¡Su pago ha sido verificado y confirmado exitosamente!</p>
-            <div style="background-color: #f8fafc; padding: 16px; border-radius: 8px; margin: 20px 0;">
+            <div style="background-color: #f8fafc; padding: 16px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #742284;">
               <p style="margin: 4px 0;"><strong>Detalle del Pasaje:</strong></p>
               <p style="margin: 4px 0;">• <strong>Asiento Reservado:</strong> #${venta.numero_asiento}</p>
               <p style="margin: 4px 0;">• <strong>Monto Pagado:</strong> S/ ${venta.monto_pagado.toFixed(2)}</p>
               <p style="margin: 4px 0;">• <strong>Documento:</strong> ${venta.tipo_documento} ${venta.nro_documento}</p>
-              <p style="margin: 4px 0;">• <strong>Comprobante Emitido:</strong> ${compTipo}</p>
+              <p style="margin: 4px 0;">• <strong>Comprobante Emitido:</strong> ${compTipo} ${sunatData?.serie ? `(${sunatData.serie}-${sunatData.numero})` : ''}</p>
             </div>
-            <p>Adjunto a este correo encontrará su <strong>Boleto de Viaje</strong> y su <strong>${compTipo}</strong> en formato PDF.</p>
-            <p style="margin-top: 24px;">¡Gracias por viajar con Tunky Chasky!</p>
+            
+            <p>Adjunto a este correo encontrará su <strong>Boleto de Viaje (PDF)</strong>, su <strong>${compTipo} Oficial (PDF de NubeFact)</strong> y el archivo <strong>XML UBL 2.1 con validez legal ante SUNAT</strong>.</p>
+            
+            ${pdfDownloadHtml}
+            ${xmlDownloadHtml}
+
+            <p style="margin-top: 24px; font-size: 0.9em; color: #64748b;">¡Gracias por viajar con Tunky Chasky!</p>
           </div>
         `,
-        attachments: [
-          {
-            filename: `Comprobante_${venta.tipo_documento}_${venta.nro_documento}.pdf`,
-            content: invBase64
-          },
-          {
-            filename: `Boleto_de_Viaje_Asiento_${venta.numero_asiento}.pdf`,
-            content: tktBase64
-          }
-        ]
+        attachments
       };
 
       let res: Response | null = null;
@@ -319,7 +375,7 @@ const AdminSales: React.FC = () => {
       }
 
       if (res && res.ok) {
-        return { success: true, message: `Correo enviado exitosamente con 2 PDFs a ${venta.email}` };
+        return { success: true, message: `Correo enviado exitosamente con PDF NubeFact, XML y Boleto a ${venta.email}` };
       } else if (res) {
         const resData = await res.json();
         return { success: false, error: resData.message || resData.name || JSON.stringify(resData) };
@@ -357,7 +413,7 @@ const AdminSales: React.FC = () => {
         metodoPago: venta.metodo_pago || 'YAPE'
       };
 
-      // 1. Generar los DOS PDFs
+      // 1. Generar los PDFs locales (Boleto de Viaje e Invoice local)
       const invoicePdf = generateInvoicePDF(invoiceData);
       const ticketPdf = generateTicketPDF(invoiceData);
 
@@ -367,12 +423,12 @@ const AdminSales: React.FC = () => {
       const invoiceUrl = URL.createObjectURL(invoiceBlob);
       const ticketUrl = URL.createObjectURL(ticketBlob);
 
-      window.open(invoiceUrl, '_blank');
       window.open(ticketUrl, '_blank');
 
-      // 1. Emisión automática a SUNAT vía API PSE / Nubefact si está habilitado
+      // 2. Emisión automática a SUNAT vía API PSE / Nubefact
       let sunatNote = '';
       let finalInvoiceUrl = invoiceUrl;
+      let sunatResultData: { pdfUrl?: string; xmlUrl?: string; serie?: string; numero?: number } | undefined = undefined;
 
       const sunatConfig = getSunatConfig();
       if (sunatConfig.enabled) {
@@ -397,13 +453,20 @@ const AdminSales: React.FC = () => {
           sunatNote = `\n\n✅ ¡Comprobante SUNAT Emitido y Aceptado! (Serie: ${sunatRes.serie}-${sunatRes.numero})`;
           if (sunatRes.pdfUrl) {
             finalInvoiceUrl = sunatRes.pdfUrl;
+            window.open(sunatRes.pdfUrl, '_blank');
           }
+          sunatResultData = {
+            pdfUrl: sunatRes.pdfUrl,
+            xmlUrl: sunatRes.xmlUrl,
+            serie: sunatRes.serie,
+            numero: sunatRes.numero
+          };
         } else {
           sunatNote = `\n\n⚠️ SUNAT Aviso: ${sunatRes.error}`;
         }
       }
 
-      // 2. Actualizar estado local & Supabase
+      // 3. Actualizar estado local & Supabase
       await (supabase.from('ventas') as any)
         .update({
           comprobante_emitido: true,
@@ -415,11 +478,11 @@ const AdminSales: React.FC = () => {
       const updatedLocal = localPending.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl } : v);
       localStorage.setItem('local_pending_ventas', JSON.stringify(updatedLocal));
 
-      // 3. Envío de correo por Resend (Intento 1: Edge Function, Intento 2: Directo API Resend)
+      // 4. Envío de correo por Resend adjuntando el PDF NubeFact, XML NubeFact y Boleto
       let resendNote = '';
-      const directResult = await sendDirectResend(venta, invoiceBlob, ticketBlob);
+      const directResult = await sendDirectResend(venta, ticketBlob, sunatResultData, invoiceBlob);
       if (directResult.success) {
-        resendNote = `\n\n✅ ¡Correo con 2 PDFs enviado a ${venta.email}!`;
+        resendNote = `\n\n✅ ¡Correo con Boleto, PDF NubeFact y XML enviado a ${venta.email}!`;
       } else {
         resendNote = `\n\n⚠️ Resend aviso: ${directResult.error}`;
       }
@@ -427,7 +490,7 @@ const AdminSales: React.FC = () => {
       setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, estado: 'CONFIRMADO' } : v));
 
       const compTipo = venta.tipo_documento === 'RUC' ? 'Factura' : 'Boleta';
-      alert(`¡Pago verificado y confirmado exitosamente!\n\n• Se generó la ${compTipo} Electrónica en PDF.\n• Se generó el Boleto de Viaje en PDF.${sunatNote}${resendNote}`);
+      alert(`¡Pago verificado y confirmado exitosamente!\n\n• Se generó el Boleto de Viaje en PDF.\n• Se generó la ${compTipo} Electrónica NubeFact en PDF y XML.${sunatNote}${resendNote}`);
 
     } catch (err) {
       console.error('Error al confirmar pago:', err);
