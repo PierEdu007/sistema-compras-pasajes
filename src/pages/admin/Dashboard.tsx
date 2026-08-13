@@ -94,8 +94,15 @@ const AdminDashboard: React.FC = () => {
   const filteredConfirmedVentas = useMemo(() => {
     return confirmedVentas.filter(v => {
       const opCode = v.nro_operacion || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-') ? v.culqi_charge_id.split('|')[0].replace('YAPE-', '') : v.culqi_charge_id) || '';
+      const nroComp = v.nro_comprobante || (() => {
+        const isF = v.tipo_documento === 'RUC';
+        const serie = isF ? 'F001' : 'B001';
+        const num = String(parseInt(v.id.replace(/\D/g, '').slice(-4) || '1', 10)).padStart(4, '0');
+        return `${serie}-${num}`;
+      })();
+      const ruta = `${v.viajes?.rutas?.origen || ''} ${v.viajes?.rutas?.destino || ''}`;
       return !dashboardSearch || 
-        `${v.nro_documento} ${v.nombres} ${v.apellidos} ${opCode} ${v.id}`
+        `${v.nro_documento} ${v.nombres} ${v.apellidos} ${opCode} ${v.id} ${nroComp} ${ruta}`
           .toLowerCase()
           .includes(dashboardSearch.toLowerCase());
     });
@@ -565,7 +572,7 @@ const AdminDashboard: React.FC = () => {
           <input
             type="text"
             className="admin-form-control"
-            placeholder="Buscar DNI, RUC, Nombres..."
+            placeholder="Buscar DNI, RUC, Nombres, N° Comprobante, Ruta..."
             value={dashboardSearch}
             onChange={(e) => setDashboardSearch(e.target.value)}
             style={{ paddingLeft: '32px', fontSize: '0.85rem' }}

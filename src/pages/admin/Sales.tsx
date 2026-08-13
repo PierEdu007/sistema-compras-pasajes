@@ -51,6 +51,19 @@ const AdminSales: React.FC = () => {
   const [filterDocType, setFilterDocType] = useState('TODOS');
   const [filterStatus, setFilterStatus] = useState('TODOS');
   const [filterFecha, setFilterFecha] = useState('');
+  const [filterComprobante, setFilterComprobante] = useState('');
+  const [filterRuta, setFilterRuta] = useState('TODOS');
+
+  // Obtener rutas únicas para el select
+  const rutasUnicas = useMemo(() => {
+    const set = new Set<string>();
+    ventas.forEach(v => {
+      if (v.viajes?.rutas?.origen && v.viajes?.rutas?.destino) {
+        set.add(`${v.viajes.rutas.origen} - ${v.viajes.rutas.destino}`);
+      }
+    });
+    return Array.from(set).sort();
+  }, [ventas]);
 
   const filteredVentas = useMemo(() => {
     return ventas.filter(v => {
@@ -76,7 +89,25 @@ const AdminSales: React.FC = () => {
         return vDate === filterFecha;
       })();
 
-      return searchMatch && docMatch && statusMatch && fechaMatch;
+      // 5. N° Comprobante
+      const comprobanteMatch = !filterComprobante || (() => {
+        const nroComp = v.nro_comprobante || (() => {
+          if (!v.comprobante_emitido) return '';
+          const isF = v.tipo_documento === 'RUC';
+          const serie = isF ? 'F001' : 'B001';
+          const num = String(parseInt(v.id.replace(/\D/g, '').slice(-4) || '1', 10)).padStart(4, '0');
+          return `${serie}-${num}`;
+        })();
+        return nroComp.toLowerCase().includes(filterComprobante.toLowerCase());
+      })();
+
+      // 6. Ruta de viaje
+      const rutaMatch = filterRuta === 'TODOS' || (() => {
+        const ruta = `${v.viajes?.rutas?.origen} - ${v.viajes?.rutas?.destino}`;
+        return ruta === filterRuta;
+      })();
+
+      return searchMatch && docMatch && statusMatch && fechaMatch && comprobanteMatch && rutaMatch;
     });
   }, [ventas, searchQuery, filterDocType, filterStatus, filterFecha]);
 
@@ -594,9 +625,40 @@ const AdminSales: React.FC = () => {
               onChange={(e) => setFilterFecha(e.target.value)}
             />
           </div>
+
+          {/* N° Comprobante */}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#475569', marginBottom: '4px' }}>
+              N° Comprobante:
+            </label>
+            <input
+              type="text"
+              className="admin-form-control"
+              placeholder="Ej. F001-0983, B001..."
+              value={filterComprobante}
+              onChange={(e) => setFilterComprobante(e.target.value)}
+            />
+          </div>
+
+          {/* Ruta de Viaje */}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#475569', marginBottom: '4px' }}>
+              Ruta de Viaje:
+            </label>
+            <select
+              className="admin-form-control"
+              value={filterRuta}
+              onChange={(e) => setFilterRuta(e.target.value)}
+            >
+              <option value="TODOS">Todas las Rutas</option>
+              {rutasUnicas.map(r => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {(searchQuery || filterDocType !== 'TODOS' || filterStatus !== 'TODOS' || filterFecha) && (
+        {(searchQuery || filterDocType !== 'TODOS' || filterStatus !== 'TODOS' || filterFecha || filterComprobante || filterRuta !== 'TODOS') && (
           <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 'bold' }}>
               Mostrando {filteredVentas.length} venta(s) de {ventas.length} en total
@@ -607,6 +669,8 @@ const AdminSales: React.FC = () => {
                 setFilterDocType('TODOS');
                 setFilterStatus('TODOS');
                 setFilterFecha('');
+                setFilterComprobante('');
+                setFilterRuta('TODOS');
               }}
               style={{
                 background: 'none',
