@@ -63,6 +63,12 @@ const AdminTrips: React.FC = () => {
   const fetchViajes = async () => {
     try {
       setLoading(true);
+      
+      // Obtener fecha de hace 7 días para incluir viajes recientes pasados
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const weekAgoStr = weekAgo.toISOString().substring(0, 10);
+
       const { data, error } = await supabase
         .from('viajes')
         .select(`
@@ -76,8 +82,10 @@ const AdminTrips: React.FC = () => {
           rutas (id, origen, destino),
           vehiculos (id, nombre_display)
         `)
+        .gte('fecha_viaje', weekAgoStr)
         .order('fecha_viaje', { ascending: true })
-        .order('hora_viaje', { ascending: true });
+        .order('hora_viaje', { ascending: true })
+        .limit(5000);
 
       if (error) throw error;
       setViajes((data as any) || []);
