@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
-import { FaBell, FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaKey, FaServer, FaSearch, FaFilter, FaSync } from 'react-icons/fa';
+import { FaBell, FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaKey, FaServer, FaSearch, FaFilter, FaSync, FaDownload } from 'react-icons/fa';
 import { generateInvoicePDF, generateTicketPDF } from '../../utils/invoiceGenerator';
 import { SunatConfigModal } from '../../components/admin/SunatConfigModal';
 import { emitirComprobanteSunat, getSunatConfig } from '../../services/sunatService';
@@ -487,11 +487,67 @@ const AdminSales: React.FC = () => {
     }
   };
 
+  const handleExportBackup = async () => {
+    try {
+      const [ventasRes, viajesRes, rutasRes, vehiculosRes] = await Promise.all([
+        supabase.from('ventas').select('*'),
+        supabase.from('viajes').select('*'),
+        supabase.from('rutas').select('*'),
+        supabase.from('vehiculos').select('*')
+      ]);
+
+      const backupData = {
+        empresa: 'INVERSIONES TUNKY CHASKY S.R.L.',
+        ruc: '20613271701',
+        fecha_backup: new Date().toISOString(),
+        total_ventas: ventasRes.data?.length || 0,
+        total_viajes: viajesRes.data?.length || 0,
+        ventas: ventasRes.data || [],
+        viajes: viajesRes.data || [],
+        rutas: rutasRes.data || [],
+        vehiculos: vehiculosRes.data || []
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `backup_tunkychasky_${new Date().toISOString().substring(0, 10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+
+      alert('¡Copia de seguridad (Backup Completo) descargada con éxito en tu computadora o celular!');
+    } catch (err) {
+      console.error('Error al exportar backup:', err);
+      alert('Ocurrió un error al generar la copia de seguridad.');
+    }
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 style={{ margin: 0 }}>Gestión de Ventas</h1>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            onClick={handleExportBackup}
+            style={{
+              background: '#10b981',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '8px 14px',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)'
+            }}
+            title="Descargar copia de seguridad completa (Ventas, Viajes, Clientes) en JSON"
+          >
+            <FaDownload /> Respaldar BD (Backup 1-Clic)
+          </button>
           <button
             onClick={handleToggleNotifications}
             style={{
