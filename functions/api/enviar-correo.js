@@ -3,12 +3,17 @@
 
 const DEFAULT_RESEND_KEY = typeof atob === 'function' ? atob('cmVfR0NvV0hmV1VfRGd5UEJyOWd0VjkzWEJjdVNFQWZ6Z0ti') : '';
 
-export async function onRequestPost(context) {
+export async function onRequest(context) {
   const corsHeaders = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
   };
+
+  if (context.request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: corsHeaders });
+  }
 
   try {
     const body = await context.request.json();
@@ -61,15 +66,4 @@ export async function onRequestPost(context) {
       { status: 500, headers: corsHeaders }
     );
   }
-}
-
-export async function onRequestOptions() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    },
-  });
 }
