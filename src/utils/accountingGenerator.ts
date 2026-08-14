@@ -26,6 +26,7 @@ export interface AccountingData {
   rentaFavorAnterior: number;
 
   // Honorarios
+  incluirHonorarios?: boolean;
   honorariosMonto: number;
   honorariosNombre: string;
   honorariosBcp: string;
@@ -218,18 +219,25 @@ export function generateAccountingPDF(data: AccountingData): jsPDF {
   doc.setLineWidth(0.8);
   doc.line(15, 28, 195, 28);
 
-  // TABLA 3: HONORARIOS CONTABLES
+  // TABLA 3: HONORARIOS CONTABLES O GESTIÓN INTERNA
+  const esHonorarioInterno = data.incluirHonorarios === false || data.honorariosMonto === 0;
+
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
-  doc.setTextColor(220, 38, 38);
-  doc.text('HONORARIOS CONTABLES Y DECLARACIÓN', 105, 42, { align: 'center' });
+  doc.setTextColor(esHonorarioInterno ? 30 : 220, esHonorarioInterno ? 58 : 38, esHonorarioInterno ? 138 : 38);
+  doc.text(
+    esHonorarioInterno ? 'DECLARACIÓN Y GESTIÓN CONTABLE INTERNA' : 'HONORARIOS CONTABLES Y DECLARACIÓN',
+    105,
+    42,
+    { align: 'center' }
+  );
 
   if (typeof docAny.autoTable === 'function') {
     docAny.autoTable({
       startY: 48,
       theme: 'grid',
       headStyles: {
-        fillColor: [220, 38, 38],
+        fillColor: esHonorarioInterno ? [30, 58, 138] : [220, 38, 38],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
         halign: 'center',
@@ -238,22 +246,27 @@ export function generateAccountingPDF(data: AccountingData): jsPDF {
       styles: { fontSize: 9, cellPadding: 3, textColor: [31, 41, 55] },
       head: [['DECLARACION', 'IMPORTE']],
       body: [
-        [data.mesCodigo, `S/ ${data.honorariosMonto.toFixed(2)}`],
+        [data.mesCodigo, esHonorarioInterno ? 'S/ 0.00 (Gestión Interna)' : `S/ ${data.honorariosMonto.toFixed(2)}`],
         ['GASTOS ADMINISTRATIVOS', 'S/ -'],
-        [{ content: 'TOTAL A PAGAR', styles: { fontStyle: 'bold' } }, { content: `S/ ${data.honorariosMonto.toFixed(2)}`, styles: { fontStyle: 'bold' } }]
+        [
+          { content: 'TOTAL A PAGAR', styles: { fontStyle: 'bold' } },
+          { content: esHonorarioInterno ? 'S/ 0.00' : `S/ ${data.honorariosMonto.toFixed(2)}`, styles: { fontStyle: 'bold' } }
+        ]
       ]
     });
   }
 
   const finalY2 = docAny.lastAutoTable ? docAny.lastAutoTable.finalY : 80;
 
-  // Cuentas de Abono
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(220, 38, 38);
-  doc.text(`CUENTA BCP: ${data.honorariosBcp}`, 105, finalY2 + 15, { align: 'center' });
-  doc.text(`CCI: ${data.honorariosCci}`, 105, finalY2 + 22, { align: 'center' });
-  doc.text(`TITULAR: ${data.honorariosNombre.toUpperCase()}`, 105, finalY2 + 29, { align: 'center' });
+  // Cuentas de Abono (Solo si hay honorarios de contador externo)
+  if (!esHonorarioInterno) {
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(220, 38, 38);
+    doc.text(`CUENTA BCP: ${data.honorariosBcp}`, 105, finalY2 + 15, { align: 'center' });
+    doc.text(`CCI: ${data.honorariosCci}`, 105, finalY2 + 22, { align: 'center' });
+    doc.text(`TITULAR: ${data.honorariosNombre.toUpperCase()}`, 105, finalY2 + 29, { align: 'center' });
+  }
 
   // Fecha Vencimiento y Nota
   doc.setFontSize(11);

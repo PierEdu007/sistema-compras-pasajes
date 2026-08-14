@@ -24,7 +24,8 @@ const AccountingReport: React.FC = () => {
   const [rentaFavorAnterior, setRentaFavorAnterior] = useState<number>(4472.00);
 
   // Honorarios
-  const [honorariosMonto, setHonorariosMonto] = useState<number>(300.00);
+  const [incluirHonorarios, setIncluirHonorarios] = useState<boolean>(false);
+  const [honorariosMonto, setHonorariosMonto] = useState<number>(0);
   const [honorariosNombre, setHonorariosNombre] = useState<string>('FREDI VERGARA MEDINA');
   const [honorariosBcp, setHonorariosBcp] = useState<string>('245-94020953-0-85');
   const [honorariosCci, setHonorariosCci] = useState<string>('00224519402095308592');
@@ -120,6 +121,7 @@ const AccountingReport: React.FC = () => {
       saldoRetencionesAnteriores,
       tasaRenta,
       rentaFavorAnterior,
+      incluirHonorarios,
       honorariosMonto,
       honorariosNombre,
       honorariosBcp,
@@ -298,10 +300,10 @@ const AccountingReport: React.FC = () => {
         {/* CARD 2: IMPUESTO A LA RENTA Y HONORARIOS */}
         <div className="admin-card" style={{ padding: '20px' }}>
           <h3 style={{ margin: '0 0 15px 0', fontSize: '1.1rem', color: '#742284', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>
-            2. Impuesto a la Renta y Honorarios Contables
+            2. Impuesto a la Renta y Gestión Contable
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '15px' }}>
             <div className="admin-form-group">
               <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Tasa Renta MIPE (%):</label>
               <input 
@@ -324,58 +326,83 @@ const AccountingReport: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            <div className="admin-form-group">
-              <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Honorario Contador (S/):</label>
+          {/* CHECKBOX PARA INCLUIR U OCULTAR HONORARIOS CONTABLES */}
+          <div style={{ padding: '12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #cbd5e1', marginBottom: '15px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontWeight: 'bold', color: '#1e293b' }}>
               <input 
-                type="number" 
-                step="0.01" 
-                className="admin-form-control" 
-                value={honorariosMonto}
-                onChange={(e) => setHonorariosMonto(parseFloat(e.target.value) || 0)}
+                type="checkbox" 
+                checked={incluirHonorarios}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setIncluirHonorarios(checked);
+                  if (!checked) setHonorariosMonto(0);
+                  else setHonorariosMonto(300);
+                }}
+                style={{ width: '18px', height: '18px' }}
               />
-            </div>
-            <div className="admin-form-group">
-              <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Vencimiento SUNAT:</label>
-              <input 
-                type="text" 
-                className="admin-form-control" 
-                value={fechaVencimiento}
-                onChange={(e) => setFechaVencimiento(e.target.value)}
-              />
-            </div>
+              <span>¿La gestión contable la realiza un Contador Externo? (Habilitar Honorarios)</span>
+            </label>
+            <span style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginTop: '4px' }}>
+              {incluirHonorarios ? 'Se incluirán los Honorarios de S/ 300.00 y datos bancarios en el PDF' : 'Modo Administración Interna: Honorarios = S/ 0.00 (Dueño / Junta Directiva)'}
+            </span>
           </div>
 
           <div className="admin-form-group">
-            <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Nombre Titular Contador:</label>
+            <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Vencimiento Declaración SUNAT:</label>
             <input 
               type="text" 
               className="admin-form-control" 
-              value={honorariosNombre}
-              onChange={(e) => setHonorariosNombre(e.target.value)}
+              value={fechaVencimiento}
+              onChange={(e) => setFechaVencimiento(e.target.value)}
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            <div className="admin-form-group">
-              <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Cuenta BCP Contador:</label>
-              <input 
-                type="text" 
-                className="admin-form-control" 
-                value={honorariosBcp}
-                onChange={(e) => setHonorariosBcp(e.target.value)}
-              />
-            </div>
-            <div className="admin-form-group">
-              <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>CCI Contador:</label>
-              <input 
-                type="text" 
-                className="admin-form-control" 
-                value={honorariosCci}
-                onChange={(e) => setHonorariosCci(e.target.value)}
-              />
-            </div>
-          </div>
+          {incluirHonorarios && (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div className="admin-form-group">
+                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Honorario Contador (S/):</label>
+                  <input 
+                    type="number" 
+                    step="0.01" 
+                    className="admin-form-control" 
+                    value={honorariosMonto}
+                    onChange={(e) => setHonorariosMonto(parseFloat(e.target.value) || 0)}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Nombre Titular Contador:</label>
+                  <input 
+                    type="text" 
+                    className="admin-form-control" 
+                    value={honorariosNombre}
+                    onChange={(e) => setHonorariosNombre(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div className="admin-form-group">
+                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Cuenta BCP Contador:</label>
+                  <input 
+                    type="text" 
+                    className="admin-form-control" 
+                    value={honorariosBcp}
+                    onChange={(e) => setHonorariosBcp(e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>CCI Contador:</label>
+                  <input 
+                    type="text" 
+                    className="admin-form-control" 
+                    value={honorariosCci}
+                    onChange={(e) => setHonorariosCci(e.target.value)}
+                  />
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
       </div>
