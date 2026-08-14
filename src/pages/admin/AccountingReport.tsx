@@ -226,7 +226,7 @@ const AccountingReport: React.FC = () => {
             <FaCalculator /> Renta a Pagar (Tasa 1.0%)
           </h4>
           <p style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#1e293b', margin: 0 }}>
-            S/ {totalRentaFinal.toFixed(2)}
+            S/ {Math.abs(totalRentaFinal).toFixed(2)} {totalRentaFinal <= 0 ? 'A FAVOR' : 'A PAGAR'}
           </p>
           <small style={{ color: '#64748b' }}>Renta Bruta: S/ {rentaCalculada.toFixed(2)} (1.0%)</small>
         </div>
