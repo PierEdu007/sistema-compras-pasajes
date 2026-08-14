@@ -212,6 +212,15 @@ const AdminSales: React.FC = () => {
     }
   };
 
+  const handleClearLocalCache = () => {
+    if (window.confirm('¿Deseas vaciar las ventas de prueba guardadas en la memoria local de tu navegador?')) {
+      localStorage.removeItem('local_pending_ventas');
+      localStorage.removeItem('rejected_ventas');
+      fetchVentas();
+      alert('✅ Memoria local limpiada con éxito. El panel ahora muestra exactamente la base de datos de Supabase.');
+    }
+  };
+
   const fetchUrlAsBase64 = async (url: string): Promise<string | null> => {
     try {
       const res = await fetch(url);
@@ -610,6 +619,26 @@ const AdminSales: React.FC = () => {
             title="Descargar copia de seguridad completa (Ventas, Viajes, Clientes) en JSON"
           >
             <FaDownload /> Respaldar BD (Backup 1-Clic)
+          </button>
+          <button
+            onClick={handleClearLocalCache}
+            style={{
+              background: '#ef4444',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '8px 14px',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 6px rgba(239, 68, 68, 0.25)'
+            }}
+            title="Borra ventas de prueba guardadas en la memoria local del navegador"
+          >
+            <FaSync /> Limpiar Memoria Local (Caché)
           </button>
           <button
             onClick={handleToggleNotifications}
