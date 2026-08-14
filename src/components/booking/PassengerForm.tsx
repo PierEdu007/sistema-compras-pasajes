@@ -57,7 +57,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
 
     if (tipo === 'RUC') {
       if (!/^(10|20)[0-9]{9}$/.test(cleanDoc)) {
-        setErrorMsg('El RUC debe contener exactamente 11 dígitos numéricos y comenzar con 10 o 20.');
+        setErrorMsg(t('validation.rucFormat', 'El RUC debe contener exactamente 11 dígitos numéricos y comenzar con 10 o 20.'));
         return;
       }
 
@@ -88,7 +88,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
       }
     } else if (tipo === 'DNI') {
       if (!/^[0-9]{8}$/.test(cleanDoc)) {
-        setErrorMsg('El DNI debe contener exactamente 8 dígitos numéricos.');
+        setErrorMsg(t('validation.dniFormat', 'El DNI debe contener exactamente 8 dígitos numéricos.'));
         return;
       }
 
@@ -146,29 +146,29 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
 
     if (formData.tipo_documento === 'DNI') {
       if (!/^[0-9]{8}$/.test(doc)) {
-        setErrorMsg('El DNI debe contener exactamente 8 dígitos numéricos.');
+        setErrorMsg(t('validation.dniFormat', 'El DNI debe contener exactamente 8 dígitos numéricos.'));
         return;
       }
     } else if (formData.tipo_documento === 'RUC') {
       if (!/^(10|20)[0-9]{9}$/.test(doc)) {
-        setErrorMsg('El RUC debe tener 11 dígitos numéricos y comenzar con 10 o 20.');
+        setErrorMsg(t('validation.rucFormat2', 'El RUC debe tener 11 dígitos numéricos y comenzar con 10 o 20.'));
         return;
       }
       if (!formData.razon_social?.trim()) {
-        setErrorMsg('Por favor ingresa o verifica la Razón Social.');
+        setErrorMsg(t('validation.razonSocial', 'Por favor ingresa o verifica la Razón Social.'));
         return;
       }
       if (!formData.direccion_fiscal?.trim()) {
-        setErrorMsg('Por favor ingresa la Dirección Fiscal.');
+        setErrorMsg(t('validation.direccionFiscal', 'Por favor ingresa la Dirección Fiscal.'));
         return;
       }
     } else if (doc.length < 6 || doc.length > 15) {
-      setErrorMsg('El número de documento debe tener entre 6 y 15 caracteres.');
+      setErrorMsg(t('validation.docLength', 'El número de documento debe tener entre 6 y 15 caracteres.'));
       return;
     }
 
     if (!formData.nombres?.trim() || !formData.apellidos?.trim()) {
-      setErrorMsg('Por favor ingresa los Nombres y Apellidos del pasajero.');
+      setErrorMsg(t('validation.namesRequired', 'Por favor ingresa los Nombres y Apellidos del pasajero.'));
       return;
     }
 
@@ -213,7 +213,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
         }}>
           <FaFileInvoice />
           <span>
-            Tipo de Comprobante a Emitir: <strong>{isRuc ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA'}</strong>
+            {t('booking.receiptType', 'Tipo de Comprobante a Emitir')}: <strong>{isRuc ? t('booking.invoiceElectronic', 'FACTURA ELECTRÓNICA') : t('booking.receiptElectronic', 'BOLETA DE VENTA ELECTRÓNICA')}</strong>
           </span>
         </div>
 
@@ -230,19 +230,19 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
             disabled={disabled}
             required
           >
-            <option value="DNI">DNI (Boleta)</option>
-            <option value="RUC">RUC (Factura)</option>
-            <option value="CE">Carnet de Extranjería (Boleta)</option>
-            <option value="PASAPORTE">Pasaporte (Boleta)</option>
+            <option value="DNI">{t('booking.dniOption', 'DNI (Boleta)')}</option>
+            <option value="RUC">{t('booking.rucOption', 'RUC (Factura)')}</option>
+            <option value="CE">{t('booking.ceOption', 'Carnet de Extranjería (Boleta)')}</option>
+            <option value="PASAPORTE">{t('booking.passportOption', 'Pasaporte (Boleta)')}</option>
           </select>
         </div>
 
         <div className="form-group">
           <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>{isRuc ? 'N° RUC' : t('booking.docNumber', 'N° Documento')} <span style={{color: 'red'}}>*</span></span>
+            <span>{isRuc ? t('booking.rucNumber', 'N° RUC') : t('booking.docNumber', 'N° Documento')} <span style={{color: 'red'}}>*</span></span>
             {loadingLookup && (
               <span style={{ fontSize: '0.75rem', color: '#0284c7', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <FaSpinner className="spin" /> Consultando {isRuc ? 'SUNAT' : 'RENIEC'}...
+                <FaSpinner className="spin" /> {t('booking.lookingUp', 'Consultando')} {isRuc ? 'SUNAT' : 'RENIEC'}...
               </span>
             )}
           </label>
@@ -282,7 +282,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
                 title={`Buscar datos en ${isRuc ? 'SUNAT' : 'RENIEC'}`}
               >
                 {loadingLookup ? <FaSpinner className="spin" /> : <FaSearch />}
-                <span>Buscar</span>
+                <span>{t('booking.search', 'Buscar')}</span>
               </button>
             )}
           </div>
@@ -310,7 +310,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
           <>
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
               <label className="form-label">
-                Razón Social / Nombre de la Empresa <span style={{color: 'red'}}>*</span>
+                {t('booking.companyName', 'Razón Social / Nombre de la Empresa')} <span style={{color: 'red'}}>*</span>
               </label>
               <input 
                 type="text" 
@@ -326,7 +326,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
 
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
               <label className="form-label">
-                Dirección Fiscal <span style={{color: 'red'}}>*</span>
+                {t('booking.fiscalAddress', 'Dirección Fiscal')} <span style={{color: 'red'}}>*</span>
               </label>
               <input 
                 type="text" 
@@ -399,7 +399,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
         {/* Descripción Opcional para la Boleta / Factura */}
         <div className="form-group" style={{ gridColumn: '1 / -1' }}>
           <label className="form-label">
-            Descripción Opcional <small style={{ color: '#64748b' }}>(Aparecerá impresa en su {isRuc ? 'Factura' : 'Boleta'})</small>
+            {t('booking.optionalDesc', 'Descripción Opcional')} <small style={{ color: '#64748b' }}>({t('booking.optionalDescHint', 'Aparecerá impresa en su')} {isRuc ? t('booking.invoice', 'Factura') : t('booking.receipt', 'Boleta')})</small>
           </label>
           <textarea
             name="descripcion_opcional"

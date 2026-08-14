@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaCopy, FaCheckCircle, FaQrcode, FaLock, FaTimes } from 'react-icons/fa';
 import '../../styles/components/YapeModal.css';
 
@@ -28,6 +29,7 @@ export default function YapePaymentModal({
   destino,
   disabled = false
 }: YapePaymentModalProps) {
+  const { t } = useTranslation();
   const [nroOperacion, setNroOperacion] = useState('');
   const [telefonoYape, setTelefonoYape] = useState('');
   const [copied, setCopied] = useState(false);
@@ -49,7 +51,7 @@ export default function YapePaymentModal({
     const cleanOp = nroOperacion.trim();
 
     if (!cleanOp || cleanOp.length < 6) {
-      setError('Por favor ingresa un código de operación válido de al menos 6 dígitos.');
+      setError(t('yape.opError', 'Por favor ingresa un código de operación válido de al menos 6 dígitos.'));
       return;
     }
 
@@ -71,23 +73,23 @@ export default function YapePaymentModal({
           <div className="yape-badge-logo">
             <span className="yape-logo-text">yape</span>
           </div>
-          <h2>Pagar con Yape</h2>
-          <p className="yape-modal-subtitle">Escanea el código QR o yapea directo para confirmar tu pasaje</p>
+          <h2>{t('yape.payTitle', 'Pagar con Yape')}</h2>
+          <p className="yape-modal-subtitle">{t('yape.subtitle', 'Escanea el código QR o yapea directo para confirmar tu pasaje')}</p>
         </div>
 
         <div className="yape-modal-body">
           {/* Summary Box */}
           <div className="yape-summary-card">
             <div className="summary-item">
-              <span className="label">Ruta:</span>
+              <span className="label">{t('yape.route', 'Ruta')}:</span>
               <span className="val">{origen} ➔ {destino}</span>
             </div>
             <div className="summary-item">
-              <span className="label">Asiento:</span>
+              <span className="label">{t('yape.seat', 'Asiento')}:</span>
               <span className="val">#{asiento}</span>
             </div>
             <div className="summary-item total">
-              <span className="label">Monto a Yapear:</span>
+              <span className="label">{t('yape.amountToYape', 'Monto a Yapear')}:</span>
               <span className="amount">S/ {monto.toFixed(2)}</span>
             </div>
           </div>
@@ -103,12 +105,12 @@ export default function YapePaymentModal({
                 />
               </div>
               <div className="yape-qr-caption">
-                <FaQrcode /> Escanea desde tu app Yape
+                <FaQrcode /> {t('yape.scanFromApp', 'Escanea desde tu app Yape')}
               </div>
             </div>
 
             <div className="yape-phone-info">
-              <div className="info-label">O yapea al número:</div>
+              <div className="info-label">{t('yape.orTransferTo', 'O yapea al número:')}</div>
               <div className="phone-number-row">
                 <span className="phone-number">{YAPE_NUMBER}</span>
                 <button
@@ -118,10 +120,10 @@ export default function YapePaymentModal({
                   title="Copiar número"
                 >
                   {copied ? <FaCheckCircle /> : <FaCopy />}
-                  {copied ? '¡Copiado!' : 'Copiar'}
+                  {copied ? t('yape.copied', '¡Copiado!') : t('yape.copy', 'Copiar')}
                 </button>
               </div>
-              <div className="titular-info">Titular: <strong>{YAPE_TITULAR}</strong></div>
+              <div className="titular-info">{t('yape.holder', 'Titular')}: <strong>{YAPE_TITULAR}</strong></div>
             </div>
           </div>
 
@@ -129,7 +131,7 @@ export default function YapePaymentModal({
           <form className="yape-form" onSubmit={handleSubmit}>
             <div className="form-group">
               <label className="form-label" htmlFor="nro_operacion">
-                Código de Operación Yape <span className="required">*</span>
+                {t('yape.opCode', 'Código de Operación Yape')} <span className="required">*</span>
               </label>
               <input
                 id="nro_operacion"
@@ -142,12 +144,12 @@ export default function YapePaymentModal({
                 required
                 disabled={disabled}
               />
-              <small className="help-text">Ingresa los 6 dígitos que figuran como N° de Operación en Yape.</small>
+              <small className="help-text">{t('yape.opCodeHelp', 'Ingresa los 6 dígitos que figuran como N° de Operación en Yape.')}</small>
             </div>
 
             <div className="form-group">
               <label className="form-label" htmlFor="telefono_yape">
-                Número de Celular desde el que Yapeaste <small style={{ color: '#64748b' }}>(Opcional)</small>
+                {t('yape.phoneLabel', 'Número de Celular desde el que Yapeaste')} <small style={{ color: '#64748b' }}>({t('yape.phoneOptional', 'Opcional')})</small>
               </label>
               <input
                 id="telefono_yape"
@@ -159,7 +161,7 @@ export default function YapePaymentModal({
                 disabled={disabled}
               />
               <small className="help-text" style={{ display: 'block', marginTop: '4px', color: '#64748b', fontSize: '0.75rem' }}>
-                Si no ingresas un número, se usará automáticamente el teléfono del pasajero registrado anteriormente.
+                {t('yape.phoneHelp', 'Si no ingresas un número, se usará automáticamente el teléfono del pasajero registrado anteriormente.')}
               </small>
             </div>
 
@@ -172,9 +174,9 @@ export default function YapePaymentModal({
                 disabled={disabled || !nroOperacion}
               >
                 {disabled ? (
-                  <span>Procesando pago...</span>
+                  <span>{t('yape.processing', 'Procesando pago...')}</span>
                 ) : (
-                  <span><FaLock /> Confirmar y Enviar Pago</span>
+                  <span><FaLock /> {t('yape.confirmSubmit', 'Confirmar y Enviar Pago')}</span>
                 )}
               </button>
             </div>

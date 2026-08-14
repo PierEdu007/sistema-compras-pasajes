@@ -50,7 +50,7 @@ export default function SearchForm() {
               }}
               required
             >
-              <option value="" disabled>Seleccionar origen</option>
+              <option value="" disabled>{t('search.selectOrigin', 'Select origin')}</option>
               {rutas.map(ruta => (
                 <option key={`orig-${ruta.value}`} value={ruta.value}>{ruta.label}</option>
               ))}
@@ -66,7 +66,7 @@ export default function SearchForm() {
               required
               disabled={!origen}
             >
-              <option value="" disabled>Seleccionar destino</option>
+              <option value="" disabled>{t('search.selectDestination', 'Select destination')}</option>
               {destinosFiltrados.map(ruta => (
                 <option key={`dest-${ruta.value}`} value={ruta.value}>{ruta.label}</option>
               ))}

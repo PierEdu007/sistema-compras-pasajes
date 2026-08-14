@@ -31,7 +31,7 @@ interface ViajeBooking {
 export default function Booking() {
   const { viajeId } = useParams<{ viajeId: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [loading, setLoading] = useState(true);
   const [viaje, setViaje] = useState<ViajeBooking | null>(null);
@@ -213,7 +213,7 @@ export default function Booking() {
       });
 
       if (error && error.message?.includes('ASIENTO_NO_DISPONIBLE')) {
-        alert(`El asiento #${seatNumber} ya ha sido reservado u ocupado por otro usuario.`);
+        alert(t('booking.alertSeatTaken', 'El asiento #{{seat}} ya ha sido reservado u ocupado por otro usuario.', { seat: seatNumber }));
         fetchSeatStatuses(viajeId);
         return;
       }
@@ -243,7 +243,7 @@ export default function Booking() {
       });
     } catch (err) {
       console.error('Error al bloquear asiento:', err);
-      alert('Error al seleccionar el asiento. Por favor intenta de nuevo.');
+      alert(t('booking.alertSeatError', 'Error al seleccionar el asiento. Por favor intenta de nuevo.'));
     } finally {
       setIsProcessing(false);
     }
@@ -264,7 +264,7 @@ export default function Booking() {
     setBloqueoId(null);
     setExpiresAt(null);
     setIsYapeModalOpen(false);
-    alert('Tu reserva temporal ha expirado. El asiento ha sido liberado.');
+    alert(t('booking.alertExpired', 'Tu reserva temporal ha expirado. El asiento ha sido liberado.'));
     if (viajeId) fetchSeatStatuses(viajeId);
   };
 
@@ -418,7 +418,7 @@ export default function Booking() {
       });
     } catch (err) {
       console.error('Error al procesar pago por Yape:', err);
-      alert('Ocurrió un error al procesar tu solicitud. Intenta nuevamente.');
+      alert(t('booking.alertPaymentError', 'Ocurrió un error al procesar tu solicitud. Intenta nuevamente.'));
     } finally {
       setIsProcessing(false);
     }
@@ -434,6 +434,20 @@ export default function Booking() {
 
   if (!viaje) return null;
 
+  const formatDate = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr + 'T12:00:00');
+      return new Intl.DateTimeFormat(i18n.language === 'en' ? 'en-US' : 'es-PE', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      }).format(date);
+    } catch (_e) {
+      return dateStr;
+    }
+  };
+
   return (
     <div className="page-booking fade-in">
       <div className="booking-header">
@@ -442,7 +456,7 @@ export default function Booking() {
           <div className="booking-trip-details">
             <span>{viaje.rutas.origen} <FaArrowRight /> {viaje.rutas.destino}</span>
             <span>|</span>
-            <span><FaCalendarAlt /> {viaje.fecha_viaje}</span>
+            <span><FaCalendarAlt /> {formatDate(viaje.fecha_viaje)}</span>
             <span>|</span>
             <span><FaClock /> {viaje.hora_viaje.substring(0, 5)}</span>
             <span>|</span>
@@ -475,8 +489,8 @@ export default function Booking() {
                   )}
                   
                   <div style={{ backgroundColor: 'var(--color-surface)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
-                    <strong>Asiento Seleccionado:</strong> #{selectedSeat} <br/>
-                    <strong>Total a Pagar:</strong> S/ {viaje.precio_base.toFixed(2)}
+                    <strong>{t('booking.selectedSeat', 'Asiento Seleccionado')}:</strong> #{selectedSeat} <br/>
+                    <strong>{t('booking.totalToPay', 'Total a Pagar')}:</strong> S/ {viaje.precio_base.toFixed(2)}
                   </div>
                 </div>
 
@@ -491,8 +505,8 @@ export default function Booking() {
             ) : (
               <div className="empty-state">
                 <div className="empty-icon"><FaCheckSquare /></div>
-                <h3>Aún no has seleccionado un asiento</h3>
-                <p>Por favor, haz clic en un asiento disponible del mapa de la izquierda para comenzar tu reserva.</p>
+                <h3>{t('booking.noSeatTitle', 'Aún no has seleccionado un asiento')}</h3>
+                <p>{t('booking.noSeatDesc', 'Por favor, haz clic en un asiento disponible del mapa de la izquierda para comenzar tu reserva.')}</p>
               </div>
             )}
           </div>

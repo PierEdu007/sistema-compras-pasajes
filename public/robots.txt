@@ -1,0 +1,8 @@
+# Robots.txt for Inversiones Tunki Chasky S.R.L.
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+
+# Sitemaps
+Sitemap: https://tunkichasky.com/sitemap.xml

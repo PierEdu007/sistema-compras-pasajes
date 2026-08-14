@@ -69,7 +69,7 @@ const changeBtnStyle: React.CSSProperties = {
 };
 
 export default function Trips() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -142,7 +142,7 @@ export default function Trips() {
                              (v.id ? v.id.charCodeAt(v.id.length - 1) % 2 === 0 : false);
 
             const totalAsientos = is6Seats ? 6 : 4;
-            const vehiculoNombre = is6Seats ? 'Camioneta (6 Pasajeros)' : 'Camioneta (4 Pasajeros)';
+            const vehiculoNombre = is6Seats ? t('vehicle.van6', 'Van (6 Passengers)') : t('vehicle.van4', 'Van (4 Passengers)');
 
             const ocupadosCount = (bloqueosData || []).filter((b: any) => {
               if (b.viaje_id !== v.id) return false;
@@ -201,7 +201,7 @@ export default function Trips() {
   const formatDate = (dateStr: string) => {
     try {
       const date = new Date(dateStr + 'T12:00:00');
-      return new Intl.DateTimeFormat('es-PE', { 
+      return new Intl.DateTimeFormat(i18n.language === 'en' ? 'en-US' : 'es-PE', { 
         weekday: 'long', 
         year: 'numeric', 
         month: 'long', 

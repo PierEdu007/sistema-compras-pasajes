@@ -55,7 +55,7 @@ export default function SeatMap({
       <div className="seat-map-legend">
         <div className="legend-item">
           <div className="seat-demo seat-driver">1</div>
-          <span>Conductor</span>
+          <span>{t('booking.driver', 'Driver')}</span>
         </div>
         <div className="legend-item">
           <div className="seat-demo seat-available"></div>

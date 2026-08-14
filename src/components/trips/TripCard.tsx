@@ -40,7 +40,7 @@ export default function TripCard({
         <h4 className="trip-vehicle"><FaBus /> {vehiculo_nombre}</h4>
         <div className="trip-seats-badge">
           {isFull ? (
-            <span className="badge badge-danger">Agotado</span>
+            <span className="badge badge-danger">{t('search.soldOut', 'Sold Out')}</span>
           ) : (
             <span className={`badge ${isAlmostFull ? 'badge-warning' : 'badge-success'}`}>
               {t('search.seatsAvailable', { count: asientos_libres, defaultValue: '{{count}} asientos libres' })} 
