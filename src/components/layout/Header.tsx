@@ -68,13 +68,13 @@ export default function Header() {
       <div className="header-top">
         <div className="container">
           <div className="contact-info">
-            <span><FaPhoneAlt /> +51 997 475 405</span>
+            <span><FaPhoneAlt /> +51 927 670 019</span>
             <span><FaEnvelope /> tunkychaskyoficial@gmail.com</span>
           </div>
           <div className="social-links">
             <a href="#" target="_blank" rel="noreferrer"><FaFacebook /></a>
             <a href="https://www.instagram.com/tunkychasky01?igsh=MWdtMnZ3Nml3dzlrcQ==" target="_blank" rel="noreferrer"><FaInstagram /></a>
-            <a href="https://wa.me/51997475405" target="_blank" rel="noreferrer"><FaWhatsapp /> +51 997 475 405</a>
+            <a href="https://wa.me/51927670019" target="_blank" rel="noreferrer"><FaWhatsapp /> +51 927 670 019</a>
           </div>
         </div>
       </div>

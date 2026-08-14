@@ -72,7 +72,7 @@ export async function onRequestPost(context) {
       nombres,
       apellidos,
       email: email || '',
-      telefono: telefono || '997475405',
+      telefono: telefono || '927670019',
       monto_pagado: Number(monto_pagado) || 50,
       culqi_charge_id: culqi_charge_id || `YAPE-${Date.now()}`,
     };

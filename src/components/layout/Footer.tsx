@@ -30,7 +30,7 @@ export default function Footer() {
             <h4>{t('footer.officeCusco', 'Oficina en Cusco')}</h4>
             <ul className="footer-contact">
               <li><FaMapMarkerAlt /> Av. Antonio Lorena 318, Santiago, Cusco</li>
-              <li><FaPhoneAlt /> +51 997 475 405</li>
+              <li><FaPhoneAlt /> +51 927 670 019</li>
               <li><FaEnvelope /> tunkychaskyoficial@gmail.com</li>
             </ul>
           </div>
@@ -40,7 +40,7 @@ export default function Footer() {
             <div className="footer-social">
               <a href="#" target="_blank" rel="noreferrer"><FaFacebook /> Facebook</a>
               <a href="https://www.instagram.com/tunkychasky01?igsh=MWdtMnZ3Nml3dzlrcQ==" target="_blank" rel="noreferrer"><FaInstagram /> Instagram</a>
-              <a href="https://wa.me/51997475405" target="_blank" rel="noreferrer"><FaWhatsapp /> WhatsApp</a>
+              <a href="https://wa.me/51927670019" target="_blank" rel="noreferrer"><FaWhatsapp /> WhatsApp</a>
             </div>
             <div className="footer-links">
               <Link to="/terminos">{t('nav.terms', 'Términos y Condiciones')}</Link>

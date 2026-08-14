@@ -285,7 +285,7 @@ export default function Booking() {
         ? yapeData.telefono_yape.trim()
         : (pendingPassengerData.telefono && pendingPassengerData.telefono.trim() !== ''
             ? pendingPassengerData.telefono.trim()
-            : '997475405');
+            : '927670019');
 
       let chargeId = `YAPE-${yapeData.nro_operacion}`;
       if (pendingPassengerData.razon_social) {

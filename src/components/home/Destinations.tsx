@@ -114,7 +114,7 @@ export default function Destinations() {
                 </div>
                 <div className="card-actions">
                   <a 
-                    href={`https://wa.me/51997475405?text=Hola,%20quiero%20información%20sobre%20la%20ruta%20${encodeURIComponent(dest.title)}`}
+                    href={`https://wa.me/51927670019?text=Hola,%20quiero%20información%20sobre%20la%20ruta%20${encodeURIComponent(dest.title)}`}
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="btn-text"
