@@ -283,7 +283,7 @@ const AdminSales: React.FC = () => {
             content: nubefactPdfBase64
           });
         }
-        pdfDownloadHtml = `<p style="margin: 8px 0;"><a href="${sunatData.pdfUrl}" target="_blank" style="background-color: #0f4c81; color: #ffffff; padding: 10px 16px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">📄 Descargar Comprobante PDF Oficial (NubeFact / SUNAT)</a></p>`;
+        pdfDownloadHtml = `<p style="margin: 8px 0;"><a href="${sunatData.pdfUrl}" target="_blank" style="background-color: #0f4c81; color: #ffffff; padding: 10px 16px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">📄 Descargar Comprobante PDF</a></p>`;
       }
 
       if (sunatData?.xmlUrl) {
@@ -294,7 +294,7 @@ const AdminSales: React.FC = () => {
             content: nubefactXmlBase64
           });
         }
-        xmlDownloadHtml = `<p style="margin: 8px 0;"><a href="${sunatData.xmlUrl}" target="_blank" style="background-color: #742284; color: #ffffff; padding: 10px 16px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">📑 Descargar Archivo XML UBL 2.1 (Validez Legal SUNAT)</a></p>`;
+        xmlDownloadHtml = `<p style="margin: 8px 0;"><a href="${sunatData.xmlUrl}" target="_blank" style="background-color: #742284; color: #ffffff; padding: 10px 16px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">📑 Descargar Comprobante XML</a></p>`;
       }
 
       // Fallback si NubeFact no devolvió PDF
@@ -316,7 +316,7 @@ const AdminSales: React.FC = () => {
       const emailPayload = {
         from: 'INVERSIONES TUNKY CHASKY <reservas@turismotunkychasky.com.pe>',
         to: [venta.email],
-        subject: `¡Pago Confirmado! Su ${compTipo} NubeFact y Boleto de Viaje #${venta.numero_asiento}`,
+        subject: `¡Pago Confirmado! Su ${compTipo} y Boleto de Viaje #${venta.numero_asiento}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; color: #1e293b;">
             <h2 style="color: #742284; margin-top: 0;">INVERSIONES TUNKY CHASKY S.R.L.</h2>
@@ -330,7 +330,7 @@ const AdminSales: React.FC = () => {
               <p style="margin: 4px 0;">• <strong>Comprobante Emitido:</strong> ${compTipo} ${sunatData?.serie ? `(${sunatData.serie}-${sunatData.numero})` : ''}</p>
             </div>
             
-            <p>Adjunto a este correo encontrará su <strong>Boleto de Viaje (PDF)</strong>, su <strong>${compTipo} Oficial (PDF de NubeFact)</strong> y el archivo <strong>XML UBL 2.1 con validez legal ante SUNAT</strong>.</p>
+            <p>Adjunto a este correo encontrará su <strong>Boleto de Viaje (PDF)</strong>, su <strong>${compTipo} (PDF)</strong> y el archivo <strong>XML</strong>.</p>
             
             ${pdfDownloadHtml}
             ${xmlDownloadHtml}
