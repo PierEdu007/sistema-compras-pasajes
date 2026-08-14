@@ -9,6 +9,7 @@ import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminTrips from './pages/admin/TripsManager';
 import AdminSales from './pages/admin/Sales';
+import AdminAccounting from './pages/admin/AccountingReport';
 import AdminLayout from './components/admin/AdminLayout';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/viajes" element={<AdminTrips />} />
           <Route path="/admin/ventas" element={<AdminSales />} />
+          <Route path="/admin/contabilidad" element={<AdminAccounting />} />
         </Route>
       </Routes>
     </BrowserRouter>

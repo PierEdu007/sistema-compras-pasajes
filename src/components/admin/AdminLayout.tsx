@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Outlet, NavLink } from 'react-router-dom';
-import { FaTachometerAlt, FaBus, FaFileInvoiceDollar, FaSignOutAlt } from 'react-icons/fa';
+import { FaTachometerAlt, FaBus, FaFileInvoiceDollar, FaCalculator, FaSignOutAlt } from 'react-icons/fa';
 import { useAuth } from '../../hooks/useAuth';
 import '../../styles/components/admin.css';
 
@@ -47,12 +47,20 @@ const AdminLayout: React.FC = () => {
           )}
 
           {(role === 'ADMIN' || role === 'CONTADOR') && (
-            <NavLink 
-              to="/admin/ventas" 
-              className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
-            >
-              <FaFileInvoiceDollar /> Ventas
-            </NavLink>
+            <>
+              <NavLink 
+                to="/admin/ventas" 
+                className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+              >
+                <FaFileInvoiceDollar /> Ventas
+              </NavLink>
+              <NavLink 
+                to="/admin/contabilidad" 
+                className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+              >
+                <FaCalculator /> Contabilidad
+              </NavLink>
+            </>
           )}
         </nav>
         <div className="admin-sidebar-footer">
