@@ -4,7 +4,7 @@ import { FaBell, FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaKey, FaS
 import { generateInvoicePDF, generateTicketPDF } from '../../utils/invoiceGenerator';
 import { SunatConfigModal } from '../../components/admin/SunatConfigModal';
 import { emitirComprobanteSunat, getSunatConfig } from '../../services/sunatService';
-import { requestNotificationPermission, notifyNewSale } from '../../utils/notificationHelper';
+import { requestNotificationPermission } from '../../utils/notificationHelper';
 import '../../styles/components/admin.css';
 
 interface VentaRow {
@@ -124,29 +124,14 @@ const AdminSales: React.FC = () => {
   useEffect(() => {
     fetchVentas();
 
-    // Listener Realtime Supabase para Notificaciones de Pagos en Vivo
-    const channel = supabase
-      .channel('admin-ventas-realtime')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'ventas' },
-        (payload) => {
-          const newVenta = payload.new as any;
-          if (newVenta) {
-            notifyNewSale({
-              nombres: newVenta.nombres || 'Pasajero',
-              apellidos: newVenta.apellidos || '',
-              numero_asiento: newVenta.numero_asiento || 0,
-              monto_pagado: newVenta.monto_pagado || 0
-            });
-            fetchVentas();
-          }
-        }
-      )
-      .subscribe();
+    // Auto-recargar lista de ventas cuando el AdminLayout detecte una nueva venta
+    const handleNewSale = () => {
+      fetchVentas();
+    };
 
+    window.addEventListener('new-sale-event', handleNewSale);
     return () => {
-      supabase.removeChannel(channel);
+      window.removeEventListener('new-sale-event', handleNewSale);
     };
   }, []);
 
