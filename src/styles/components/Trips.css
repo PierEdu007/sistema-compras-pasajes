@@ -157,6 +157,41 @@
   gap: 0.5rem;
 }
 
+.trip-vehicle-preview {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.trip-vehicle-img {
+  width: 95px;
+  height: 55px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.15));
+  transition: transform var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.trip-card:hover:not(.sold-out) .trip-vehicle-img {
+  transform: scale(1.08);
+}
+
+.trip-vehicle-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+@media (max-width: 580px) {
+  .trip-vehicle-preview {
+    gap: 0.75rem;
+  }
+  .trip-vehicle-img {
+    width: 75px;
+    height: 45px;
+  }
+}
+
 .trip-vehicle {
   font-size: 1.125rem;
   color: var(--color-primary-dark);

@@ -30,7 +30,7 @@ export default function Footer() {
             <h4>{t('footer.officeCusco', 'Oficina en Cusco')}</h4>
             <ul className="footer-contact">
               <li><FaMapMarkerAlt /> Av. Antonio Lorena 318, Santiago, Cusco</li>
-              <li><FaPhoneAlt /> +51 927 670 019</li>
+              <li><FaPhoneAlt /> +51 927 670 019 | Fijo: (084) 500393</li>
               <li><FaEnvelope /> tunkychaskyoficial@gmail.com</li>
             </ul>
           </div>

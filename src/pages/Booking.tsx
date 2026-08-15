@@ -10,6 +10,8 @@ import type { PassengerData } from '../components/booking/PassengerForm';
 import Timer from '../components/booking/Timer';
 import YapePaymentModal from '../components/booking/YapePaymentModal';
 import type { YapePaymentData } from '../components/booking/YapePaymentModal';
+import camioneta6pImg from '../assets/vehicles/camioneta-6p.png';
+import auto4pImg from '../assets/vehicles/auto-4p.png';
 import '../styles/components/Booking.css';
 
 // Interfaz extendida para el viaje
@@ -469,6 +471,13 @@ export default function Booking() {
         <div className="booking-layout">
           {/* Lado Izquierdo: Mapa de Asientos */}
           <div className="booking-sidebar">
+            <div style={{ textAlign: 'center', marginBottom: '14px' }}>
+              <img 
+                src={(viaje.vehiculos.nombre_display.toLowerCase().includes('6') || viaje.vehiculos.nombre_display.toLowerCase().includes('camioneta')) ? camioneta6pImg : auto4pImg} 
+                alt={viaje.vehiculos.nombre_display} 
+                style={{ maxWidth: '140px', height: 'auto', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.15))' }} 
+              />
+            </div>
             <SeatMap 
               layout={viaje.vehiculos.layout_json}
               seatStatuses={seatStatuses}

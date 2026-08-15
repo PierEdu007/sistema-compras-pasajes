@@ -68,7 +68,7 @@ export default function Header() {
       <div className="header-top">
         <div className="container">
           <div className="contact-info">
-            <span><FaPhoneAlt /> +51 927 670 019</span>
+            <span><FaPhoneAlt /> +51 927 670 019 | Fijo: (084) 500393</span>
             <span><FaEnvelope /> tunkychaskyoficial@gmail.com</span>
           </div>
           <div className="social-links">
