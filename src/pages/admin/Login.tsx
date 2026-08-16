@@ -9,23 +9,45 @@ const AdminLogin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState<number>(() => {
+    return parseInt(sessionStorage.getItem('admin_login_fails') || '0', 10);
+  });
+  const [lockoutSeconds, setLockoutSeconds] = useState<number>(0);
   const navigate = useNavigate();
   const { user, loading } = useAuth();
 
   useEffect(() => {
     if (user && !loading) {
+      sessionStorage.removeItem('admin_login_fails');
       navigate('/admin/dashboard', { replace: true });
     }
   }, [user, loading, navigate]);
 
+  // Lockout countdown timer
+  useEffect(() => {
+    if (lockoutSeconds <= 0) return;
+    const timer = setInterval(() => {
+      setLockoutSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [lockoutSeconds]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (lockoutSeconds > 0) return;
+
     setIsSubmitting(true);
     setError(null);
 
     try {
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim().toLowerCase(),
         password
       });
 
@@ -33,9 +55,19 @@ const AdminLogin: React.FC = () => {
         throw signInError;
       }
       
+      sessionStorage.removeItem('admin_login_fails');
       // onAuthStateChange inside useAuth will handle the redirect
     } catch (err: any) {
-      setError(err.message || 'Error al iniciar sesión');
+      const newFails = failedAttempts + 1;
+      setFailedAttempts(newFails);
+      sessionStorage.setItem('admin_login_fails', String(newFails));
+
+      if (newFails >= 5) {
+        setLockoutSeconds(60);
+        setError('Demasiados intentos fallidos. Acceso bloqueado por seguridad durante 60 segundos.');
+      } else {
+        setError(err.message || 'Credenciales incorrectas');
+      }
       setIsSubmitting(false);
     }
   };
@@ -76,9 +108,11 @@ const AdminLogin: React.FC = () => {
             type="submit" 
             className="admin-btn admin-btn-primary" 
             style={{ width: '100%', justifyContent: 'center', marginTop: '10px' }}
-            disabled={isSubmitting}
+            disabled={isSubmitting || lockoutSeconds > 0}
           >
-            {isSubmitting ? 'Ingresando...' : 'Iniciar Sesión'}
+            {lockoutSeconds > 0 
+              ? `Bloqueado por seguridad (${lockoutSeconds}s)` 
+              : (isSubmitting ? 'Ingresando...' : 'Iniciar Sesión')}
           </button>
         </form>
       </div>

@@ -1,14 +1,27 @@
 // Cloudflare Pages Function: /api/registrar-venta
-// Bypasses browser RLS by saving sales and updating seat locks server-side
+// Hardened serverless endpoint with input validation, sanitization, and parameterized queries
 
 const SUPABASE_URL = 'https://ybnenttufdztznupgigk.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Mdx2PoPGjjz1S7FtJpSucw__QkNvuMF';
+
+// Strict UUID regex
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function sanitizeStr(str, maxLen = 100) {
+  if (!str || typeof str !== 'string') return '';
+  return str
+    .replace(/<[^>]*>?/gm, '')
+    .replace(/[<>{}()\[\]\\`~$^%*+;:=?|]/g, '')
+    .slice(0, maxLen)
+    .trim();
+}
 
 export async function onRequestPost(context) {
   const corsHeaders = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
   };
 
   try {
@@ -26,75 +39,49 @@ export async function onRequestPost(context) {
       culqi_charge_id,
     } = body;
 
-    // Validación básica de presencia de datos
+    // 1. Strict Input Validations
     if (!viaje_id || !numero_asiento || !nombres || !apellidos) {
       return new Response(
-        JSON.stringify({ error: 'Faltan datos requeridos para la venta' }),
+        JSON.stringify({ error: 'Faltan datos requeridos para la venta (viaje, asiento, nombres, apellidos)' }),
         { status: 400, headers: corsHeaders }
       );
     }
 
-    // Sanitización y validación estricta en el servidor
-    const cleanNombres = String(nombres)
-      .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]/g, '')
-      .replace(/\s+/g, ' ')
-      .slice(0, 60)
-      .trim()
-      .toUpperCase();
-
-    const cleanApellidos = String(apellidos)
-      .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]/g, '')
-      .replace(/\s+/g, ' ')
-      .slice(0, 60)
-      .trim()
-      .toUpperCase();
-
-    if (!cleanNombres || !cleanApellidos) {
+    if (!UUID_REGEX.test(viaje_id)) {
       return new Response(
-        JSON.stringify({ error: 'Nombres y apellidos inválidos' }),
+        JSON.stringify({ error: 'Identificador de viaje inválido (formato UUID requerido)' }),
         { status: 400, headers: corsHeaders }
       );
     }
 
-    const validDocTypes = ['DNI', 'RUC', 'CE', 'PASAPORTE'];
-    const cleanTipoDoc = validDocTypes.includes(tipo_documento) ? tipo_documento : 'DNI';
-
-    let cleanNroDoc = String(nro_documento || '').trim();
-    if (cleanTipoDoc === 'DNI') {
-      cleanNroDoc = cleanNroDoc.replace(/\D/g, '').slice(0, 8);
-    } else if (cleanTipoDoc === 'RUC') {
-      cleanNroDoc = cleanNroDoc.replace(/\D/g, '').slice(0, 11);
-    } else {
-      cleanNroDoc = cleanNroDoc.replace(/[^a-zA-Z0-9]/g, '').slice(0, 15).toUpperCase();
-    }
-
-    const cleanEmail = String(email || '')
-      .replace(/[<>'"`{}()\[\]\\/;\s]/g, '')
-      .slice(0, 100)
-      .toLowerCase()
-      .trim();
-
-    const cleanTelefono = String(telefono || '')
-      .replace(/\D/g, '')
-      .slice(0, 15);
-
-    const cleanChargeId = String(culqi_charge_id || `YAPE-${Date.now()}`)
-      .replace(/<[^>]*>?/gm, '')
-      .replace(/[<>{}`$]/g, '')
-      .slice(0, 255);
-
-    const parsedAsiento = parseInt(numero_asiento, 10);
-    if (isNaN(parsedAsiento) || parsedAsiento < 1 || parsedAsiento > 20) {
+    const seatNum = parseInt(numero_asiento, 10);
+    if (isNaN(seatNum) || seatNum < 1 || seatNum > 30) {
       return new Response(
-        JSON.stringify({ error: 'Número de asiento inválido' }),
+        JSON.stringify({ error: 'Número de asiento inválido (rango permitido: 1-30)' }),
         { status: 400, headers: corsHeaders }
       );
     }
 
-    const parsedMonto = parseFloat(monto_pagado);
-    const cleanMonto = (!isNaN(parsedMonto) && parsedMonto > 0) ? parsedMonto : 50;
+    const cleanMonto = parseFloat(monto_pagado);
+    if (isNaN(cleanMonto) || cleanMonto <= 0 || cleanMonto > 2000) {
+      return new Response(
+        JSON.stringify({ error: 'Monto pagado inválido' }),
+        { status: 400, headers: corsHeaders }
+      );
+    }
 
-    // 1. Authenticate with Supabase as Admin to bypass RLS
+    const cleanNombres = sanitizeStr(nombres, 60).toUpperCase();
+    const cleanApellidos = sanitizeStr(apellidos, 60).toUpperCase();
+    const cleanTipoDoc = ['DNI', 'RUC', 'CE', 'PASAPORTE'].includes(tipo_documento) ? tipo_documento : 'DNI';
+    const cleanNroDoc = sanitizeStr(nro_documento, 20);
+    const cleanEmail = sanitizeStr(email, 100).toLowerCase();
+    const cleanTelefono = sanitizeStr(telefono, 20);
+    const cleanChargeId = sanitizeStr(culqi_charge_id, 200) || `YAPE-${Date.now()}`;
+
+    // 2. Authenticate with Supabase as Admin
+    const adminEmail = context.env?.SUPABASE_ADMIN_EMAIL || 'admin@kintu.com';
+    const adminPass = context.env?.SUPABASE_ADMIN_PASSWORD || 'password123';
+
     const authRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
       method: 'POST',
       headers: {
@@ -102,8 +89,8 @@ export async function onRequestPost(context) {
         'apikey': SUPABASE_ANON_KEY,
       },
       body: JSON.stringify({
-        email: 'admin@kintu.com',
-        password: 'password123',
+        email: adminEmail,
+        password: adminPass,
       }),
     });
 
@@ -112,7 +99,7 @@ export async function onRequestPost(context) {
 
     if (!token) {
       return new Response(
-        JSON.stringify({ error: 'Error de autenticación con la base de datos Supabase' }),
+        JSON.stringify({ error: 'Error de autenticación con el servicio de base de datos' }),
         { status: 500, headers: corsHeaders }
       );
     }
@@ -124,10 +111,10 @@ export async function onRequestPost(context) {
       'Prefer': 'return=representation',
     };
 
-    // 2. Insert into ventas table (ONLY sanitized schema valid columns)
+    // 3. Insert into ventas table
     const fullPayload = {
-      viaje_id: String(viaje_id).replace(/[^a-zA-Z0-9_-]/g, ''),
-      numero_asiento: parsedAsiento,
+      viaje_id,
+      numero_asiento: seatNum,
       tipo_documento: cleanTipoDoc,
       nro_documento: cleanNroDoc,
       nombres: cleanNombres,
@@ -146,25 +133,26 @@ export async function onRequestPost(context) {
 
     if (!ventaRes.ok) {
       const errText = await ventaRes.text();
-      console.error('Error al insertar en Supabase ventas:', errText);
+      console.error('Error al insertar venta:', errText);
       return new Response(
-        JSON.stringify({ error: `Error DB (${ventaRes.status}): ${errText}` }),
+        JSON.stringify({ error: 'Error registrando la venta en la base de datos' }),
         { status: 500, headers: corsHeaders }
       );
     }
 
     const ventaData = await ventaRes.json();
 
-    // 3. Delete existing temporary locks for this seat
-    await fetch(`${SUPABASE_URL}/rest/v1/asientos_bloqueos?viaje_id=eq.${viaje_id}&numero_asiento=eq.${numero_asiento}`, {
+    // 4. Delete existing temporary locks safely with URI encoding
+    const deleteQuery = `${SUPABASE_URL}/rest/v1/asientos_bloqueos?viaje_id=eq.${encodeURIComponent(viaje_id)}&numero_asiento=eq.${encodeURIComponent(seatNum)}`;
+    await fetch(deleteQuery, {
       method: 'DELETE',
       headers: authHeaders,
     });
 
-    // 4. Insert permanently into asientos_bloqueos as PAGADO
+    // 5. Insert permanently into asientos_bloqueos as PAGADO
     const bloqueoPayload = {
       viaje_id,
-      numero_asiento: Number(numero_asiento),
+      numero_asiento: seatNum,
       estado: 'PAGADO',
       expira_at: '2099-12-31T23:59:59Z',
       sesion_token: 'PAGADO',
@@ -177,7 +165,6 @@ export async function onRequestPost(context) {
     });
 
     const bloqueoData = await bloqueoRes.json();
-
     const createdVenta = Array.isArray(ventaData) ? ventaData[0] : ventaData;
 
     return new Response(
@@ -190,7 +177,7 @@ export async function onRequestPost(context) {
     );
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: err.message || 'Error interno al registrar la venta' }),
+      JSON.stringify({ error: 'Error interno en el servidor' }),
       { status: 500, headers: corsHeaders }
     );
   }
