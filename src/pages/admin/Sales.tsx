@@ -140,27 +140,7 @@ const AdminSales: React.FC = () => {
       setLoading(true);
       const { data, error: _err } = await supabase
         .from('ventas')
-        .select(`
-          id,
-          viaje_id,
-          numero_asiento,
-          tipo_documento,
-          nro_documento,
-          nombres,
-          apellidos,
-          email,
-          monto_pagado,
-          culqi_charge_id,
-          comprobante_emitido,
-          comprobante_url,
-          nro_comprobante,
-          estado_sunat,
-          viajes (
-            fecha_viaje,
-            hora_viaje,
-            rutas (origen, destino)
-          )
-        `)
+        .select(`*, viajes (fecha_viaje, hora_viaje, rutas (origen, destino))`)
         .order('created_at', { ascending: false });
 
       const localPending: VentaRow[] = JSON.parse(localStorage.getItem('local_pending_ventas') || '[]');

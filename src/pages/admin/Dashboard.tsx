@@ -127,27 +127,7 @@ const AdminDashboard: React.FC = () => {
       // 2. Fetch Ventas
       const { data: salesData, error: _salesErr } = await supabase
         .from('ventas')
-        .select(`
-          id,
-          viaje_id,
-          numero_asiento,
-          tipo_documento,
-          nro_documento,
-          nombres,
-          apellidos,
-          monto_pagado,
-          culqi_charge_id,
-          comprobante_emitido,
-          comprobante_url,
-          nro_comprobante,
-          estado_sunat,
-          created_at,
-          viajes (
-            fecha_viaje,
-            hora_viaje,
-            rutas (origen, destino)
-          )
-        `)
+        .select(`*, viajes (fecha_viaje, hora_viaje, rutas (origen, destino))`)
         .order('created_at', { ascending: false });
 
       const localPending: DashboardVenta[] = JSON.parse(localStorage.getItem('local_pending_ventas') || '[]');
