@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaArrowRight, FaCalendarAlt, FaClock, FaBus, FaCheckSquare, FaLock } from 'react-icons/fa';
+import { FaArrowRight, FaCalendarAlt, FaClock, FaCheckSquare, FaLock } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
 import SeatMap from '../components/booking/SeatMap';
 import type { VehicleLayout, SeatStatus } from '../components/booking/SeatMap';
@@ -495,7 +495,7 @@ export default function Booking() {
             <span>|</span>
             <span><FaClock /> {viaje.hora_viaje.substring(0, 5)}</span>
             <span>|</span>
-            <span><FaBus /> {viaje.vehiculos.nombre_display}</span>
+            <span>Servicio Directo</span>
           </div>
         </div>
       </div>

@@ -108,7 +108,6 @@ function Confirmation() {
   const rutaInfo = venta?.viajes?.rutas ? `${venta.viajes.rutas.origen} ➔ ${venta.viajes.rutas.destino}` : (stateData.origen && stateData.destino ? `${stateData.origen} ➔ ${stateData.destino}` : t('confirmation.routeFallback', 'Selected Route'));
   const asientoNum = venta ? venta.numero_asiento : stateData.asiento || 1;
   const fechaHoraInfo = venta?.viajes ? `${formatDate(venta.viajes.fecha_viaje)} - ${venta.viajes.hora_viaje.substring(0, 5)}` : (stateData.fecha_viaje ? `${formatDate(stateData.fecha_viaje)} - ${stateData.hora_viaje?.substring(0, 5)}` : t('confirmation.dateFallback', 'Scheduled Date'));
-  const busInfo = venta?.viajes?.vehiculos?.nombre_display || stateData.bus || t('confirmation.busFallback', 'Standard Bus');
   const montoTotal = venta ? venta.monto_pagado : (stateData.monto_pagado || 0);
 
   const nroOperacion = stateData.nro_operacion || (venta?.culqi_charge_id?.startsWith('YAPE-') ? venta.culqi_charge_id.replace('YAPE-', '') : null);
@@ -161,12 +160,12 @@ function Confirmation() {
 
             <div className="ticket-row">
               <div className="ticket-col">
-                <small>{t('confirmation.dateTime', 'DATE AND TIME')}</small>
+                <small>{t('confirmation.dateTime', 'FECHA Y HORA')}</small>
                 <strong>{fechaHoraInfo}</strong>
               </div>
               <div className="ticket-col text-right">
-                <small>BUS</small>
-                <strong>{busInfo}</strong>
+                <small>{t('confirmation.service', 'SERVICIO')}</small>
+                <strong>Directo</strong>
               </div>
             </div>
 
