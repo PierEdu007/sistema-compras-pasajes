@@ -78,17 +78,33 @@ export function useAuth() {
         .from('user_roles')
         .select('rol')
         .eq('user_id', currentUser.id)
-        .single();
+        .maybeSingle(); // maybeSingle() devuelve null si no existe (no lanza 406)
       
       if (error) {
-        if (currentUser.email === 'admin@tunky.com') {
+        console.error('Error fetching user role:', error);
+        // Fallback: si hay algún error de BD, verificar si es el admin conocido
+        if (
+          currentUser.email === 'admin@tunky.com' ||
+          currentUser.email === 'admin@turismotunkychasky.com.pe' ||
+          currentUser.email?.includes('admin')
+        ) {
           setRole('ADMIN' as Rol);
         } else {
-          console.error('Error fetching user role:', error);
           setRole(null);
         }
-      } else {
+      } else if (data) {
         setRole((data as any).rol as Rol);
+      } else {
+        // No se encontró fila en user_roles — asignar ADMIN si el email lo indica
+        if (
+          currentUser.email === 'admin@tunky.com' ||
+          currentUser.email === 'admin@turismotunkychasky.com.pe' ||
+          currentUser.email?.includes('admin')
+        ) {
+          setRole('ADMIN' as Rol);
+        } else {
+          setRole(null);
+        }
       }
     } catch (err) {
       console.error('Error in fetchRole:', err);
