@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import InteractiveHeroBackground from '../components/home/InteractiveHeroBackground';
 import SearchForm from '../components/home/SearchForm';
 import TrustBar from '../components/home/TrustBar';
 import Benefits from '../components/home/Benefits';
@@ -9,9 +10,6 @@ import MapSection from '../components/home/MapSection';
 import ComunicadoModal from '../components/home/ComunicadoModal';
 import '../styles/components/Home.css';
 
-// Import the Tunki Chasky hero image
-import heroImage from '../assets/hero-landscape.png';
-
 export default function Home() {
   const { t } = useTranslation();
 
@@ -19,12 +17,9 @@ export default function Home() {
     <div className="page-home fade-in">
       <ComunicadoModal />
       
-      {/* Hero Section */}
+      {/* Hero Section with 3D Interactive Landscape & Cinemagraph */}
       <section className="hero-section">
-        <div className="hero-background">
-          <img src={heroImage} alt="Transporte Tunki Chasky" />
-          <div className="hero-overlay"></div>
-        </div>
+        <InteractiveHeroBackground />
         
         <div className="container">
           <div className="hero-content">
