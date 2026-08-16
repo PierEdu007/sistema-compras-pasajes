@@ -31,10 +31,10 @@ export default function TripCard({
   const isFull = asientos_libres === 0;
   const isAlmostFull = asientos_libres > 0 && asientos_libres <= 3;
 
-  // Seleccionar imagen del vehículo: Camioneta blanca/plateada (6p) o Auto rojo (4p)
-  const is6p = total_asientos === 6 || vehiculo_nombre.toLowerCase().includes('6') || vehiculo_nombre.toLowerCase().includes('camioneta');
-  const vehicleImage = is6p ? camioneta6pImg : auto4pImg;
-  const vehicleAlt = is6p ? 'Camioneta (6 Pasajeros)' : 'Auto (4 Pasajeros)';
+  // Seleccionar imagen del vehículo: Auto rojo (4p) o Camioneta blanca/plateada (6p)
+  const is4p = total_asientos === 4 || vehiculo_nombre.includes('4');
+  const vehicleImage = is4p ? auto4pImg : camioneta6pImg;
+  const vehicleAlt = is4p ? 'Auto / Camioneta (4 Pasajeros)' : 'Camioneta (6 Pasajeros)';
 
   return (
     <div className={`trip-card fade-in ${isFull ? 'sold-out' : ''}`}>

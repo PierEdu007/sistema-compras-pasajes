@@ -506,7 +506,7 @@ export default function Booking() {
           <div className="booking-sidebar">
             <div style={{ textAlign: 'center', marginBottom: '14px' }}>
               <img 
-                src={(viaje.vehiculos.nombre_display.toLowerCase().includes('6') || viaje.vehiculos.nombre_display.toLowerCase().includes('camioneta')) ? camioneta6pImg : auto4pImg} 
+                src={(viaje.vehiculos.nombre_display.includes('4') || viaje.vehiculos.layout_json?.filas?.reduce((acc: number, f: any) => acc + (f.asientos?.length || 0), 0) === 4) ? auto4pImg : camioneta6pImg} 
                 alt={viaje.vehiculos.nombre_display} 
                 style={{ maxWidth: '140px', height: 'auto', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.15))' }} 
               />
