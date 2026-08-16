@@ -113,7 +113,7 @@ const AdminLayout: React.FC = () => {
               <FaBell /> Probar
             </button>
             <button 
-              onClick={logout} 
+              onClick={() => logout()} 
               title="Cerrar Sesión Rápidamente" 
               style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center' }}
             >
@@ -157,7 +157,7 @@ const AdminLayout: React.FC = () => {
           )}
         </nav>
         <div className="admin-sidebar-footer">
-          <button onClick={logout} className="admin-logout-btn">
+          <button onClick={() => logout()} className="admin-logout-btn">
             <FaSignOutAlt /> Cerrar Sesión
           </button>
         </div>

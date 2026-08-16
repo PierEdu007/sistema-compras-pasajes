@@ -9,6 +9,14 @@ const AdminLogin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [infoMsg] = useState<string | null>(() => {
+    const msg = sessionStorage.getItem('admin_session_expired_msg');
+    if (msg) {
+      sessionStorage.removeItem('admin_session_expired_msg');
+      return msg;
+    }
+    return null;
+  });
   const [failedAttempts, setFailedAttempts] = useState<number>(() => {
     return parseInt(sessionStorage.getItem('admin_login_fails') || '0', 10);
   });
@@ -19,6 +27,7 @@ const AdminLogin: React.FC = () => {
   useEffect(() => {
     if (user && !loading) {
       sessionStorage.removeItem('admin_login_fails');
+      sessionStorage.removeItem('admin_session_expired_msg');
       navigate('/admin/dashboard', { replace: true });
     }
   }, [user, loading, navigate]);
@@ -81,6 +90,11 @@ const AdminLogin: React.FC = () => {
       <div className="admin-login-box">
         <h2 className="admin-login-title">Ingreso Administrativo</h2>
         
+        {infoMsg && (
+          <div style={{ backgroundColor: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe', padding: '10px 14px', borderRadius: '8px', marginBottom: '15px', fontSize: '0.88rem' }}>
+            ℹ️ {infoMsg}
+          </div>
+        )}
         {error && <div className="admin-error-msg">{error}</div>}
         
         <form onSubmit={handleLogin}>
