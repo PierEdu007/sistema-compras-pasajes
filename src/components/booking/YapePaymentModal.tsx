@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaCopy, FaCheckCircle, FaQrcode, FaLock, FaTimes } from 'react-icons/fa';
+import {
+  PATTERNS,
+  containsDangerousCode,
+  sanitizeOperationCode,
+  filterLivePhoneInput,
+  sanitizePhone
+} from '../../utils/security';
 import '../../styles/components/YapeModal.css';
 
 export interface YapePaymentData {
@@ -48,17 +55,29 @@ export default function YapePaymentModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanOp = nroOperacion.trim();
 
-    if (!cleanOp || cleanOp.length < 6) {
+    if (containsDangerousCode(nroOperacion) || containsDangerousCode(telefonoYape)) {
+      setError(t('validation.invalidCharacters', 'Se detectaron caracteres especiales o códigos no permitidos por motivos de seguridad.'));
+      return;
+    }
+
+    const cleanOp = sanitizeOperationCode(nroOperacion);
+    const cleanTel = telefonoYape ? sanitizePhone(telefonoYape) : '';
+
+    if (!cleanOp || !PATTERNS.YAPE_OP.test(cleanOp)) {
       setError(t('yape.opError', 'Por favor ingresa un código de operación válido de al menos 6 dígitos.'));
+      return;
+    }
+
+    if (cleanTel && (!PATTERNS.PHONE.test(cleanTel) || cleanTel.replace(/\D/g, '').length < 9)) {
+      setError(t('validation.invalidPhone', 'Por favor ingresa un número de teléfono o celular válido (mínimo 9 dígitos).'));
       return;
     }
 
     setError('');
     onConfirm({
       nro_operacion: cleanOp,
-      telefono_yape: telefonoYape.trim()
+      telefono_yape: cleanTel
     });
   };
 
@@ -139,7 +158,7 @@ export default function YapePaymentModal({
                 className="form-control"
                 placeholder="Ej: 123456 (ver en tu comprobante Yape)"
                 value={nroOperacion}
-                onChange={(e) => setNroOperacion(e.target.value.replace(/\D/g, ''))}
+                onChange={(e) => setNroOperacion(e.target.value.replace(/\D/g, '').slice(0, 10))}
                 maxLength={10}
                 required
                 disabled={disabled}
@@ -157,7 +176,8 @@ export default function YapePaymentModal({
                 className="form-control"
                 placeholder="Dejar en blanco si es el mismo celular del pasajero"
                 value={telefonoYape}
-                onChange={(e) => setTelefonoYape(e.target.value)}
+                onChange={(e) => setTelefonoYape(filterLivePhoneInput(e.target.value))}
+                maxLength={15}
                 disabled={disabled}
               />
               <small className="help-text" style={{ display: 'block', marginTop: '4px', color: '#64748b', fontSize: '0.75rem' }}>

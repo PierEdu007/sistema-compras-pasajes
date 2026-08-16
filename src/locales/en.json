@@ -245,7 +245,12 @@
     "razonSocial": "Please enter or verify the Company Name.",
     "direccionFiscal": "Please enter the Fiscal Address.",
     "docLength": "The document number must be between 6 and 15 characters.",
-    "namesRequired": "Please enter the passenger's First and Last Name."
+    "namesRequired": "Please enter the passenger's First and Last Name.",
+    "invalidCharacters": "Special characters or code are not allowed for security reasons.",
+    "invalidEmail": "Please enter a valid email address (e.g. user@example.com).",
+    "invalidPhone": "Please enter a valid phone or mobile number (at least 9 digits).",
+    "invalidNames": "First and last names must only contain letters and spaces (no numbers or symbols).",
+    "invalidPassport": "Document number must contain between 6 and 15 alphanumeric characters."
   },
   "vehicle": {
     "van4": "Van (4 Passengers)",

@@ -10,6 +10,17 @@ import type { PassengerData } from '../components/booking/PassengerForm';
 import Timer from '../components/booking/Timer';
 import YapePaymentModal from '../components/booking/YapePaymentModal';
 import type { YapePaymentData } from '../components/booking/YapePaymentModal';
+import {
+  containsDangerousCode,
+  sanitizeName,
+  sanitizeDocNumber,
+  sanitizePhone,
+  sanitizeEmail,
+  sanitizeCompanyName,
+  sanitizeAddress,
+  sanitizeNotes,
+  sanitizeOperationCode
+} from '../utils/security';
 import camioneta6pImg from '../assets/vehicles/camioneta-6p.png';
 import auto4pImg from '../assets/vehicles/auto-4p.png';
 import '../styles/components/Booking.css';
@@ -272,6 +283,16 @@ export default function Booking() {
 
   const handlePassengerSubmit = (passengerData: PassengerData) => {
     if (!viaje || selectedSeat === null) return;
+    if (
+      containsDangerousCode(passengerData.nombres) ||
+      containsDangerousCode(passengerData.apellidos) ||
+      containsDangerousCode(passengerData.nro_documento) ||
+      containsDangerousCode(passengerData.email) ||
+      containsDangerousCode(passengerData.telefono)
+    ) {
+      alert(t('validation.invalidCharacters', 'Se detectaron caracteres especiales o códigos no permitidos por motivos de seguridad.'));
+      return;
+    }
     setPendingPassengerData(passengerData);
     setIsYapeModalOpen(true);
   };
@@ -281,33 +302,45 @@ export default function Booking() {
 
     setIsProcessing(true);
     try {
+      // 1. Sanitizar todos los datos para evitar inyecciones
+      const cleanOp = sanitizeOperationCode(yapeData.nro_operacion);
+      const cleanTelYape = yapeData.telefono_yape ? sanitizePhone(yapeData.telefono_yape) : '';
+      const cleanNombres = sanitizeName(pendingPassengerData.nombres);
+      const cleanApellidos = sanitizeName(pendingPassengerData.apellidos);
+      const cleanDoc = sanitizeDocNumber(pendingPassengerData.nro_documento, pendingPassengerData.tipo_documento);
+      const cleanEmail = sanitizeEmail(pendingPassengerData.email);
+      const cleanTelPass = sanitizePhone(pendingPassengerData.telefono);
+      const cleanRS = pendingPassengerData.razon_social ? sanitizeCompanyName(pendingPassengerData.razon_social) : '';
+      const cleanDir = pendingPassengerData.direccion_fiscal ? sanitizeAddress(pendingPassengerData.direccion_fiscal) : '';
+      const cleanDesc = pendingPassengerData.descripcion_opcional ? sanitizeNotes(pendingPassengerData.descripcion_opcional) : '';
+
       // Si el cliente puso un teléfono en el modal de Yape, se usa ese.
       // Si no puso nada (está en blanco), se usa automáticamente el teléfono ingresado en el cuestionario anterior.
-      const finalTelefono = (yapeData.telefono_yape && yapeData.telefono_yape.trim().length >= 6)
-        ? yapeData.telefono_yape.trim()
-        : (pendingPassengerData.telefono && pendingPassengerData.telefono.trim() !== ''
-            ? pendingPassengerData.telefono.trim()
+      const finalTelefono = (cleanTelYape && cleanTelYape.length >= 6)
+        ? cleanTelYape
+        : (cleanTelPass && cleanTelPass !== ''
+            ? cleanTelPass
             : '927670019');
 
-      let chargeId = `YAPE-${yapeData.nro_operacion}`;
-      if (pendingPassengerData.razon_social) {
-        chargeId += `|RS:${pendingPassengerData.razon_social}`;
+      let chargeId = `YAPE-${cleanOp}`;
+      if (cleanRS) {
+        chargeId += `|RS:${cleanRS}`;
       }
-      if (pendingPassengerData.direccion_fiscal) {
-        chargeId += `|DIR:${pendingPassengerData.direccion_fiscal}`;
+      if (cleanDir) {
+        chargeId += `|DIR:${cleanDir}`;
       }
-      if (pendingPassengerData.descripcion_opcional) {
-        chargeId += `|DESC:${pendingPassengerData.descripcion_opcional}`;
+      if (cleanDesc) {
+        chargeId += `|DESC:${cleanDesc}`;
       }
 
       const fullPayload = {
         viaje_id: viaje.id,
         numero_asiento: selectedSeat,
         tipo_documento: pendingPassengerData.tipo_documento,
-        nro_documento: pendingPassengerData.nro_documento,
-        nombres: pendingPassengerData.nombres,
-        apellidos: pendingPassengerData.apellidos,
-        email: pendingPassengerData.email,
+        nro_documento: cleanDoc,
+        nombres: cleanNombres,
+        apellidos: cleanApellidos,
+        email: cleanEmail,
         telefono: finalTelefono,
         monto_pagado: viaje.precio_base,
         culqi_charge_id: chargeId,

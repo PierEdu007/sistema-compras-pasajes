@@ -1,6 +1,23 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaCreditCard, FaFileInvoice, FaSpinner, FaSearch, FaCheck } from 'react-icons/fa';
+import {
+  PATTERNS,
+  containsDangerousCode,
+  filterLiveNameInput,
+  filterLiveDocInput,
+  filterLivePhoneInput,
+  filterLiveCompanyInput,
+  filterLiveAddressInput,
+  filterLiveNotesInput,
+  sanitizeName,
+  sanitizeDocNumber,
+  sanitizePhone,
+  sanitizeEmail,
+  sanitizeCompanyName,
+  sanitizeAddress,
+  sanitizeNotes,
+} from '../../utils/security';
 
 export interface PassengerData {
   tipo_documento: 'DNI' | 'RUC' | 'CE' | 'PASAPORTE';
@@ -43,20 +60,36 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    let finalVal = value;
-    if (['nombres', 'apellidos', 'razon_social', 'direccion_fiscal', 'descripcion_opcional'].includes(name)) {
-      finalVal = value.toUpperCase();
+    let filteredVal = value;
+
+    // Aplicar filtros en tiempo real para bloquear caracteres prohibidos / inyecciones
+    if (name === 'nombres' || name === 'apellidos') {
+      filteredVal = filterLiveNameInput(value);
+    } else if (name === 'nro_documento') {
+      filteredVal = filterLiveDocInput(value, formData.tipo_documento);
+    } else if (name === 'telefono') {
+      filteredVal = filterLivePhoneInput(value);
+    } else if (name === 'email') {
+      // Bloquear etiquetas HTML y caracteres peligrosos en email
+      filteredVal = value.replace(/[<>'"`{}()\[\]\\/;\s]/g, '').slice(0, 100);
+    } else if (name === 'razon_social') {
+      filteredVal = filterLiveCompanyInput(value);
+    } else if (name === 'direccion_fiscal') {
+      filteredVal = filterLiveAddressInput(value);
+    } else if (name === 'descripcion_opcional') {
+      filteredVal = filterLiveNotesInput(value);
     }
-    setFormData(prev => ({ ...prev, [name]: finalVal }));
+
+    setFormData(prev => ({ ...prev, [name]: filteredVal }));
     if (errorMsg) setErrorMsg('');
   };
 
   // Función para consultar SUNAT (RUC) o RENIEC (DNI) via proxy local (sin CORS)
   const fetchDocumentoData = async (doc: string, tipo: string) => {
-    const cleanDoc = doc.trim();
+    const cleanDoc = sanitizeDocNumber(doc, tipo);
 
     if (tipo === 'RUC') {
-      if (!/^(10|20)[0-9]{9}$/.test(cleanDoc)) {
+      if (!PATTERNS.RUC.test(cleanDoc)) {
         setErrorMsg(t('validation.rucFormat', 'El RUC debe contener exactamente 11 dígitos numéricos y comenzar con 10 o 20.'));
         return;
       }
@@ -66,11 +99,13 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
       setErrorMsg('');
 
       try {
-        const res = await fetch(`/api/ruc?numero=${cleanDoc}`);
+        const res = await fetch(`/api/ruc?numero=${encodeURIComponent(cleanDoc)}`);
         if (res.ok) {
           const data = await res.json();
-          const razonSocial = (data.nombre || data.razonSocial || data.razon_social || '').toUpperCase();
-          const direccion = (data.direccion || data.direccionFiscal || data.direccion_fiscal || 'CUSCO, PERU').toUpperCase();
+          const rawRazon = data.nombre || data.razonSocial || data.razon_social || '';
+          const rawDir = data.direccion || data.direccionFiscal || data.direccion_fiscal || 'CUSCO, PERU';
+          const razonSocial = sanitizeCompanyName(rawRazon);
+          const direccion = sanitizeAddress(rawDir);
 
           if (razonSocial) {
             setFormData(prev => ({
@@ -87,7 +122,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
         setLoadingLookup(false);
       }
     } else if (tipo === 'DNI') {
-      if (!/^[0-9]{8}$/.test(cleanDoc)) {
+      if (!PATTERNS.DNI.test(cleanDoc)) {
         setErrorMsg(t('validation.dniFormat', 'El DNI debe contener exactamente 8 dígitos numéricos.'));
         return;
       }
@@ -97,21 +132,24 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
       setErrorMsg('');
 
       try {
-        const res = await fetch(`/api/dni?numero=${cleanDoc}`);
+        const res = await fetch(`/api/dni?numero=${encodeURIComponent(cleanDoc)}`);
         if (res.ok) {
           const data = await res.json();
-          let nombres = (data.nombres || '').toUpperCase();
-          let apellidos = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim().toUpperCase();
+          let rawNombres = (data.nombres || '').trim();
+          let rawApellidos = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
 
-          if (!nombres && data.nombre) {
+          if (!rawNombres && data.nombre) {
             const parts = data.nombre.trim().split(/\s+/);
             if (parts.length >= 3) {
-              apellidos = `${parts[0]} ${parts[1]}`.toUpperCase();
-              nombres = parts.slice(2).join(' ').toUpperCase();
+              rawApellidos = `${parts[0]} ${parts[1]}`;
+              rawNombres = parts.slice(2).join(' ');
             } else {
-              nombres = data.nombre.toUpperCase();
+              rawNombres = data.nombre;
             }
           }
+
+          const nombres = sanitizeName(rawNombres);
+          const apellidos = sanitizeName(rawApellidos);
 
           if (nombres || apellidos) {
             setFormData(prev => ({
@@ -131,7 +169,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
   };
 
   const handleDocumentNumberChange = (val: string) => {
-    const cleanVal = isRuc || isDni ? val.replace(/\D/g, '') : val;
+    const cleanVal = filterLiveDocInput(val, formData.tipo_documento);
     setFormData(prev => ({ ...prev, nro_documento: cleanVal }));
     setLookupSuccessMsg('');
 
@@ -142,50 +180,94 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const doc = formData.nro_documento.trim();
 
+    // 1. Detección de inyección de código / payloads peligrosos
+    const allFieldValues = [
+      formData.nro_documento,
+      formData.nombres,
+      formData.apellidos,
+      formData.email,
+      formData.telefono,
+      formData.razon_social || '',
+      formData.direccion_fiscal || '',
+      formData.descripcion_opcional || ''
+    ];
+
+    if (allFieldValues.some(val => containsDangerousCode(val))) {
+      setErrorMsg(t('validation.invalidCharacters', 'Se detectaron caracteres especiales o códigos no permitidos por motivos de seguridad.'));
+      return;
+    }
+
+    // 2. Sanitización estricta por campo
+    const doc = sanitizeDocNumber(formData.nro_documento, formData.tipo_documento);
+    const nombres = sanitizeName(formData.nombres);
+    const apellidos = sanitizeName(formData.apellidos);
+    const email = sanitizeEmail(formData.email);
+    const telefono = sanitizePhone(formData.telefono);
+    const razonSocial = formData.razon_social ? sanitizeCompanyName(formData.razon_social) : '';
+    const direccionFiscal = formData.direccion_fiscal ? sanitizeAddress(formData.direccion_fiscal) : '';
+    const descOpcional = formData.descripcion_opcional ? sanitizeNotes(formData.descripcion_opcional) : '';
+
+    // 3. Validación de formato de documento
     if (formData.tipo_documento === 'DNI') {
-      if (!/^[0-9]{8}$/.test(doc)) {
+      if (!PATTERNS.DNI.test(doc)) {
         setErrorMsg(t('validation.dniFormat', 'El DNI debe contener exactamente 8 dígitos numéricos.'));
         return;
       }
     } else if (formData.tipo_documento === 'RUC') {
-      if (!/^(10|20)[0-9]{9}$/.test(doc)) {
+      if (!PATTERNS.RUC.test(doc)) {
         setErrorMsg(t('validation.rucFormat2', 'El RUC debe tener 11 dígitos numéricos y comenzar con 10 o 20.'));
         return;
       }
-      if (!formData.razon_social?.trim()) {
+      if (!razonSocial) {
         setErrorMsg(t('validation.razonSocial', 'Por favor ingresa o verifica la Razón Social.'));
         return;
       }
-      if (!formData.direccion_fiscal?.trim()) {
+      if (!direccionFiscal) {
         setErrorMsg(t('validation.direccionFiscal', 'Por favor ingresa la Dirección Fiscal.'));
         return;
       }
-    } else if (doc.length < 6 || doc.length > 15) {
-      setErrorMsg(t('validation.docLength', 'El número de documento debe tener entre 6 y 15 caracteres.'));
+    } else if (!PATTERNS.PASAPORTE_CE.test(doc)) {
+      setErrorMsg(t('validation.invalidPassport', 'El documento debe contener entre 6 y 15 caracteres alfanuméricos.'));
       return;
     }
 
-    if (!formData.nombres?.trim() || !formData.apellidos?.trim()) {
+    // 4. Validación de nombres y apellidos (solo letras, espacios, acentos)
+    if (!nombres || !apellidos) {
       setErrorMsg(t('validation.namesRequired', 'Por favor ingresa los Nombres y Apellidos del pasajero.'));
       return;
     }
 
-    // Convertir todo a MAYÚSCULAS para mayor orden y legibilidad legal en boletas/facturas
-    const upperData: PassengerData = {
-      ...formData,
+    if (!PATTERNS.NAMES.test(nombres) || !PATTERNS.NAMES.test(apellidos)) {
+      setErrorMsg(t('validation.invalidNames', 'Los nombres y apellidos solo pueden contener letras y espacios (sin números ni símbolos).'));
+      return;
+    }
+
+    // 5. Validación de Correo Electrónico
+    if (!email || !PATTERNS.EMAIL.test(email)) {
+      setErrorMsg(t('validation.invalidEmail', 'Por favor ingresa un correo electrónico válido (ejemplo: usuario@correo.com).'));
+      return;
+    }
+
+    // 6. Validación de Teléfono
+    if (!telefono || !PATTERNS.PHONE.test(telefono) || telefono.replace(/\D/g, '').length < 9) {
+      setErrorMsg(t('validation.invalidPhone', 'Por favor ingresa un número de teléfono o celular válido (mínimo 9 dígitos).'));
+      return;
+    }
+
+    const sanitizedData: PassengerData = {
+      tipo_documento: formData.tipo_documento,
       nro_documento: doc,
-      nombres: formData.nombres.trim().toUpperCase(),
-      apellidos: formData.apellidos.trim().toUpperCase(),
-      email: formData.email.trim().toLowerCase(),
-      telefono: formData.telefono.trim(),
-      razon_social: formData.razon_social ? formData.razon_social.trim().toUpperCase() : '',
-      direccion_fiscal: formData.direccion_fiscal ? formData.direccion_fiscal.trim().toUpperCase() : '',
-      descripcion_opcional: formData.descripcion_opcional ? formData.descripcion_opcional.trim().toUpperCase() : ''
+      nombres: nombres,
+      apellidos: apellidos,
+      email: email,
+      telefono: telefono,
+      razon_social: razonSocial,
+      direccion_fiscal: direccionFiscal,
+      descripcion_opcional: descOpcional
     };
 
-    onSubmit(upperData);
+    onSubmit(sanitizedData);
   };
 
   return (

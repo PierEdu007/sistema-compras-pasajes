@@ -26,12 +26,73 @@ export async function onRequestPost(context) {
       culqi_charge_id,
     } = body;
 
+    // Validación básica de presencia de datos
     if (!viaje_id || !numero_asiento || !nombres || !apellidos) {
       return new Response(
         JSON.stringify({ error: 'Faltan datos requeridos para la venta' }),
         { status: 400, headers: corsHeaders }
       );
     }
+
+    // Sanitización y validación estricta en el servidor
+    const cleanNombres = String(nombres)
+      .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]/g, '')
+      .replace(/\s+/g, ' ')
+      .slice(0, 60)
+      .trim()
+      .toUpperCase();
+
+    const cleanApellidos = String(apellidos)
+      .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]/g, '')
+      .replace(/\s+/g, ' ')
+      .slice(0, 60)
+      .trim()
+      .toUpperCase();
+
+    if (!cleanNombres || !cleanApellidos) {
+      return new Response(
+        JSON.stringify({ error: 'Nombres y apellidos inválidos' }),
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    const validDocTypes = ['DNI', 'RUC', 'CE', 'PASAPORTE'];
+    const cleanTipoDoc = validDocTypes.includes(tipo_documento) ? tipo_documento : 'DNI';
+
+    let cleanNroDoc = String(nro_documento || '').trim();
+    if (cleanTipoDoc === 'DNI') {
+      cleanNroDoc = cleanNroDoc.replace(/\D/g, '').slice(0, 8);
+    } else if (cleanTipoDoc === 'RUC') {
+      cleanNroDoc = cleanNroDoc.replace(/\D/g, '').slice(0, 11);
+    } else {
+      cleanNroDoc = cleanNroDoc.replace(/[^a-zA-Z0-9]/g, '').slice(0, 15).toUpperCase();
+    }
+
+    const cleanEmail = String(email || '')
+      .replace(/[<>'"`{}()\[\]\\/;\s]/g, '')
+      .slice(0, 100)
+      .toLowerCase()
+      .trim();
+
+    const cleanTelefono = String(telefono || '')
+      .replace(/\D/g, '')
+      .slice(0, 15);
+
+    const cleanChargeId = String(culqi_charge_id || `YAPE-${Date.now()}`)
+      .replace(/<[^>]*>?/gm, '')
+      .replace(/[<>{}`$]/g, '')
+      .slice(0, 255);
+
+    const parsedAsiento = parseInt(numero_asiento, 10);
+    if (isNaN(parsedAsiento) || parsedAsiento < 1 || parsedAsiento > 20) {
+      return new Response(
+        JSON.stringify({ error: 'Número de asiento inválido' }),
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    const parsedMonto = parseFloat(monto_pagado);
+    const cleanMonto = (!isNaN(parsedMonto) && parsedMonto > 0) ? parsedMonto : 50;
 
     // 1. Authenticate with Supabase as Admin to bypass RLS
     const authRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
@@ -63,18 +124,18 @@ export async function onRequestPost(context) {
       'Prefer': 'return=representation',
     };
 
-    // 2. Insert into ventas table (ONLY schema valid columns)
+    // 2. Insert into ventas table (ONLY sanitized schema valid columns)
     const fullPayload = {
-      viaje_id,
-      numero_asiento: Number(numero_asiento),
-      tipo_documento: tipo_documento || 'DNI',
-      nro_documento: nro_documento || '',
-      nombres,
-      apellidos,
-      email: email || '',
-      telefono: telefono || '927670019',
-      monto_pagado: Number(monto_pagado) || 50,
-      culqi_charge_id: culqi_charge_id || `YAPE-${Date.now()}`,
+      viaje_id: String(viaje_id).replace(/[^a-zA-Z0-9_-]/g, ''),
+      numero_asiento: parsedAsiento,
+      tipo_documento: cleanTipoDoc,
+      nro_documento: cleanNroDoc,
+      nombres: cleanNombres,
+      apellidos: cleanApellidos,
+      email: cleanEmail,
+      telefono: cleanTelefono || '927670019',
+      monto_pagado: cleanMonto,
+      culqi_charge_id: cleanChargeId,
     };
 
     const ventaRes = await fetch(`${SUPABASE_URL}/rest/v1/ventas`, {

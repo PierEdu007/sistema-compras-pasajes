@@ -16,6 +16,8 @@ export default function SearchForm() {
   const [destino, setDestino] = useState('');
   const [fecha, setFecha] = useState(today); // Fecha por defecto: hoy
 
+  const ALLOWED_CITIES = ['CUSCO', 'QUILLABAMBA', 'KITENI'];
+
   const rutas = [
     { value: 'CUSCO', label: 'Cusco' },
     { value: 'QUILLABAMBA', label: 'Quillabamba' },
@@ -26,8 +28,21 @@ export default function SearchForm() {
     e.preventDefault();
     if (!origen || !destino || !fecha) return;
     
-    // Redirigir a la página de resultados con los parámetros de búsqueda
-    navigate(`/viajes?origen=${origen}&destino=${destino}&fecha=${fecha}`);
+    // Validar que origen y destino pertenezcan a la lista permitida
+    if (!ALLOWED_CITIES.includes(origen) || !ALLOWED_CITIES.includes(destino) || origen === destino) {
+      return;
+    }
+
+    // Validar formato de fecha seguro (YYYY-MM-DD)
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+      return;
+    }
+
+    // Redirigir a la página de resultados con los parámetros sanitizados
+    const cleanOrigen = encodeURIComponent(origen.trim());
+    const cleanDestino = encodeURIComponent(destino.trim());
+    const cleanFecha = encodeURIComponent(fecha.trim());
+    navigate(`/viajes?origen=${cleanOrigen}&destino=${cleanDestino}&fecha=${cleanFecha}`);
   };
 
   // Prevenir seleccionar el mismo origen como destino

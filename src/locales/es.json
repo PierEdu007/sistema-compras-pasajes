@@ -245,7 +245,12 @@
     "razonSocial": "Por favor ingresa o verifica la Razón Social.",
     "direccionFiscal": "Por favor ingresa la Dirección Fiscal.",
     "docLength": "El número de documento debe tener entre 6 y 15 caracteres.",
-    "namesRequired": "Por favor ingresa los Nombres y Apellidos del pasajero."
+    "namesRequired": "Por favor ingresa los Nombres y Apellidos del pasajero.",
+    "invalidCharacters": "Se detectaron caracteres especiales o códigos no permitidos por motivos de seguridad.",
+    "invalidEmail": "Por favor ingresa un correo electrónico válido (ejemplo: usuario@correo.com).",
+    "invalidPhone": "Por favor ingresa un número de teléfono o celular válido (mínimo 9 dígitos).",
+    "invalidNames": "Los nombres y apellidos solo pueden contener letras y espacios (sin números ni símbolos).",
+    "invalidPassport": "El documento debe contener entre 6 y 15 caracteres alfanuméricos."
   },
   "vehicle": {
     "van4": "Camioneta (4 Pasajeros)",
