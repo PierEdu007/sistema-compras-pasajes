@@ -327,7 +327,7 @@ const AdminSales: React.FC = () => {
 
       let res: Response | null = null;
       try {
-        // Intento 1: Servidor Edge Cloudflare /api/enviar-correo (CORS free)
+        // Intento: Servidor Edge Cloudflare / Proxy local Vite /api/enviar-correo (Sin problemas de CORS)
         res = await fetch('/api/enviar-correo', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -339,41 +339,21 @@ const AdminSales: React.FC = () => {
             apiKey
           })
         });
-
-        if (!res.ok) {
-          throw new Error('Serverless /api/enviar-correo devolvió error, intentando fallback...');
-        }
-      } catch (_serverErr) {
-        console.warn('Fallback a llamada directa Resend:', _serverErr);
-        try {
-          res = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify(emailPayload)
-          });
-        } catch (_corsErr) {
-          console.warn('Direct fetch blocked by CORS, using proxy...');
-          res = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.resend.com/emails'), {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify(emailPayload)
-          });
-        }
+      } catch (_serverErr: any) {
+        console.warn('Error al contactar servicio de correo /api/enviar-correo:', _serverErr);
       }
 
       if (res && res.ok) {
         return { success: true, message: `Correo enviado exitosamente con PDF NubeFact, XML y Boleto a ${venta.email}` };
       } else if (res) {
-        const resData = await res.json();
-        return { success: false, error: resData.message || resData.name || JSON.stringify(resData) };
+        try {
+          const resData = await res.json();
+          return { success: false, error: resData.message || resData.name || resData.error || `Error (${res.status})` };
+        } catch (_jsonErr) {
+          return { success: false, error: `Servidor de correo respondió código ${res.status}` };
+        }
       } else {
-        return { success: false, error: 'No se pudo conectar con el servidor de correo.' };
+        return { success: false, error: 'No se pudo conectar con el servicio de correo.' };
       }
     } catch (err: any) {
       return { success: false, error: err.message || 'Error de conexión con Resend' };

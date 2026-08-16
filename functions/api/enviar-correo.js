@@ -93,7 +93,7 @@ export async function onRequest(context) {
       attachments: attachments || [],
     };
 
-    const resendRes = await fetch('https://api.resend.com/emails', {
+    let resendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -102,7 +102,27 @@ export async function onRequest(context) {
       body: JSON.stringify(emailPayload),
     });
 
-    const resendData = await resendRes.json();
+    let resendData = await resendRes.json();
+
+    // Si falla por dominio personalizado no verificado, hacer fallback automático a onboarding@resend.dev
+    if (!resendRes.ok && (
+      resendData.message?.toLowerCase().includes('domain') || 
+      resendData.message?.toLowerCase().includes('from') ||
+      resendData.message?.toLowerCase().includes('verify') ||
+      resendRes.status === 403 ||
+      resendRes.status === 422
+    )) {
+      emailPayload.from = 'Tunky Chasky <onboarding@resend.dev>';
+      resendRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${resendApiKey.trim()}`,
+        },
+        body: JSON.stringify(emailPayload),
+      });
+      resendData = await resendRes.json();
+    }
 
     if (!resendRes.ok) {
       console.error('Error en Resend API:', resendData);
