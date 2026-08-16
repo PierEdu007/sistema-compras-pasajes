@@ -13,6 +13,9 @@
   overflow: hidden;
   margin-top: -110px; /* Pull up under transparent header */
   padding-top: 150px; /* Offset content below header */
+  background: #0b1523;
+  width: 100%;
+  max-width: 100vw;
 }
 
 .hero-background {

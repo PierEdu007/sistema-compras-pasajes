@@ -8,25 +8,30 @@
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -2;
+  z-index: 0;
   overflow: hidden;
   pointer-events: none;
+  background: #0b1523;
 }
 
-/* Base Mountain Image with Smooth 3D Transform */
+/* Base Mountain Image with Vibrant Colors and 120% Oversize (No Edge Gaps) */
 .interactive-hero-bg {
   position: absolute;
-  top: -4%;
-  left: -4%;
-  width: 108%;
-  height: 108%;
+  top: -10%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
+  min-width: 120%;
+  min-height: 120%;
   object-fit: cover;
-  object-position: center 35%;
+  object-position: center 40%;
   will-change: transform;
-  transition: transform 0.15s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: transform 0.12s cubic-bezier(0.25, 1, 0.5, 1);
+  /* Vibrant Lush Green & Warm Andean Sunlight Filters */
+  filter: saturate(1.4) contrast(1.15) brightness(1.08);
 }
 
-/* Dark Gradient Overlay for optimal search form readability */
+/* Light Vibrant Overlay (Lush Green & Golden Sun Tint, NOT Dull Grey) */
 .interactive-hero-overlay {
   position: absolute;
   top: 0;
@@ -35,15 +40,15 @@
   height: 100%;
   background: linear-gradient(
     to bottom,
-    rgba(15, 27, 45, 0.65) 0%,
-    rgba(15, 76, 129, 0.35) 60%,
-    rgba(15, 27, 45, 0.8) 100%
+    rgba(11, 21, 35, 0.42) 0%,
+    rgba(16, 185, 129, 0.06) 45%,
+    rgba(11, 21, 35, 0.72) 100%
   );
   z-index: 1;
 }
 
 /* ----------------------------------------------------
-   Clouds & Mist Layers
+   Clouds & Dynamic Mist Layers (Clearly Visible)
    ---------------------------------------------------- */
 .clouds-container {
   position: absolute;
@@ -53,39 +58,52 @@
   height: 100%;
   z-index: 2;
   overflow: hidden;
-  will-change: transform;
-}
-
-.cloud-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 200%;
-  height: 100%;
-  background-repeat: repeat-x;
-  background-position: 0 bottom;
   pointer-events: none;
 }
 
-/* High Drifting Clouds */
-.cloud-layer-1 {
-  background: radial-gradient(ellipse at 20% 30%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 65%),
-              radial-gradient(ellipse at 60% 25%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 60%),
-              radial-gradient(ellipse at 90% 35%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 55%);
-  animation: driftClouds 65s linear infinite;
+/* Cloud Track 1: High Fluffy Clouds moving Left to Right */
+.cloud-track-1 {
+  position: absolute;
+  top: 8%;
+  left: 0;
+  width: 200%;
+  height: 220px;
+  display: flex;
+  animation: moveCloudsHorizontal 38s linear infinite;
   opacity: 0.85;
 }
 
-/* Valley Mist */
-.cloud-layer-2 {
-  top: 15%;
-  background: radial-gradient(ellipse at 35% 55%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 70%),
-              radial-gradient(ellipse at 75% 60%, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 65%);
-  animation: driftClouds 45s linear infinite reverse;
-  opacity: 0.7;
+/* Cloud Track 2: Mid-mountain Fog/Mist moving at different speed */
+.cloud-track-2 {
+  position: absolute;
+  top: 38%;
+  left: 0;
+  width: 200%;
+  height: 180px;
+  display: flex;
+  animation: moveCloudsHorizontal 52s linear infinite reverse;
+  opacity: 0.75;
 }
 
-@keyframes driftClouds {
+/* Cloud Track 3: Valley Mist */
+.cloud-track-3 {
+  position: absolute;
+  bottom: 12%;
+  left: 0;
+  width: 200%;
+  height: 160px;
+  display: flex;
+  animation: moveCloudsHorizontal 44s linear infinite;
+  opacity: 0.6;
+}
+
+.cloud-svg-block {
+  width: 50%;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+@keyframes moveCloudsHorizontal {
   0% {
     transform: translateX(0);
   }
@@ -94,203 +112,213 @@
   }
 }
 
-/* ----------------------------------------------------
-   Condors Gliding in the Sky (Background)
-   ---------------------------------------------------- */
-.condor-glider {
-  position: absolute;
-  top: 18%;
-  left: -80px;
-  width: 50px;
-  height: 25px;
-  z-index: 3;
-  opacity: 0.65;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
-  animation: condorFlight 32s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-.condor-glider-2 {
-  position: absolute;
-  top: 12%;
-  left: -100px;
-  width: 32px;
-  height: 18px;
-  z-index: 3;
-  opacity: 0.45;
-  animation: condorFlight2 42s cubic-bezier(0.4, 0, 0.2, 1) infinite 14s;
-}
-
-@keyframes condorFlight {
-  0% {
-    transform: translate(0, 0) scale(0.75);
-    opacity: 0;
-  }
-  8% {
-    opacity: 0.75;
-  }
-  45% {
-    transform: translate(45vw, 25px) scale(0.95);
-  }
-  85% {
-    opacity: 0.75;
-  }
-  100% {
-    transform: translate(110vw, -15px) scale(0.7);
-    opacity: 0;
-  }
-}
-
-@keyframes condorFlight2 {
-  0% {
-    transform: translate(0, 0) scale(0.6);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.55;
-  }
-  50% {
-    transform: translate(50vw, -18px) scale(0.75);
-  }
-  90% {
-    opacity: 0.55;
-  }
-  100% {
-    transform: translate(115vw, 10px) scale(0.5);
-    opacity: 0;
-  }
-}
-
-/* Wing Flex animation for Condor */
-.condor-svg .wing-left {
-  transform-origin: 25px 12px;
-  animation: wingFlex 4s ease-in-out infinite alternate;
-}
-.condor-svg .wing-right {
-  transform-origin: 25px 12px;
-  animation: wingFlex 4s ease-in-out infinite alternate;
-}
-
-@keyframes wingFlex {
-  0% {
-    transform: rotate(0deg);
-  }
-  50% {
-    transform: rotate(2deg);
-  }
-  100% {
-    transform: rotate(-2deg);
-  }
-}
-
-/* ----------------------------------------------------
-   The Tunki Bird (Gallito de las Rocas) - Foreground
-   ---------------------------------------------------- */
-.tunki-flyer {
-  position: absolute;
-  top: 32%;
-  left: -120px;
-  width: 75px;
-  height: 55px;
-  z-index: 4;
-  will-change: transform;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
-  animation: tunkiFlightJourney 22s cubic-bezier(0.35, 0.1, 0.25, 1) infinite 4s;
-}
-
-@keyframes tunkiFlightJourney {
-  0% {
-    transform: translate(-100px, 40px) scale(0.65) rotate(4deg);
-    opacity: 0;
-  }
-  5% {
-    opacity: 0.95;
-  }
-  25% {
-    transform: translate(25vw, -35px) scale(0.85) rotate(-3deg);
-  }
-  50% {
-    transform: translate(55vw, 15px) scale(0.95) rotate(2deg);
-  }
-  75% {
-    transform: translate(80vw, -20px) scale(0.85) rotate(-2deg);
-  }
-  92% {
-    opacity: 0.95;
-  }
-  100% {
-    transform: translate(115vw, -50px) scale(0.65) rotate(-6deg);
-    opacity: 0;
-  }
-}
-
-/* Tunki Wing Flapping Cycles */
-.tunki-wing-top {
-  transform-origin: 32px 28px;
-  animation: flapTunkiWings 0.38s ease-in-out infinite alternate;
-}
-
-.tunki-wing-bottom {
-  transform-origin: 32px 32px;
-  animation: flapTunkiWingsBottom 0.38s ease-in-out infinite alternate;
-}
-
-@keyframes flapTunkiWings {
-  0% {
-    transform: rotate(-18deg) scaleY(1);
-  }
-  100% {
-    transform: rotate(24deg) scaleY(0.75);
-  }
-}
-
-@keyframes flapTunkiWingsBottom {
-  0% {
-    transform: rotate(14deg) scaleY(1);
-  }
-  100% {
-    transform: rotate(-16deg) scaleY(0.8);
-  }
-}
-
-/* Ambient Sunbeam Glow */
+/* Ambient Warm Sunbeam */
 .sunbeam-glow {
   position: absolute;
-  top: -10%;
-  right: 15%;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(255, 235, 180, 0.15) 0%, rgba(255, 215, 0, 0.04) 40%, rgba(255, 255, 255, 0) 70%);
+  top: -5%;
+  left: 15%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255, 230, 150, 0.22) 0%, rgba(251, 191, 36, 0.08) 45%, rgba(255, 255, 255, 0) 70%);
   border-radius: 50%;
   pointer-events: none;
   z-index: 2;
-  animation: ambientSunPulse 8s ease-in-out infinite alternate;
+  animation: ambientSunPulse 9s ease-in-out infinite alternate;
 }
 
 @keyframes ambientSunPulse {
   0% {
-    opacity: 0.6;
+    opacity: 0.7;
     transform: scale(0.95);
   }
   100% {
-    opacity: 0.9;
-    transform: scale(1.1);
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+/* ----------------------------------------------------
+   FOREGROUND BIRDS & TUNKI (Flying in front of Text!)
+   ---------------------------------------------------- */
+.hero-foreground-birds {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 15; /* HIGHER THAN TEXT (Text is z-index 10) */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* The Andean Condor flying high across title */
+.condor-glider-fg {
+  position: absolute;
+  top: 14%;
+  left: -120px;
+  width: 70px;
+  height: 35px;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6));
+  animation: condorAcrossTitle 26s cubic-bezier(0.35, 0, 0.25, 1) infinite;
+}
+
+.condor-glider-fg-2 {
+  position: absolute;
+  top: 8%;
+  left: -150px;
+  width: 45px;
+  height: 22px;
+  opacity: 0.85;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+  animation: condorAcrossTitle2 36s cubic-bezier(0.35, 0, 0.25, 1) infinite 12s;
+}
+
+@keyframes condorAcrossTitle {
+  0% {
+    transform: translate(0, 0) scale(0.7);
+    opacity: 0;
+  }
+  6% {
+    opacity: 0.95;
+  }
+  45% {
+    transform: translate(48vw, 30px) scale(1);
+  }
+  88% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(115vw, -20px) scale(0.75);
+    opacity: 0;
+  }
+}
+
+@keyframes condorAcrossTitle2 {
+  0% {
+    transform: translate(0, 0) scale(0.6);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate(52vw, -20px) scale(0.85);
+  }
+  90% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(120vw, 15px) scale(0.6);
+    opacity: 0;
+  }
+}
+
+/* Wing Flex for Condors */
+.condor-wing-l {
+  transform-origin: 35px 17px;
+  animation: condorFlap 3.5s ease-in-out infinite alternate;
+}
+.condor-wing-r {
+  transform-origin: 35px 17px;
+  animation: condorFlap 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes condorFlap {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+  100% {
+    transform: rotate(-3deg);
+  }
+}
+
+/* THE TUNKI BIRD (Flying gracefully right in FRONT of the Title) */
+.tunki-flyer-fg {
+  position: absolute;
+  top: 22%;
+  left: -140px;
+  width: 95px;
+  height: 70px;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.65));
+  will-change: transform;
+  animation: tunkiAcrossFront 19s cubic-bezier(0.35, 0.15, 0.2, 1) infinite 3s;
+}
+
+@keyframes tunkiAcrossFront {
+  0% {
+    transform: translate(-100px, 60px) scale(0.7) rotate(6deg);
+    opacity: 0;
+  }
+  4% {
+    opacity: 1;
+  }
+  25% {
+    /* Passes right in front of "VIAJA SEGURO DE CUSCO A QUILLABAMBA" */
+    transform: translate(28vw, -30px) scale(1.1) rotate(-4deg);
+  }
+  50% {
+    transform: translate(55vw, 25px) scale(1.05) rotate(3deg);
+  }
+  75% {
+    transform: translate(82vw, -15px) scale(0.95) rotate(-2deg);
+  }
+  94% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(118vw, -60px) scale(0.7) rotate(-7deg);
+    opacity: 0;
+  }
+}
+
+/* Dynamic Wing Flapping for Tunki */
+.tunki-wing-upper {
+  transform-origin: 36px 32px;
+  animation: tunkiFlapFast 0.32s ease-in-out infinite alternate;
+}
+
+.tunki-wing-lower {
+  transform-origin: 36px 36px;
+  animation: tunkiFlapFastLower 0.32s ease-in-out infinite alternate;
+}
+
+@keyframes tunkiFlapFast {
+  0% {
+    transform: rotate(-22deg) scaleY(1);
+  }
+  100% {
+    transform: rotate(28deg) scaleY(0.7);
+  }
+}
+
+@keyframes tunkiFlapFastLower {
+  0% {
+    transform: rotate(18deg) scaleY(1);
+  }
+  100% {
+    transform: rotate(-20deg) scaleY(0.75);
   }
 }
 
 /* Responsive adjustment for Mobile screens */
 @media (max-width: 768px) {
-  .tunki-flyer {
-    width: 58px;
-    height: 42px;
-    top: 25%;
+  .tunki-flyer-fg {
+    width: 70px;
+    height: 52px;
+    top: 18%;
   }
-  .condor-glider {
-    width: 38px;
-    height: 20px;
-    top: 15%;
+  .condor-glider-fg {
+    width: 50px;
+    height: 25px;
+    top: 10%;
   }
-  .sunbeam-glow {
-    width: 250px;
-    height: 250px;
+  .cloud-track-1 {
+    height: 140px;
+  }
+  .cloud-track-2 {
+    height: 120px;
   }
 }

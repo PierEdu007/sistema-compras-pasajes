@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import InteractiveHeroBackground from '../components/home/InteractiveHeroBackground';
+import HeroForegroundBirds from '../components/home/HeroForegroundBirds';
 import SearchForm from '../components/home/SearchForm';
 import TrustBar from '../components/home/TrustBar';
 import Benefits from '../components/home/Benefits';
@@ -17,9 +18,10 @@ export default function Home() {
     <div className="page-home fade-in">
       <ComunicadoModal />
       
-      {/* Hero Section with 3D Interactive Landscape & Cinemagraph */}
+      {/* Hero Section with 3D Interactive Landscape, Cinemagraph & Foreground Birds */}
       <section className="hero-section">
         <InteractiveHeroBackground />
+        <HeroForegroundBirds />
         
         <div className="container">
           <div className="hero-content">
