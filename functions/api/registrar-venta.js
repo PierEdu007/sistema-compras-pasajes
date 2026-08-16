@@ -78,38 +78,25 @@ export async function onRequestPost(context) {
     const cleanTelefono = sanitizeStr(telefono, 20);
     const cleanChargeId = sanitizeStr(culqi_charge_id, 200) || `YAPE-${Date.now()}`;
 
-    // 2. Authenticate with Supabase as Admin
-    const adminEmail = context.env?.SUPABASE_ADMIN_EMAIL || 'admin@kintu.com';
-    const adminPass = context.env?.SUPABASE_ADMIN_PASSWORD || 'password123';
+    // 2. Configure Database Authorization Headers
+    let authHeaders;
+    const serviceRoleKey = context.env?.SUPABASE_SERVICE_ROLE_KEY;
 
-    const authRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-      method: 'POST',
-      headers: {
+    if (serviceRoleKey) {
+      authHeaders = {
+        'Content-Type': 'application/json',
+        'apikey': serviceRoleKey,
+        'Authorization': `Bearer ${serviceRoleKey}`,
+        'Prefer': 'return=representation',
+      };
+    } else {
+      authHeaders = {
         'Content-Type': 'application/json',
         'apikey': SUPABASE_ANON_KEY,
-      },
-      body: JSON.stringify({
-        email: adminEmail,
-        password: adminPass,
-      }),
-    });
-
-    const authData = await authRes.json();
-    const token = authData.access_token;
-
-    if (!token) {
-      return new Response(
-        JSON.stringify({ error: 'Error de autenticación con el servicio de base de datos' }),
-        { status: 500, headers: corsHeaders }
-      );
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Prefer': 'return=representation',
+      };
     }
-
-    const authHeaders = {
-      'Content-Type': 'application/json',
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${token}`,
-      'Prefer': 'return=representation',
-    };
 
     // 3. Insert into ventas table
     const fullPayload = {

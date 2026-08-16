@@ -33,8 +33,15 @@ export async function onRequest(context) {
     const body = await request.json();
     const { apiUrl, apiToken, payload } = body;
 
-    const targetUrl = apiUrl || 'https://api.nubefact.com/api/v1/ad363ac5-880b-4f3f-be7a-247d2908a9d6';
-    const targetToken = apiToken || '3c4fcc1af04b48b4b3fe291e485c1fa061857d24cc8143ce9d73f312b4836cbc';
+    const targetUrl = apiUrl || context.env?.NUBEFACT_API_URL || context.env?.VITE_NUBEFACT_API_URL;
+    const targetToken = apiToken || context.env?.NUBEFACT_API_TOKEN || context.env?.VITE_NUBEFACT_API_TOKEN;
+
+    if (!targetUrl || !targetToken) {
+      return new Response(
+        JSON.stringify({ error: 'Credenciales de facturación electrónica no configuradas' }),
+        { status: 400, headers: corsHeaders }
+      );
+    }
 
     // 1. SSRF Prevention: Strictly validate host URL
     if (typeof targetUrl !== 'string' || !targetUrl.startsWith(NUBEFACT_ALLOWED_PREFIX)) {
