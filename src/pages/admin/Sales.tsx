@@ -443,16 +443,21 @@ const AdminSales: React.FC = () => {
         }
       }
 
+      const realNroComp = sunatResultData?.serie && sunatResultData?.numero 
+        ? `${sunatResultData.serie}-${sunatResultData.numero}` 
+        : (venta.nro_comprobante || (venta.tipo_documento === 'RUC' ? 'FFF1-0001' : 'BBB1-0001'));
+
       // 3. Actualizar estado local & Supabase
       await (supabase.from('ventas') as any)
         .update({
           comprobante_emitido: true,
-          comprobante_url: finalInvoiceUrl
+          comprobante_url: finalInvoiceUrl,
+          nro_comprobante: realNroComp
         })
         .eq('id', venta.id);
 
       const localPending: VentaRow[] = JSON.parse(localStorage.getItem('local_pending_ventas') || '[]');
-      const updatedLocal = localPending.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl } : v);
+      const updatedLocal = localPending.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, nro_comprobante: realNroComp } : v);
       localStorage.setItem('local_pending_ventas', JSON.stringify(updatedLocal));
 
       // 4. Envío de correo por Resend adjuntando el PDF NubeFact, XML NubeFact y Boleto
@@ -914,6 +919,10 @@ const AdminSales: React.FC = () => {
                           <FaCheck /> Confirmado
                           <button
                             onClick={() => {
+                              if (v.comprobante_url && (v.comprobante_url.startsWith('http') || v.comprobante_url.startsWith('blob:'))) {
+                                window.open(v.comprobante_url, '_blank');
+                                return;
+                              }
                               const parts = (v.culqi_charge_id || '').split('|');
                               const razonSocial = v.razon_social || parts.find(p => p.startsWith('RS:'))?.replace('RS:', '') || '';
                               const direccionFiscal = v.direccion_fiscal || parts.find(p => p.startsWith('DIR:'))?.replace('DIR:', '') || '';
@@ -938,7 +947,7 @@ const AdminSales: React.FC = () => {
                               const b = doc.output('blob');
                               window.open(URL.createObjectURL(b), '_blank');
                             }}
-                            title="Ver Comprobante PDF"
+                            title="Ver Comprobante Electrónico Oficial SUNAT (PDF)"
                             style={{ background: 'none', border: 'none', color: '#e74c3c', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '3px', fontWeight: 'bold', marginLeft: '6px' }}
                           >
                             <FaFilePdf /> PDF

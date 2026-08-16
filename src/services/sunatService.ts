@@ -48,17 +48,27 @@ export function getSunatConfig(): SunatConfig {
   const saved = localStorage.getItem(DEFAULT_CONFIG_KEY);
   if (saved) {
     try {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      if (parsed && typeof parsed === 'object') {
+        return {
+          enabled: parsed.enabled ?? true,
+          apiUrl: parsed.apiUrl || 'https://api.nubefact.com/api/v1/ad363ac5-880b-4f3f-be7a-247d2908a9d6',
+          apiToken: parsed.apiToken || '3c4fcc1af04b48b4b3fe291e485c1fa061857d24cc8143ce9d73f312b4836cbc',
+          serieBoleta: parsed.serieBoleta || 'BBB1',
+          serieFactura: parsed.serieFactura || 'FFF1',
+          tipoIgv: parsed.tipoIgv ?? 8
+        };
+      }
     } catch (_e) {
       // Fallback
     }
   }
   return {
-    enabled: false,
-    apiUrl: (import.meta.env.VITE_NUBEFACT_API_URL as string) || '',
-    apiToken: (import.meta.env.VITE_NUBEFACT_API_TOKEN as string) || '',
-    serieBoleta: 'B001',
-    serieFactura: 'F001',
+    enabled: true,
+    apiUrl: (import.meta.env.VITE_NUBEFACT_API_URL as string) || 'https://api.nubefact.com/api/v1/ad363ac5-880b-4f3f-be7a-247d2908a9d6',
+    apiToken: (import.meta.env.VITE_NUBEFACT_API_TOKEN as string) || '3c4fcc1af04b48b4b3fe291e485c1fa061857d24cc8143ce9d73f312b4836cbc',
+    serieBoleta: 'BBB1',
+    serieFactura: 'FFF1',
     tipoIgv: 8 // Exonerado por ley de transporte terrestre de pasajeros (IGV 0%)
   };
 }
