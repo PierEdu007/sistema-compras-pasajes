@@ -108,11 +108,16 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
     ? data.razonSocial 
     : `${data.nombres} ${data.apellidos}`.trim();
 
+  // Usar ventaId como base pero con sufijo único para evitar colisiones en reintentos
+  const codigoUnico = data.ventaId
+    ? `${data.ventaId.slice(0, 8)}-${serie}-${Date.now()}`
+    : `VENTA-${serie}-${Date.now()}`;
+
   const payload = {
     operacion: 'generar_comprobante',
     tipo_de_comprobante: tipoComprobante,
     serie: serie,
-    codigo_unico: data.ventaId || `VENTA-${Date.now()}`,
+    codigo_unico: codigoUnico,
     sunat_transaction: 1, // Venta Interna
     cliente_tipo_de_documento: docTipoSunat,
     cliente_numero_de_documento: data.nroDocumento,
@@ -127,7 +132,7 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
     total_exonerada: config.tipoIgv === 8 ? data.monto.toFixed(2) : 0.00,
     total_inafecta: 0.00,
     total: data.monto.toFixed(2),
-    enviar_auto_al_cliente: true,
+    enviar_auto_al_cliente: false, // Tunky Chasky envía el correo vía Resend con PDF adjunto
     items: [
       {
         unidad_de_medida: 'ZZ', // Servicio
@@ -186,9 +191,49 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
     }
 
     if (!ok || result.errors) {
+      const errMsg = typeof result.errors === 'string' ? result.errors : (result.message || '');
+      // Código 4 = "Código único ya está en uso" — el comprobante ya fue emitido antes.
+      // Código 21 = Serie inválida — ya manejado arriba.
+      // Recuperar el comprobante existente consultándolo por codigo_unico.
+      if (result.codigo === 4 || errMsg.toLowerCase().includes('único') || errMsg.toLowerCase().includes('ya est')) {
+        console.warn('NubeFact: código único en uso, consultando comprobante existente...');
+        try {
+          const consultaRes = await fetch('/api/emitir-comprobante', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              apiUrl: config.apiUrl,
+              apiToken: config.apiToken,
+              payload: {
+                operacion: 'consultar_comprobante',
+                tipo_de_comprobante: tipoComprobante,
+                serie: serie,
+                codigo_unico: codigoUnico
+              }
+            })
+          });
+          if (consultaRes.ok) {
+            const consulta = await consultaRes.json();
+            if (consulta.enlace_del_pdf) {
+              return {
+                success: true,
+                serie: consulta.serie,
+                numero: consulta.numero,
+                pdfUrl: consulta.enlace_del_pdf,
+                xmlUrl: consulta.enlace_del_xml,
+                cdrUrl: consulta.enlace_del_cdr,
+                qrCode: consulta.cadena_para_codigo_qr,
+                sunatMessage: 'Comprobante recuperado de NubeFact'
+              };
+            }
+          }
+        } catch (_cErr) {
+          console.warn('Error consultando comprobante existente:', _cErr);
+        }
+      }
       return {
         success: false,
-        error: typeof result.errors === 'string' ? result.errors : (result.message || 'Error en la respuesta del proveedor SUNAT')
+        error: errMsg || 'Error en la respuesta del proveedor SUNAT'
       };
     }
 
@@ -200,7 +245,7 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
       xmlUrl: result.enlace_del_xml,
       cdrUrl: result.enlace_del_cdr,
       qrCode: result.cadena_para_codigo_qr,
-      sunatMessage: result.sunat_description || 'Comprobante emitido y aceptado por SUNAT'
+      sunatMessage: result.sunat_description || 'Comprobante emitido correctamente'
     };
   } catch (err: any) {
     console.error('Error enviando comprobante a API SUNAT:', err);
