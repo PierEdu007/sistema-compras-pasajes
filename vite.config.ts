@@ -151,9 +151,81 @@ function resendLocalPlugin(): Plugin {
   };
 }
 
+function nubefactLocalPlugin(): Plugin {
+  return {
+    name: 'nubefact-local-proxy',
+    configureServer(server) {
+      server.middlewares.use('/api/emitir-comprobante', async (req: any, res: any) => {
+        if (req.method === 'OPTIONS') {
+          res.writeHead(204, {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          });
+          res.end();
+          return;
+        }
+
+        if (req.method === 'POST') {
+          let bodyStr = '';
+          req.on('data', (chunk: any) => {
+            bodyStr += chunk;
+          });
+
+          req.on('end', async () => {
+            try {
+              const body = JSON.parse(bodyStr || '{}');
+              const { apiUrl, apiToken, payload } = body;
+              const targetUrl =
+                apiUrl ||
+                process.env.VITE_NUBEFACT_API_URL ||
+                'https://api.nubefact.com/api/v1/ad363ac5-880b-4f3f-be7a-247d2908a9d6';
+              const targetToken =
+                apiToken ||
+                process.env.VITE_NUBEFACT_API_TOKEN ||
+                '3c4fcc1af04b48b4b3fe291e485c1fa061857d24cc8143ce9d73f312b4836cbc';
+
+              const actualPayload = payload || body;
+
+              const nubefactRes = await fetch(targetUrl, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${targetToken}`,
+                },
+                body: JSON.stringify(actualPayload),
+              });
+
+              const responseData = await nubefactRes.json();
+
+              res.writeHead(nubefactRes.status, {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+              });
+              res.end(JSON.stringify(responseData));
+            } catch (err: any) {
+              console.error('Error en proxy local de NubeFact:', err);
+              res.writeHead(500, {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+              });
+              res.end(
+                JSON.stringify({
+                  error: err.message || 'Error en servidor local de facturación',
+                })
+              );
+            }
+          });
+          return;
+        }
+      });
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), resendLocalPlugin()],
+  plugins: [react(), resendLocalPlugin(), nubefactLocalPlugin()],
   server: {
     proxy: {
       // Proxy para consultas DNI (RENIEC) y RUC (SUNAT)
@@ -168,21 +240,6 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.replace(/^\/api\/ruc/, '/v1/ruc'),
-      },
-      // Proxy local para NubeFact Facturación Electrónica (Evita CORS en localhost)
-      '/api/emitir-comprobante': {
-        target: 'https://api.nubefact.com',
-        changeOrigin: true,
-        secure: true,
-        rewrite: () => '/api/v1/ad363ac5-880b-4f3f-be7a-247d2908a9d6',
-        configure: (proxy) => {
-          proxy.on('proxyReq', (proxyReq) => {
-            proxyReq.setHeader(
-              'Authorization',
-              'Bearer 3c4fcc1af04b48b4b3fe291e485c1fa061857d24cc8143ce9d73f312b4836cbc'
-            );
-          });
-        },
       },
     },
   },
