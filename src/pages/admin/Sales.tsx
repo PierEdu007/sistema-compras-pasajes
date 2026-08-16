@@ -482,6 +482,85 @@ const AdminSales: React.FC = () => {
     }
   };
 
+  const handleOpenOrGenerateSunatPDF = async (v: VentaRow) => {
+    // 1. Si ya tiene URL oficial de NubeFact guardada
+    if (v.comprobante_url && v.comprobante_url.includes('nubefact.com')) {
+      window.open(v.comprobante_url, '_blank');
+      return;
+    }
+
+    // 2. Si no fue emitido a NubeFact aún, emitirlo ahora mismo en tiempo real
+    setProcessingId(v.id);
+    try {
+      const parts = (v.culqi_charge_id || '').split('|');
+      const razonSocial = v.razon_social || parts.find(p => p.startsWith('RS:'))?.replace('RS:', '') || '';
+      const direccionFiscal = v.direccion_fiscal || parts.find(p => p.startsWith('DIR:'))?.replace('DIR:', '') || '';
+
+      const sunatRes = await emitirComprobanteSunat({
+        ventaId: v.id,
+        tipoDocumento: v.tipo_documento,
+        nroDocumento: v.nro_documento,
+        nombres: v.nombres,
+        apellidos: v.apellidos,
+        email: v.email,
+        razonSocial,
+        direccionFiscal,
+        origen: v.viajes?.rutas?.origen || 'CUSCO',
+        destino: v.viajes?.rutas?.destino || 'QUILLABAMBA',
+        asiento: v.numero_asiento,
+        monto: v.monto_pagado,
+        fechaViaje: v.viajes?.fecha_viaje || '',
+        horaViaje: v.viajes?.hora_viaje || ''
+      });
+
+      if (sunatRes.success && sunatRes.pdfUrl) {
+        const realNro = `${sunatRes.serie}-${sunatRes.numero}`;
+        await (supabase.from('ventas') as any)
+          .update({
+            comprobante_emitido: true,
+            comprobante_url: sunatRes.pdfUrl,
+            nro_comprobante: realNro
+          })
+          .eq('id', v.id);
+
+        setVentas(prev => prev.map(item => item.id === v.id ? {
+          ...item,
+          comprobante_url: sunatRes.pdfUrl!,
+          nro_comprobante: realNro
+        } : item));
+
+        window.open(sunatRes.pdfUrl, '_blank');
+      } else {
+        alert(`Aviso SUNAT / NubeFact: ${sunatRes.error || 'No se pudo contactar con NubeFact'}`);
+        const descripcionOpcional = v.descripcion_opcional || parts.find(p => p.startsWith('DESC:'))?.replace('DESC:', '') || '';
+        const doc = generateInvoicePDF({
+          ventaId: v.id,
+          tipoDocumento: v.tipo_documento,
+          nroDocumento: v.nro_documento,
+          nombres: v.nombres,
+          apellidos: v.apellidos,
+          razonSocial,
+          direccionFiscal,
+          descripcionOpcional,
+          origen: v.viajes?.rutas?.origen || 'Origen',
+          destino: v.viajes?.rutas?.destino || 'Destino',
+          asiento: v.numero_asiento,
+          monto: v.monto_pagado,
+          fechaViaje: v.viajes?.fecha_viaje || '',
+          horaViaje: v.viajes?.hora_viaje || '',
+          metodoPago: v.metodo_pago || 'YAPE'
+        });
+        const b = doc.output('blob');
+        window.open(URL.createObjectURL(b), '_blank');
+      }
+    } catch (err) {
+      console.error('Error generando PDF SUNAT:', err);
+      alert('Ocurrió un error al obtener el comprobante de SUNAT.');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
   const handleRejectPayment = async (venta: VentaRow) => {
     const isConfirmed = window.confirm(`¿Estás seguro de que deseas RECHAZAR este pago?\n\nPasajero: ${venta.nombres} ${venta.apellidos}\nMonto: S/ ${venta.monto_pagado}`);
     if (!isConfirmed) return;
@@ -918,39 +997,12 @@ const AdminSales: React.FC = () => {
                         <span style={{ color: '#2ecc71', display: 'flex', alignItems: 'center', gap: '5px' }}>
                           <FaCheck /> Confirmado
                           <button
-                            onClick={() => {
-                              if (v.comprobante_url && (v.comprobante_url.startsWith('http') || v.comprobante_url.startsWith('blob:'))) {
-                                window.open(v.comprobante_url, '_blank');
-                                return;
-                              }
-                              const parts = (v.culqi_charge_id || '').split('|');
-                              const razonSocial = v.razon_social || parts.find(p => p.startsWith('RS:'))?.replace('RS:', '') || '';
-                              const direccionFiscal = v.direccion_fiscal || parts.find(p => p.startsWith('DIR:'))?.replace('DIR:', '') || '';
-                              const descripcionOpcional = v.descripcion_opcional || parts.find(p => p.startsWith('DESC:'))?.replace('DESC:', '') || '';
-                              const doc = generateInvoicePDF({
-                                ventaId: v.id,
-                                tipoDocumento: v.tipo_documento,
-                                nroDocumento: v.nro_documento,
-                                nombres: v.nombres,
-                                apellidos: v.apellidos,
-                                razonSocial,
-                                direccionFiscal,
-                                descripcionOpcional,
-                                origen: v.viajes?.rutas?.origen || 'Origen',
-                                destino: v.viajes?.rutas?.destino || 'Destino',
-                                asiento: v.numero_asiento,
-                                monto: v.monto_pagado,
-                                fechaViaje: v.viajes?.fecha_viaje || '',
-                                horaViaje: v.viajes?.hora_viaje || '',
-                                metodoPago: v.metodo_pago || 'YAPE'
-                              });
-                              const b = doc.output('blob');
-                              window.open(URL.createObjectURL(b), '_blank');
-                            }}
-                            title="Ver Comprobante Electrónico Oficial SUNAT (PDF)"
+                            onClick={() => handleOpenOrGenerateSunatPDF(v)}
+                            title="Ver o Generar Comprobante Electrónico Oficial SUNAT / NubeFact (PDF)"
+                            disabled={processingId === v.id}
                             style={{ background: 'none', border: 'none', color: '#e74c3c', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '3px', fontWeight: 'bold', marginLeft: '6px' }}
                           >
-                            <FaFilePdf /> PDF
+                            <FaFilePdf /> {processingId === v.id ? '...' : 'PDF'}
                           </button>
                         </span>
                       ) : (

@@ -93,7 +93,9 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
 
   const isFactura = data.tipoDocumento === 'RUC';
   const tipoComprobante = isFactura ? 1 : 2; // 1 = Factura, 2 = Boleta
-  const serie = isFactura ? (config.serieFactura || 'F001') : (config.serieBoleta || 'B001');
+  let serie = isFactura ? (config.serieFactura || 'FFF1') : (config.serieBoleta || 'BBB1');
+  if (serie === 'B001') serie = 'BBB1';
+  if (serie === 'F001') serie = 'FFF1';
 
   // Mapeo de Tipo de Documento según código SUNAT:
   // 1 = DNI, 6 = RUC, 4 = CE, 7 = PASAPORTE
