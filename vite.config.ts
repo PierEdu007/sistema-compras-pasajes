@@ -25,7 +25,7 @@ function resendLocalPlugin(): Plugin {
           req.on('end', async () => {
             try {
               const body = JSON.parse(bodyStr || '{}');
-              const { to, subject, html, attachments, apiKey: clientKey } = body;
+              const { to, subject, html, attachments, pdfUrl, xmlUrl, serie, numero, apiKey: clientKey } = body;
               const resendApiKey =
                 clientKey ||
                 process.env.VITE_RESEND_API_KEY ||
@@ -42,13 +42,57 @@ function resendLocalPlugin(): Plugin {
               }
 
               const recipientList = Array.isArray(to) ? to : [to];
+              const emailAttachments: any[] = Array.isArray(attachments) ? [...attachments] : [];
+
+              async function fetchUrlAsBase64Server(url: string) {
+                try {
+                  const fileRes = await fetch(url);
+                  if (!fileRes.ok) return null;
+                  const buf = await fileRes.arrayBuffer();
+                  let binary = '';
+                  const bytes = new Uint8Array(buf);
+                  for (let i = 0; i < bytes.byteLength; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                  }
+                  return btoa(binary);
+                } catch (err) {
+                  console.error(`Error descargando comprobante ${url} en local:`, err);
+                  return null;
+                }
+              }
+
+              if (pdfUrl && typeof pdfUrl === 'string' && pdfUrl.startsWith('http')) {
+                const alreadyHasPdf = emailAttachments.some(a => a.filename?.endsWith('.pdf') && a.filename?.includes('SUNAT'));
+                if (!alreadyHasPdf) {
+                  const pdfBase64 = await fetchUrlAsBase64Server(pdfUrl);
+                  if (pdfBase64) {
+                    emailAttachments.push({
+                      filename: `SUNAT_Comprobante_${serie || 'BBB1'}-${numero || 1}.pdf`,
+                      content: pdfBase64,
+                    });
+                  }
+                }
+              }
+
+              if (xmlUrl && typeof xmlUrl === 'string' && xmlUrl.startsWith('http')) {
+                const alreadyHasXml = emailAttachments.some(a => a.filename?.endsWith('.xml'));
+                if (!alreadyHasXml) {
+                  const xmlBase64 = await fetchUrlAsBase64Server(xmlUrl);
+                  if (xmlBase64) {
+                    emailAttachments.push({
+                      filename: `SUNAT_Comprobante_${serie || 'BBB1'}-${numero || 1}.xml`,
+                      content: xmlBase64,
+                    });
+                  }
+                }
+              }
 
               const emailPayload: any = {
                 from: 'INVERSIONES TUNKY CHASKY <reservas@turismotunkychasky.com.pe>',
                 to: recipientList.map((e: string) => String(e).trim().toLowerCase()),
                 subject: subject || 'Comprobante y Boleto de Viaje',
                 html: html || '',
-                attachments: attachments || [],
+                attachments: emailAttachments,
               };
 
               let resendRes = await fetch('https://api.resend.com/emails', {

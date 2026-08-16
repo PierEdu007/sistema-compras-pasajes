@@ -336,6 +336,10 @@ const AdminSales: React.FC = () => {
             subject: emailPayload.subject,
             html: emailPayload.html,
             attachments: emailPayload.attachments,
+            pdfUrl: sunatData?.pdfUrl,
+            xmlUrl: sunatData?.xmlUrl,
+            serie: sunatData?.serie,
+            numero: sunatData?.numero,
             apiKey
           })
         });

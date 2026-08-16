@@ -27,7 +27,7 @@ export async function onRequest(context) {
 
   try {
     const body = await request.json();
-    const { to, subject, html, attachments, apiKey: clientKey } = body;
+    const { to, subject, html, attachments, pdfUrl, xmlUrl, serie, numero, apiKey: clientKey } = body;
 
     // 1. Validate required fields
     if (!to || !subject || !html) {
@@ -55,21 +55,59 @@ export async function onRequest(context) {
       }
     }
 
-    // 3. Validate attachments size
-    if (attachments && Array.isArray(attachments)) {
-      if (attachments.length > 5) {
+    // 3. Procesar adjuntos y descargar PDF / XML de NubeFact en el servidor (Sin restricciones CORS)
+    const emailAttachments = Array.isArray(attachments) ? [...attachments] : [];
+
+    async function fetchUrlAsBase64Server(url) {
+      try {
+        const fileRes = await fetch(url);
+        if (!fileRes.ok) return null;
+        const buf = await fileRes.arrayBuffer();
+        let binary = '';
+        const bytes = new Uint8Array(buf);
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
+      } catch (err) {
+        console.error(`Error descargando comprobante ${url} en el servidor:`, err);
+        return null;
+      }
+    }
+
+    if (pdfUrl && typeof pdfUrl === 'string' && pdfUrl.startsWith('http')) {
+      const alreadyHasPdf = emailAttachments.some(a => a.filename?.endsWith('.pdf') && a.filename?.includes('SUNAT'));
+      if (!alreadyHasPdf) {
+        const pdfBase64 = await fetchUrlAsBase64Server(pdfUrl);
+        if (pdfBase64) {
+          emailAttachments.push({
+            filename: `SUNAT_Comprobante_${serie || 'BBB1'}-${numero || 1}.pdf`,
+            content: pdfBase64,
+          });
+        }
+      }
+    }
+
+    if (xmlUrl && typeof xmlUrl === 'string' && xmlUrl.startsWith('http')) {
+      const alreadyHasXml = emailAttachments.some(a => a.filename?.endsWith('.xml'));
+      if (!alreadyHasXml) {
+        const xmlBase64 = await fetchUrlAsBase64Server(xmlUrl);
+        if (xmlBase64) {
+          emailAttachments.push({
+            filename: `SUNAT_Comprobante_${serie || 'BBB1'}-${numero || 1}.xml`,
+            content: xmlBase64,
+          });
+        }
+      }
+    }
+
+    // Validate attachments size
+    for (const att of emailAttachments) {
+      if (att.content && att.content.length > 7000000) { // ~5MB base64
         return new Response(
-          JSON.stringify({ error: 'Máximo 5 archivos adjuntos permitidos' }),
+          JSON.stringify({ error: 'Archivo adjunto excede el tamaño máximo permitido (5MB)' }),
           { status: 400, headers: corsHeaders }
         );
-      }
-      for (const att of attachments) {
-        if (att.content && att.content.length > 7000000) { // ~5MB base64
-          return new Response(
-            JSON.stringify({ error: 'Archivo adjunto excede el tamaño máximo permitido (5MB)' }),
-            { status: 400, headers: corsHeaders }
-          );
-        }
       }
     }
 
@@ -90,7 +128,7 @@ export async function onRequest(context) {
       to: recipientList.map(e => e.trim().toLowerCase()),
       subject: cleanSubject,
       html,
-      attachments: attachments || [],
+      attachments: emailAttachments,
     };
 
     let resendRes = await fetch('https://api.resend.com/emails', {
