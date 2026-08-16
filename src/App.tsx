@@ -5,6 +5,7 @@ import Trips from './pages/Trips';
 import Booking from './pages/Booking';
 import Confirmation from './pages/Confirmation';
 import Terms from './pages/Terms';
+import ClaimsBook from './pages/ClaimsBook';
 import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminTrips from './pages/admin/TripsManager';
@@ -22,6 +23,7 @@ function App() {
           <Route path="/compra/:viajeId" element={<Booking />} />
           <Route path="/confirmacion/:ventaId" element={<Confirmation />} />
           <Route path="/terminos" element={<Terms />} />
+          <Route path="/libro-de-reclamaciones" element={<ClaimsBook />} />
         </Route>
         <Route path="/admin" element={<AdminLogin />} />
         <Route element={<AdminLayout />}>

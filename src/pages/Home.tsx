@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import SearchForm from '../components/home/SearchForm';
+import TrustBar from '../components/home/TrustBar';
 import Benefits from '../components/home/Benefits';
 import About from '../components/home/About';
 import Destinations from '../components/home/Destinations';
@@ -36,6 +37,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Trust & Guarantees Bar */}
+      <TrustBar />
 
       {/* Benefits Section */}
       <Benefits />

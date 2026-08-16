@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaArrowRight, FaCalendarAlt, FaClock, FaBus, FaCheckSquare } from 'react-icons/fa';
+import { FaArrowRight, FaCalendarAlt, FaClock, FaBus, FaCheckSquare, FaLock } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
 import SeatMap from '../components/booking/SeatMap';
 import type { VehicleLayout, SeatStatus } from '../components/booking/SeatMap';
@@ -525,6 +525,14 @@ export default function Booking() {
             {selectedSeat ? (
               <div className="booking-form-container slide-up">
                 <div className="booking-step">
+                  <div style={{ backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', color: '#065f46', padding: '10px 14px', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.88rem', marginBottom: '14px' }}>
+                    <FaLock style={{ fontSize: '1.1rem', flexShrink: 0, color: '#10b981' }} />
+                    <div>
+                      <strong>Asiento #{selectedSeat} bloqueado exclusivamente para ti.</strong>
+                      <div style={{ fontSize: '0.8rem', color: '#047857' }}>Nadie más puede seleccionarlo mientras completas tu compra.</div>
+                    </div>
+                  </div>
+
                   <h3 className="step-title">1. {t('booking.timer', 'Tiempo Restante')}</h3>
                   {expiresAt && (
                     <Timer expiresAt={expiresAt} onExpire={handleTimerExpire} />
