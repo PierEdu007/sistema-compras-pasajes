@@ -186,22 +186,6 @@ const AdminSales: React.FC = () => {
     }
   };
 
-  const fetchUrlAsBase64 = async (url: string): Promise<string | null> => {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) return null;
-      const buf = await res.arrayBuffer();
-      const bytes = new Uint8Array(buf);
-      let bin = '';
-      for (let i = 0; i < bytes.byteLength; i++) {
-        bin += String.fromCharCode(bytes[i]);
-      }
-      return btoa(bin);
-    } catch (e) {
-      console.warn('Error convirtiendo URL a Base64:', url, e);
-      return null;
-    }
-  };
 
   const sendDirectResend = async (
     venta: VentaRow, 
@@ -238,26 +222,12 @@ const AdminSales: React.FC = () => {
       let pdfDownloadHtml = '';
       let xmlDownloadHtml = '';
 
-      // 2. Si existen PDF y XML de NubeFact, obtenerlos y adjuntarlos
+      // 2. Si existen PDF y XML de NubeFact, agregar los botones de descarga directa
       if (sunatData?.pdfUrl) {
-        const nubefactPdfBase64 = await fetchUrlAsBase64(sunatData.pdfUrl);
-        if (nubefactPdfBase64) {
-          attachments.push({
-            filename: `SUNAT_Comprobante_${sunatData.serie || 'BBB1'}-${sunatData.numero || 1}.pdf`,
-            content: nubefactPdfBase64
-          });
-        }
         pdfDownloadHtml = `<p style="margin: 8px 0;"><a href="${sunatData.pdfUrl}" target="_blank" style="background-color: #0f4c81; color: #ffffff; padding: 10px 16px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">📄 Descargar Comprobante PDF</a></p>`;
       }
 
       if (sunatData?.xmlUrl) {
-        const nubefactXmlBase64 = await fetchUrlAsBase64(sunatData.xmlUrl);
-        if (nubefactXmlBase64) {
-          attachments.push({
-            filename: `SUNAT_Comprobante_${sunatData.serie || 'BBB1'}-${sunatData.numero || 1}.xml`,
-            content: nubefactXmlBase64
-          });
-        }
         xmlDownloadHtml = `<p style="margin: 8px 0;"><a href="${sunatData.xmlUrl}" target="_blank" style="background-color: #742284; color: #ffffff; padding: 10px 16px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">📑 Descargar Comprobante XML</a></p>`;
       }
 
