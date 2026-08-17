@@ -137,12 +137,13 @@ const AdminTrips: React.FC = () => {
         const v6 = rawList.find(v => v.nombre_display?.includes('6') || v.tipo === 'CAMIONETA_6') || rawList[1] || rawList[0];
 
         const cleanList = [
-          { id: v4.id, nombre_display: 'Camioneta (4 Pasajeros)' },
-          { id: v6.id, nombre_display: 'Camioneta (6 Pasajeros)' }
+          { id: v4.id, nombre_display: 'Auto (4 Pasajeros)' },
+          { id: v6.id, nombre_display: 'Auto (6 Pasajeros)' },
+          { id: 'BOTH', nombre_display: '✨ Ambos Vehículos (Crear Auto 4p y Auto 6p)' }
         ];
 
         setVehiculos(cleanList);
-        setCreateFormData(prev => ({ ...prev, vehiculo_id: cleanList[0].id }));
+        setCreateFormData(prev => ({ ...prev, vehiculo_id: 'BOTH' }));
       }
     } catch (err) {
       console.error('Error fetching options:', err);
@@ -199,22 +200,48 @@ const AdminTrips: React.FC = () => {
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { error } = await supabase.from('viajes').insert([
-        {
+      const v4 = vehiculos.find(v => v.nombre_display.includes('4') && v.id !== 'BOTH');
+      const v6 = vehiculos.find(v => v.nombre_display.includes('6') && v.id !== 'BOTH');
+
+      const inserts: any[] = [];
+
+      if (createFormData.vehiculo_id === 'BOTH') {
+        if (v4) {
+          inserts.push({
+            ruta_id: createFormData.ruta_id,
+            vehiculo_id: v4.id,
+            fecha_viaje: createFormData.fecha_viaje,
+            hora_viaje: createFormData.hora_viaje,
+            precio_base: parseFloat(createFormData.precio_base)
+          });
+        }
+        if (v6) {
+          inserts.push({
+            ruta_id: createFormData.ruta_id,
+            vehiculo_id: v6.id,
+            fecha_viaje: createFormData.fecha_viaje,
+            hora_viaje: createFormData.hora_viaje,
+            precio_base: parseFloat(createFormData.precio_base)
+          });
+        }
+      } else {
+        inserts.push({
           ruta_id: createFormData.ruta_id,
           vehiculo_id: createFormData.vehiculo_id,
           fecha_viaje: createFormData.fecha_viaje,
           hora_viaje: createFormData.hora_viaje,
           precio_base: parseFloat(createFormData.precio_base)
-        } as any
-      ] as any);
+        });
+      }
+
+      const { error } = await (supabase.from('viajes') as any).insert(inserts);
       
       if (error) throw error;
       
       setShowCreateModal(false);
       setCreateFormData(prev => ({ ...prev, fecha_viaje: '', hora_viaje: '', precio_base: '50' }));
       fetchViajes();
-      alert('¡Viaje creado exitosamente!');
+      alert(inserts.length > 1 ? '¡Se crearon ambos viajes (Auto 4p y Auto 6p) exitosamente!' : '¡Viaje creado exitosamente!');
     } catch (err) {
       console.error('Error creating viaje:', err);
       alert('Error al crear el viaje. Verifique los datos.');
@@ -502,7 +529,7 @@ const AdminTrips: React.FC = () => {
                     <td>
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#334155', fontWeight: 'bold' }}>
                         <FaBus style={{ color: '#742284' }} />
-                        {is6Seats ? 'Camioneta (6 Pasajeros)' : 'Camioneta (4 Pasajeros)'}
+                        {is6Seats ? 'Auto (6 Pasajeros)' : 'Auto (4 Pasajeros)'}
                       </span>
                     </td>
                     <td>

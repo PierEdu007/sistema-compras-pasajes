@@ -111,15 +111,6 @@ export default function Trips() {
           .eq('fecha_viaje', fechaParam)
           .eq('estado', 'ACTIVO');
 
-        const today = new Date();
-        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-        
-        if (fechaParam === todayStr) {
-          const currentHour = String(today.getHours()).padStart(2, '0');
-          const currentMinute = String(today.getMinutes()).padStart(2, '0');
-          query = query.gte('hora_viaje', `${currentHour}:${currentMinute}:00`);
-        }
-
         const { data: viajesData } = await query.order('hora_viaje', { ascending: true });
 
         if (viajesData && viajesData.length > 0) {
@@ -138,11 +129,10 @@ export default function Trips() {
 
             const is6Seats = rawNombre.includes('6') || 
                              rawNombre.includes('Ertiga') || 
-                             rawTotal === 6 || 
-                             (v.id ? v.id.charCodeAt(v.id.length - 1) % 2 === 0 : false);
+                             rawTotal === 6;
 
             const totalAsientos = is6Seats ? 6 : 4;
-            const vehiculoNombre = is6Seats ? t('vehicle.van6', 'Van (6 Passengers)') : t('vehicle.van4', 'Van (4 Passengers)');
+            const vehiculoNombre = is6Seats ? t('vehicle.van6', 'Auto (6 Pasajeros)') : t('vehicle.van4', 'Auto (4 Pasajeros)');
 
             const ocupadosCount = (bloqueosData || []).filter((b: any) => {
               if (b.viaje_id !== v.id) return false;

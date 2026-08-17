@@ -253,8 +253,8 @@
     "invalidPassport": "Document number must contain between 6 and 15 alphanumeric characters."
   },
   "vehicle": {
-    "van4": "Van (4 Passengers)",
-    "van6": "Van (6 Passengers)"
+    "van4": "Car (4 Passengers)",
+    "van6": "Car (6 Passengers)"
   },
   "comunicado": {
     "important": "Important",

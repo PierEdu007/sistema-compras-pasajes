@@ -59,7 +59,7 @@ export default function Destinations() {
       id: 4, image: calca,
       priceTag: 'Cusco - Calca · S/ 20',
       title: t('dest.4.title', 'Ruta Valle Sagrado'),
-      description: t('dest.4.desc', 'Transporte frecuente hacia el corazón de Calca en camionetas modernas.'),
+      description: t('dest.4.desc', 'Transporte frecuente hacia el corazón de Calca en autos modernos.'),
       meta1Icon: <FaMapMarkedAlt />, meta1Text: t('dest.valley', 'Valle'),
       meta2Icon: <FaClock />, meta2Text: t('dest.frequent', 'Frecuente'),
     },

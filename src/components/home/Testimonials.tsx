@@ -12,7 +12,7 @@ export default function Testimonials() {
   const testimonials = [
     {
       id: 1,
-      text: t('test.1.text', '"Excelente servicio, muy rápido y las camionetas son muy cómodas. Recomendado al 100%."'),
+      text: t('test.1.text', '"Excelente servicio, muy rápido y los autos son muy cómodos. Recomendado al 100%."'),
       name: 'Carlos M.',
       role: t('test.1.role', 'Pasajero Frecuente'),
       image: authorCarlos,

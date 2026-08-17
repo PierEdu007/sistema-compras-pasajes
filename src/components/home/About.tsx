@@ -13,7 +13,7 @@ export default function About() {
             {t('about.title', 'Inversiones Tunki Chasky')}
           </h2>
           <p className="about-desc mt-4">
-            {t('about.description', 'Inversiones Tunki Chasky S.R.L. es una empresa líder en transporte terrestre interurbano y logística de encomiendas en la región Cusco. Con camionetas modernas de 3 filas, ofrecemos un servicio Formal, Seguro, Confiable y Puntual para satisfacer las necesidades de nuestros usuarios.')}
+            {t('about.description', 'Inversiones Tunki Chasky S.R.L. es una empresa líder en transporte terrestre interurbano y logística de encomiendas en la región Cusco. Con autos modernos de 4 y 6 pasajeros, ofrecemos un servicio Formal, Seguro, Confiable y Puntual para satisfacer las necesidades de nuestros usuarios.')}
           </p>
           <div className="quote-icon right"><FaQuoteRight /></div>
         </div>
