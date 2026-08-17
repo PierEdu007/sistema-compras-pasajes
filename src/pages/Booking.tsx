@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaArrowRight, FaCalendarAlt, FaClock, FaCheckSquare, FaLock } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
@@ -43,6 +43,8 @@ interface ViajeBooking {
 
 export default function Booking() {
   const { viajeId } = useParams<{ viajeId: string }>();
+  const [searchParams] = useSearchParams();
+  const tipoParam = searchParams.get('tipo'); // '4p' o '6p'
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
@@ -93,10 +95,11 @@ export default function Booking() {
 
         const rawViaje = data as unknown as ViajeBooking;
 
-        // Normalizar vehículo a Camioneta (4 Pasajeros) o (6 Pasajeros) sin placas
-        const is6Seats = rawViaje.vehiculos?.nombre_display?.includes('6') || 
-                         rawViaje.vehiculos?.nombre_display?.includes('Ertiga') ||
-                         (viajeId ? viajeId.charCodeAt(viajeId.length - 1) % 2 === 0 : false);
+        // Normalizar vehículo a Auto (4 Pasajeros) o (6 Pasajeros)
+        const is6Seats = tipoParam === '6p' ? true :
+                         tipoParam === '4p' ? false :
+                         rawViaje.vehiculos?.nombre_display?.includes('6') || 
+                         rawViaje.vehiculos?.nombre_display?.includes('Ertiga');
 
         const layout4: VehicleLayout = {
           filas: [
@@ -114,7 +117,7 @@ export default function Booking() {
         };
 
         rawViaje.vehiculos = {
-          nombre_display: is6Seats ? 'Camioneta (6 Pasajeros)' : 'Camioneta (4 Pasajeros)',
+          nombre_display: is6Seats ? 'Auto (6 Pasajeros)' : 'Auto (4 Pasajeros)',
           layout_json: is6Seats ? layout6 : layout4
         };
 
@@ -127,7 +130,7 @@ export default function Booking() {
     };
 
     fetchViajeDetails();
-  }, [viajeId, navigate]);
+  }, [viajeId, tipoParam, navigate]);
 
   // Cargar estado de asientos y suscribirse a cambios en tiempo real
   const fetchSeatStatuses = async (vId: string) => {

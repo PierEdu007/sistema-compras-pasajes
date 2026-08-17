@@ -123,37 +123,90 @@ export default function Trips() {
 
           const now = new Date();
 
-          const listaCalculada: ViajeCalculado[] = (viajesData as any[]).map((v: any) => {
-            const rawNombre = v.vehiculos?.nombre_display || '';
-            const rawTotal = v.vehiculos?.total_asientos_pasajero || 4;
+          // Agrupar por hora de viaje para ofrecer siempre las 2 opciones: Auto 4p y Auto 6p
+          const listaCalculada: ViajeCalculado[] = [];
+          const horasProcesadas = new Map<string, any[]>();
 
-            const is6Seats = rawNombre.includes('6') || 
-                             rawNombre.includes('Ertiga') || 
-                             rawTotal === 6;
+          for (const v of (viajesData as any[])) {
+            const h = (v.hora_viaje || '').substring(0, 5);
+            if (!horasProcesadas.has(h)) {
+              horasProcesadas.set(h, []);
+            }
+            horasProcesadas.get(h)!.push(v);
+          }
 
-            const totalAsientos = is6Seats ? 6 : 4;
-            const vehiculoNombre = is6Seats ? t('vehicle.van6', 'Auto (6 Pasajeros)') : t('vehicle.van4', 'Auto (4 Pasajeros)');
+          for (const [_horaKey, tripsInHour] of horasProcesadas.entries()) {
+            const hasExplicit4 = tripsInHour.some(v => v.vehiculos?.nombre_display?.includes('4'));
+            const hasExplicit6 = tripsInHour.some(v => v.vehiculos?.nombre_display?.includes('6'));
 
-            const ocupadosCount = (bloqueosData || []).filter((b: any) => {
-              if (b.viaje_id !== v.id) return false;
-              if (b.estado === 'PAGADO') return true;
-              if (b.estado === 'BLOQUEADO') {
-                const expDate = new Date(b.expira_at);
-                return expDate > now;
+            if (hasExplicit4 && hasExplicit6) {
+              for (const v of tripsInHour) {
+                const is6Seats = v.vehiculos?.nombre_display?.includes('6');
+                const totalAsientos = is6Seats ? 6 : 4;
+                const vehiculoNombre = is6Seats ? t('vehicle.van6', 'Auto (6 Pasajeros)') : t('vehicle.van4', 'Auto (4 Pasajeros)');
+
+                const ocupadosCount = (bloqueosData || []).filter((b: any) => {
+                  if (b.viaje_id !== v.id) return false;
+                  if (b.estado === 'PAGADO') return true;
+                  if (b.estado === 'BLOQUEADO') {
+                    const expDate = new Date(b.expira_at);
+                    return expDate > now;
+                  }
+                  return false;
+                }).length;
+
+                const asientosLibres = Math.max(0, totalAsientos - ocupadosCount);
+
+                listaCalculada.push({
+                  id: is6Seats ? `${v.id}?tipo=6p` : `${v.id}?tipo=4p`,
+                  hora_viaje: v.hora_viaje,
+                  precio_base: v.precio_base,
+                  vehiculo_nombre: vehiculoNombre,
+                  total_asientos: totalAsientos,
+                  asientos_libres: asientosLibres,
+                });
               }
-              return false;
-            }).length;
+            } else {
+              const baseTrip = tripsInHour[0];
+              const ocupados = (bloqueosData || []).filter((b: any) => {
+                if (b.viaje_id !== baseTrip.id) return false;
+                if (b.estado === 'PAGADO') return true;
+                if (b.estado === 'BLOQUEADO') {
+                  const expDate = new Date(b.expira_at);
+                  return expDate > now;
+                }
+                return false;
+              });
 
-            const asientosLibres = Math.max(0, totalAsientos - ocupadosCount);
+              // Opción 1: Auto (4 Pasajeros)
+              const ocupados4 = ocupados.filter((b: any) => b.numero_asiento <= 5).length;
+              listaCalculada.push({
+                id: `${baseTrip.id}?tipo=4p`,
+                hora_viaje: baseTrip.hora_viaje,
+                precio_base: baseTrip.precio_base,
+                vehiculo_nombre: t('vehicle.van4', 'Auto (4 Pasajeros)'),
+                total_asientos: 4,
+                asientos_libres: Math.max(0, 4 - ocupados4),
+              });
 
-            return {
-              id: v.id,
-              hora_viaje: v.hora_viaje,
-              precio_base: v.precio_base,
-              vehiculo_nombre: vehiculoNombre,
-              total_asientos: totalAsientos,
-              asientos_libres: asientosLibres,
-            };
+              // Opción 2: Auto (6 Pasajeros)
+              const ocupados6 = ocupados.length;
+              listaCalculada.push({
+                id: `${baseTrip.id}?tipo=6p`,
+                hora_viaje: baseTrip.hora_viaje,
+                precio_base: baseTrip.precio_base,
+                vehiculo_nombre: t('vehicle.van6', 'Auto (6 Pasajeros)'),
+                total_asientos: 6,
+                asientos_libres: Math.max(0, 6 - ocupados6),
+              });
+            }
+          }
+
+          // Ordenar por hora y por capacidad (4p primero, luego 6p)
+          listaCalculada.sort((a, b) => {
+            const timeDiff = a.hora_viaje.localeCompare(b.hora_viaje);
+            if (timeDiff !== 0) return timeDiff;
+            return a.total_asientos - b.total_asientos;
           });
 
           setViajes(listaCalculada);
