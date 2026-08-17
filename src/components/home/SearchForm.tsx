@@ -7,10 +7,21 @@ export default function SearchForm() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   
-  // Obtener fecha actual en zona horaria local
-  const tzoffset = (new Date()).getTimezoneOffset() * 60000;
-  const localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
-  const today = localISOTime.split('T')[0];
+  // Obtener fecha actual en zona horaria oficial de Perú (America/Lima)
+  const getTodayLima = () => {
+    try {
+      return new Intl.DateTimeFormat('en-CA', { 
+        timeZone: 'America/Lima', 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit' 
+      }).format(new Date());
+    } catch (_e) {
+      const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+      return (new Date(Date.now() - tzoffset)).toISOString().slice(0, 10);
+    }
+  };
+  const today = getTodayLima();
 
   const [origen, setOrigen] = useState('');
   const [destino, setDestino] = useState('');

@@ -88,15 +88,20 @@ export default function Trips() {
 
     setLoading(true);
     try {
+      const cleanOrigen = origenParam.trim().toUpperCase();
+      const cleanDestino = destinoParam.trim().toUpperCase();
+      const cleanFecha = fechaParam.trim().substring(0, 10);
+
       const { data: rutaData } = await supabase
         .from('rutas')
         .select('id')
-        .eq('origen', origenParam)
-        .eq('destino', destinoParam)
-        .single();
+        .ilike('origen', cleanOrigen)
+        .ilike('destino', cleanDestino)
+        .eq('activa', true)
+        .maybeSingle();
 
       if (rutaData) {
-        let query = supabase
+        const { data: viajesData } = await supabase
           .from('viajes')
           .select(`
             id,
@@ -108,10 +113,9 @@ export default function Trips() {
             )
           `)
           .eq('ruta_id', (rutaData as { id: string }).id)
-          .eq('fecha_viaje', fechaParam)
-          .eq('estado', 'ACTIVO');
-
-        const { data: viajesData } = await query.order('hora_viaje', { ascending: true });
+          .eq('fecha_viaje', cleanFecha)
+          .eq('estado', 'ACTIVO')
+          .order('hora_viaje', { ascending: true });
 
         if (viajesData && viajesData.length > 0) {
           const viajeIds = (viajesData as any[]).map(v => v.id);
