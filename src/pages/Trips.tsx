@@ -3,17 +3,10 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaArrowRight, FaCalendarAlt, FaMap } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
-import TripCard from '../components/trips/TripCard';
+import ScheduleCard from '../components/trips/ScheduleCard';
+import VehicleSelectModal from '../components/trips/VehicleSelectModal';
+import type { ScheduleWithVehicles } from '../components/trips/VehicleSelectModal';
 import '../styles/components/Trips.css';
-
-interface ViajeCalculado {
-  id: string;
-  hora_viaje: string;
-  precio_base: number;
-  vehiculo_nombre: string;
-  total_asientos: number;
-  asientos_libres: number;
-}
 
 const headerBannerStyle: React.CSSProperties = {
   background: 'linear-gradient(135deg, #0f4c81 0%, #742284 100%)',
@@ -73,12 +66,27 @@ export default function Trips() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const origenParam = searchParams.get('origen');
-  const destinoParam = searchParams.get('destino');
-  const fechaParam = searchParams.get('fecha');
+  const origenParam = searchParams.get('origen') || '';
+  const destinoParam = searchParams.get('destino') || '';
+  const fechaParam = searchParams.get('fecha') || '';
 
   const [loading, setLoading] = useState(true);
-  const [viajes, setViajes] = useState<ViajeCalculado[]>([]);
+  const [schedules, setSchedules] = useState<ScheduleWithVehicles[]>([]);
+  const [selectedSchedule, setSelectedSchedule] = useState<ScheduleWithVehicles | null>(null);
+
+  const formatDate = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr + 'T12:00:00');
+      return new Intl.DateTimeFormat(i18n.language === 'en' ? 'en-US' : 'es-PE', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      }).format(date);
+    } catch (_e) {
+      return dateStr;
+    }
+  };
 
   const fetchViajes = useCallback(async () => {
     if (!origenParam || !destinoParam || !fechaParam) {
@@ -92,13 +100,15 @@ export default function Trips() {
       const cleanDestino = destinoParam.trim().toUpperCase();
       const cleanFecha = fechaParam.trim().substring(0, 10);
 
-      const { data: rutaData } = await supabase
+      const { data: rawRutaData } = await supabase
         .from('rutas')
-        .select('id')
+        .select('id, origen, destino')
         .ilike('origen', cleanOrigen)
         .ilike('destino', cleanDestino)
         .eq('activa', true)
         .maybeSingle();
+
+      const rutaData = rawRutaData as { id: string; origen: string; destino: string } | null;
 
       if (rutaData) {
         const { data: viajesData } = await supabase
@@ -112,7 +122,7 @@ export default function Trips() {
               total_asientos_pasajero
             )
           `)
-          .eq('ruta_id', (rutaData as { id: string }).id)
+          .eq('ruta_id', rutaData.id)
           .eq('fecha_viaje', cleanFecha)
           .eq('estado', 'ACTIVO')
           .order('hora_viaje', { ascending: true });
@@ -126,103 +136,87 @@ export default function Trips() {
             .in('viaje_id', viajeIds);
 
           const now = new Date();
+          const fechaFormateada = formatDate(cleanFecha);
 
-          // Agrupar por hora de viaje para ofrecer siempre las 2 opciones: Auto 4p y Auto 6p
-          const listaCalculada: ViajeCalculado[] = [];
-          const horasProcesadas = new Map<string, any[]>();
-
+          // Agrupar por hora de salida para tener 1 tarjeta por horario
+          const horasMap = new Map<string, any[]>();
           for (const v of (viajesData as any[])) {
             const h = (v.hora_viaje || '').substring(0, 5);
-            if (!horasProcesadas.has(h)) {
-              horasProcesadas.set(h, []);
+            if (!horasMap.has(h)) {
+              horasMap.set(h, []);
             }
-            horasProcesadas.get(h)!.push(v);
+            horasMap.get(h)!.push(v);
           }
 
-          for (const [_horaKey, tripsInHour] of horasProcesadas.entries()) {
-            const hasExplicit4 = tripsInHour.some(v => v.vehiculos?.nombre_display?.includes('4'));
-            const hasExplicit6 = tripsInHour.some(v => v.vehiculos?.nombre_display?.includes('6'));
+          const calculatedSchedules: ScheduleWithVehicles[] = [];
 
-            if (hasExplicit4 && hasExplicit6) {
-              for (const v of tripsInHour) {
-                const is6Seats = v.vehiculos?.nombre_display?.includes('6');
-                const totalAsientos = is6Seats ? 6 : 4;
-                const vehiculoNombre = is6Seats ? t('vehicle.van6', 'Auto (6 Pasajeros)') : t('vehicle.van4', 'Auto (4 Pasajeros)');
+          for (const [_hKey, tripsInHour] of horasMap.entries()) {
+            const explicit4 = tripsInHour.find(v => v.vehiculos?.nombre_display?.includes('4'));
+            const explicit6 = tripsInHour.find(v => v.vehiculos?.nombre_display?.includes('6'));
+            const baseTrip = tripsInHour[0];
 
-                const ocupadosCount = (bloqueosData || []).filter((b: any) => {
-                  if (b.viaje_id !== v.id) return false;
-                  if (b.estado === 'PAGADO') return true;
-                  if (b.estado === 'BLOQUEADO') {
-                    const expDate = new Date(b.expira_at);
-                    return expDate > now;
-                  }
-                  return false;
-                }).length;
-
-                const asientosLibres = Math.max(0, totalAsientos - ocupadosCount);
-
-                listaCalculada.push({
-                  id: is6Seats ? `${v.id}?tipo=6p` : `${v.id}?tipo=4p`,
-                  hora_viaje: v.hora_viaje,
-                  precio_base: v.precio_base,
-                  vehiculo_nombre: vehiculoNombre,
-                  total_asientos: totalAsientos,
-                  asientos_libres: asientosLibres,
-                });
+            // 1. Calcular ocupados para 4p
+            const v4Trip = explicit4 || baseTrip;
+            const v4Id = explicit4 ? explicit4.id : `${baseTrip.id}?tipo=4p`;
+            const v4Ocupados = (bloqueosData || []).filter((b: any) => {
+              if (b.viaje_id !== (explicit4?.id || baseTrip.id)) return false;
+              if (b.estado === 'PAGADO') return b.numero_asiento <= 5;
+              if (b.estado === 'BLOQUEADO') {
+                const expDate = new Date(b.expira_at);
+                return expDate > now && b.numero_asiento <= 5;
               }
-            } else {
-              const baseTrip = tripsInHour[0];
-              const ocupados = (bloqueosData || []).filter((b: any) => {
-                if (b.viaje_id !== baseTrip.id) return false;
-                if (b.estado === 'PAGADO') return true;
-                if (b.estado === 'BLOQUEADO') {
-                  const expDate = new Date(b.expira_at);
-                  return expDate > now;
-                }
-                return false;
-              });
+              return false;
+            }).length;
+            const v4Libres = Math.max(0, 4 - v4Ocupados);
 
-              // Opción 1: Auto (4 Pasajeros)
-              const ocupados4 = ocupados.filter((b: any) => b.numero_asiento <= 5).length;
-              listaCalculada.push({
-                id: `${baseTrip.id}?tipo=4p`,
-                hora_viaje: baseTrip.hora_viaje,
-                precio_base: baseTrip.precio_base,
-                vehiculo_nombre: t('vehicle.van4', 'Auto (4 Pasajeros)'),
+            // 2. Calcular ocupados para 6p
+            const v6Trip = explicit6 || baseTrip;
+            const v6Id = explicit6 ? explicit6.id : `${baseTrip.id}?tipo=6p`;
+            const v6Ocupados = (bloqueosData || []).filter((b: any) => {
+              if (b.viaje_id !== (explicit6?.id || baseTrip.id)) return false;
+              if (b.estado === 'PAGADO') return true;
+              if (b.estado === 'BLOQUEADO') {
+                const expDate = new Date(b.expira_at);
+                return expDate > now;
+              }
+              return false;
+            }).length;
+            const v6Libres = Math.max(0, 6 - v6Ocupados);
+
+            calculatedSchedules.push({
+              hora_viaje: baseTrip.hora_viaje,
+              origen: rutaData.origen,
+              destino: rutaData.destino,
+              fechaFormateada,
+              opcion4p: {
+                id: v4Id,
                 total_asientos: 4,
-                asientos_libres: Math.max(0, 4 - ocupados4),
-              });
-
-              // Opción 2: Auto (6 Pasajeros)
-              const ocupados6 = ocupados.length;
-              listaCalculada.push({
-                id: `${baseTrip.id}?tipo=6p`,
-                hora_viaje: baseTrip.hora_viaje,
-                precio_base: baseTrip.precio_base,
-                vehiculo_nombre: t('vehicle.van6', 'Auto (6 Pasajeros)'),
+                asientos_libres: v4Libres,
+                precio: v4Trip.precio_base || 50,
+                isFull: v4Libres === 0
+              },
+              opcion6p: {
+                id: v6Id,
                 total_asientos: 6,
-                asientos_libres: Math.max(0, 6 - ocupados6),
-              });
-            }
+                asientos_libres: v6Libres,
+                precio: v6Trip.precio_base || 50,
+                isFull: v6Libres === 0
+              }
+            });
           }
 
-          // Ordenar por hora y por capacidad (4p primero, luego 6p)
-          listaCalculada.sort((a, b) => {
-            const timeDiff = a.hora_viaje.localeCompare(b.hora_viaje);
-            if (timeDiff !== 0) return timeDiff;
-            return a.total_asientos - b.total_asientos;
-          });
-
-          setViajes(listaCalculada);
+          // Ordenar por hora cronológica
+          calculatedSchedules.sort((a, b) => a.hora_viaje.localeCompare(b.hora_viaje));
+          setSchedules(calculatedSchedules);
         } else {
-          setViajes([]);
+          setSchedules([]);
         }
       } else {
-        setViajes([]);
+        setSchedules([]);
       }
     } catch (error) {
       console.error('Error fetching trips:', error);
-      setViajes([]);
+      setSchedules([]);
     } finally {
       setLoading(false);
     }
@@ -245,23 +239,10 @@ export default function Trips() {
     };
   }, [fetchViajes]);
 
-  const formatDate = (dateStr: string) => {
-    try {
-      const date = new Date(dateStr + 'T12:00:00');
-      return new Intl.DateTimeFormat(i18n.language === 'en' ? 'en-US' : 'es-PE', { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-      }).format(date);
-    } catch (_e) {
-      return dateStr;
-    }
-  };
-
   return (
     <div className="trips-page">
       <div className="container">
+        {/* Banner superior de ruta y fecha */}
         <div style={headerBannerStyle}>
           <div>
             <div style={routeTitleStyle}>
@@ -284,28 +265,34 @@ export default function Trips() {
           </button>
         </div>
 
+        {/* Lista compacta de Horarios (1 sola tarjeta por hora) */}
         {loading ? (
           <div className="text-center py-5">
-            <h3 style={{color: 'var(--color-primary)'}}>{t('common.loading', 'Cargando viajes...')}</h3>
+            <h3 style={{color: 'var(--color-primary)'}}>{t('common.loading', 'Cargando salidas disponibles...')}</h3>
           </div>
-        ) : viajes.length > 0 ? (
+        ) : schedules.length > 0 ? (
           <div className="trips-list">
-            {viajes.map((viaje) => (
-              <TripCard 
-                key={viaje.id}
-                id={viaje.id}
-                hora_viaje={viaje.hora_viaje}
-                precio_base={viaje.precio_base}
-                vehiculo_nombre={viaje.vehiculo_nombre}
-                total_asientos={viaje.total_asientos}
-                asientos_libres={viaje.asientos_libres}
+            <div className="schedules-header-info">
+              <span className="schedules-count">
+                <strong>{schedules.length}</strong> salidas programadas para esta fecha
+              </span>
+              <span className="schedules-hint">
+                💡 Elige tu horario y selecciona el tipo de auto en el siguiente paso
+              </span>
+            </div>
+
+            {schedules.map((schedule) => (
+              <ScheduleCard 
+                key={schedule.hora_viaje}
+                schedule={schedule}
+                onSelectSchedule={(sched) => setSelectedSchedule(sched)}
               />
             ))}
           </div>
         ) : (
           <div className="empty-state slide-up">
             <div className="empty-icon"><FaMap /></div>
-            <h3>{t('search.noResults', 'No encontramos viajes para esta fecha')}</h3>
+            <h3>{t('search.noResults', 'No encontramos salidas para esta fecha')}</h3>
             <p>{t('search.tryAnotherDate', 'Intenta buscar en una fecha diferente o para otra ruta.')}</p>
             <button className="btn btn-primary" onClick={() => navigate('/')}>
               {t('common.back', 'Volver al inicio')}
@@ -313,6 +300,12 @@ export default function Trips() {
           </div>
         )}
       </div>
+
+      {/* Modal interactivo de Selección de Vehículo (Paso 2) */}
+      <VehicleSelectModal 
+        schedule={selectedSchedule}
+        onClose={() => setSelectedSchedule(null)}
+      />
     </div>
   );
 }
