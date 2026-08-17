@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { FaTimes, FaCheckCircle, FaClock, FaArrowRight } from 'react-icons/fa';
+import { FaTimes, FaCheckCircle, FaClock, FaArrowRight, FaCar, FaUsers } from 'react-icons/fa';
 import auto4pImg from '../../assets/vehicles/auto-4p.png';
 import camioneta6pImg from '../../assets/vehicles/camioneta-6p.png';
 
@@ -81,7 +81,7 @@ export default function VehicleSelectModal({ schedule, onClose }: VehicleSelectM
           {/* Tarjeta Auto 4 Pasajeros */}
           <div className={`vehicle-option-card ${schedule.opcion4p.isFull ? 'sold-out' : ''}`}>
             <div className="vehicle-option-badge badge-4p">
-              🔴 4 Pasajeros
+              <FaCar style={{ marginRight: '5px' }} /> 4 Pasajeros
             </div>
             <div className="vehicle-option-img-wrap">
               <img 
@@ -126,7 +126,7 @@ export default function VehicleSelectModal({ schedule, onClose }: VehicleSelectM
           {/* Tarjeta Auto 6 Pasajeros */}
           <div className={`vehicle-option-card ${schedule.opcion6p.isFull ? 'sold-out' : ''}`}>
             <div className="vehicle-option-badge badge-6p">
-              ⚪ 6 Pasajeros
+              <FaUsers style={{ marginRight: '5px' }} /> 6 Pasajeros
             </div>
             <div className="vehicle-option-img-wrap">
               <img 

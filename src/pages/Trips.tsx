@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaArrowRight, FaCalendarAlt, FaMap } from 'react-icons/fa';
+import { FaArrowRight, FaCalendarAlt, FaMap, FaInfoCircle } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
 import ScheduleCard from '../components/trips/ScheduleCard';
 import VehicleSelectModal from '../components/trips/VehicleSelectModal';
@@ -276,8 +276,8 @@ export default function Trips() {
               <span className="schedules-count">
                 <strong>{schedules.length}</strong> salidas programadas para esta fecha
               </span>
-              <span className="schedules-hint">
-                💡 Elige tu horario y selecciona el tipo de auto en el siguiente paso
+              <span className="schedules-hint" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <FaInfoCircle style={{ color: '#0f4c81' }} /> Elige tu horario y selecciona el tipo de auto en el siguiente paso
               </span>
             </div>
 

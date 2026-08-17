@@ -139,7 +139,7 @@ const AdminTrips: React.FC = () => {
         const cleanList = [
           { id: v4.id, nombre_display: 'Auto (4 Pasajeros)' },
           { id: v6.id, nombre_display: 'Auto (6 Pasajeros)' },
-          { id: 'BOTH', nombre_display: '✨ Ambos Vehículos (Crear Auto 4p y Auto 6p)' }
+          { id: 'BOTH', nombre_display: 'Ambos Vehículos (Crear Auto 4p y Auto 6p)' }
         ];
 
         setVehiculos(cleanList);
