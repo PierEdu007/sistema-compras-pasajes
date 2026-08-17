@@ -22,11 +22,28 @@ export default function ComunicadoModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
+    <div 
+      className="modal-overlay"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          handleClose();
+        }
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="comunicado-dialog-title"
+    >
       <div className="modal-content fade-in slide-up">
         <div className="modal-header">
-          <h3>{t('comunicado.important', 'Importante')}</h3>
-          <button className="close-button" onClick={handleClose}>×</button>
+          <h3 id="comunicado-dialog-title">{t('comunicado.important', 'Importante')}</h3>
+          <button 
+            className="close-button" 
+            onClick={handleClose}
+            aria-label="Cerrar modal"
+            title="Cerrar"
+          >
+            ×
+          </button>
         </div>
         
         <div className="modal-body">
@@ -45,7 +62,9 @@ export default function ComunicadoModal() {
         </div>
         
         <div className="modal-actions">
-          <button className="btn btn-primary" onClick={handleClose}>{t('common.close', 'Cerrar')}</button>
+          <button className="btn btn-primary modal-close-btn" onClick={handleClose}>
+            {t('common.close', 'Cerrar')}
+          </button>
         </div>
       </div>
     </div>
