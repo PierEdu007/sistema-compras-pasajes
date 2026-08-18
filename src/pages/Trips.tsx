@@ -128,7 +128,26 @@ export default function Trips() {
           .order('hora_viaje', { ascending: true });
 
         if (viajesData && viajesData.length > 0) {
-          const viajeIds = (viajesData as any[]).map(v => v.id);
+          const peruTodayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Lima' }).format(new Date());
+          const nowPeru = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Lima' }));
+          const currentHourStr = `${String(nowPeru.getHours()).padStart(2, '0')}:${String(nowPeru.getMinutes()).padStart(2, '0')}`;
+          const isToday = cleanFecha === peruTodayStr;
+
+          // Filtrar viajes cuyas horas ya hayan pasado hoy
+          const validViajes = (viajesData as any[]).filter(v => {
+            if (isToday) {
+              const h = (v.hora_viaje || '').substring(0, 5);
+              return h > currentHourStr;
+            }
+            return true;
+          });
+
+          if (validViajes.length === 0) {
+            setSchedules([]);
+            return;
+          }
+
+          const viajeIds = validViajes.map(v => v.id);
 
           const { data: bloqueosData } = await supabase
             .from('asientos_bloqueos')
@@ -140,7 +159,7 @@ export default function Trips() {
 
           // Agrupar por hora de salida para tener 1 tarjeta por horario
           const horasMap = new Map<string, any[]>();
-          for (const v of (viajesData as any[])) {
+          for (const v of validViajes) {
             const h = (v.hora_viaje || '').substring(0, 5);
             if (!horasMap.has(h)) {
               horasMap.set(h, []);
