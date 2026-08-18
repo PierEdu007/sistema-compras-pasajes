@@ -151,37 +151,61 @@ export default function Trips() {
           const calculatedSchedules: ScheduleWithVehicles[] = [];
 
           for (const [_hKey, tripsInHour] of horasMap.entries()) {
-            const explicit4 = tripsInHour.find(v => v.vehiculos?.nombre_display?.includes('4'));
-            const explicit6 = tripsInHour.find(v => v.vehiculos?.nombre_display?.includes('6'));
+            const explicit4 = tripsInHour.find(v => v.vehiculos?.nombre_display?.includes('4') || v.vehiculos?.total_asientos_pasajero === 4);
+            const explicit6 = tripsInHour.find(v => v.vehiculos?.nombre_display?.includes('6') || v.vehiculos?.total_asientos_pasajero === 6);
             const baseTrip = tripsInHour[0];
 
-            // 1. Calcular ocupados para 4p
-            const v4Trip = explicit4 || baseTrip;
-            const v4Id = explicit4 ? explicit4.id : `${baseTrip.id}?tipo=4p`;
-            const v4Ocupados = (bloqueosData || []).filter((b: any) => {
-              if (b.viaje_id !== (explicit4?.id || baseTrip.id)) return false;
-              if (b.estado === 'PAGADO') return b.numero_asiento <= 5;
-              if (b.estado === 'BLOQUEADO') {
-                const expDate = new Date(b.expira_at);
-                return expDate > now && b.numero_asiento <= 5;
-              }
-              return false;
-            }).length;
-            const v4Libres = Math.max(0, 4 - v4Ocupados);
+            // 1. Calcular ocupados para 4p (solo si existe salida 4P real)
+            let v4Libres = 0;
+            let v4Id = '';
+            let v4Precio = 50;
 
-            // 2. Calcular ocupados para 6p
-            const v6Trip = explicit6 || baseTrip;
-            const v6Id = explicit6 ? explicit6.id : `${baseTrip.id}?tipo=6p`;
-            const v6Ocupados = (bloqueosData || []).filter((b: any) => {
-              if (b.viaje_id !== (explicit6?.id || baseTrip.id)) return false;
-              if (b.estado === 'PAGADO') return true;
-              if (b.estado === 'BLOQUEADO') {
-                const expDate = new Date(b.expira_at);
-                return expDate > now;
+            if (explicit4) {
+              v4Id = explicit4.id;
+              v4Precio = explicit4.precio_base || 50;
+              const v4Ocupados = (bloqueosData || []).filter((b: any) => {
+                if (b.viaje_id !== explicit4.id) return false;
+                if (b.estado === 'PAGADO') return b.numero_asiento >= 2 && b.numero_asiento <= 5;
+                if (b.estado === 'BLOQUEADO') {
+                  const expDate = new Date(b.expira_at);
+                  return expDate > now && b.numero_asiento >= 2 && b.numero_asiento <= 5;
+                }
+                return false;
+              }).length;
+              v4Libres = Math.max(0, 4 - v4Ocupados);
+            }
+
+            // 2. Calcular ocupados para 6p (solo si existe salida 6P real)
+            let v6Libres = 0;
+            let v6Id = '';
+            let v6Precio = 50;
+
+            if (explicit6) {
+              v6Id = explicit6.id;
+              v6Precio = explicit6.precio_base || 50;
+              const v6Ocupados = (bloqueosData || []).filter((b: any) => {
+                if (b.viaje_id !== explicit6.id) return false;
+                if (b.estado === 'PAGADO') return b.numero_asiento >= 2 && b.numero_asiento <= 7;
+                if (b.estado === 'BLOQUEADO') {
+                  const expDate = new Date(b.expira_at);
+                  return expDate > now && b.numero_asiento >= 2 && b.numero_asiento <= 7;
+                }
+                return false;
+              }).length;
+              v6Libres = Math.max(0, 6 - v6Ocupados);
+            } else if (!explicit4 && baseTrip) {
+              // Si no tiene nombre explícito, usar baseTrip para el que corresponda
+              const totalA = baseTrip.vehiculos?.total_asientos_pasajero || 4;
+              if (totalA === 4) {
+                v4Id = baseTrip.id;
+                v4Precio = baseTrip.precio_base || 50;
+                v4Libres = 4;
+              } else {
+                v6Id = baseTrip.id;
+                v6Precio = baseTrip.precio_base || 50;
+                v6Libres = 6;
               }
-              return false;
-            }).length;
-            const v6Libres = Math.max(0, 6 - v6Ocupados);
+            }
 
             calculatedSchedules.push({
               hora_viaje: baseTrip.hora_viaje,
@@ -192,15 +216,15 @@ export default function Trips() {
                 id: v4Id,
                 total_asientos: 4,
                 asientos_libres: v4Libres,
-                precio: v4Trip.precio_base || 50,
-                isFull: v4Libres === 0
+                precio: v4Precio,
+                isFull: !explicit4 || v4Libres === 0
               },
               opcion6p: {
                 id: v6Id,
                 total_asientos: 6,
                 asientos_libres: v6Libres,
-                precio: v6Trip.precio_base || 50,
-                isFull: v6Libres === 0
+                precio: v6Precio,
+                isFull: !explicit6 || v6Libres === 0
               }
             });
           }
