@@ -347,6 +347,13 @@ export default function Booking() {
         telefono: finalTelefono,
         monto_pagado: viaje.precio_base,
         culqi_charge_id: chargeId,
+        metodo_pago: 'YAPE',
+        nro_operacion: cleanOp,
+        razon_social: cleanRS || null,
+        direccion_fiscal: cleanDir || null,
+        descripcion_opcional: cleanDesc || null,
+        comprobante_emitido: false,
+        estado: 'PENDIENTE',
       };
 
       let ventaId = `venta-${Date.now()}`;
