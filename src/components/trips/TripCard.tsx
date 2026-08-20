@@ -34,7 +34,7 @@ export default function TripCard({
   // Seleccionar imagen del vehículo: Auto rojo (4p) o Auto blanco/plateado (6p)
   const is4p = total_asientos === 4 || vehiculo_nombre.includes('4');
   const vehicleImage = is4p ? auto4pImg : camioneta6pImg;
-  const vehicleAlt = is4p ? 'Auto (4 Pasajeros)' : 'Auto (6 Pasajeros)';
+  const vehicleAlt = is4p ? t('vehicle.van4', 'Auto (4 Pasajeros)') : t('vehicle.van6', 'Auto (6 Pasajeros)');
 
   return (
     <div className={`trip-card fade-in ${isFull ? 'sold-out' : ''}`}>

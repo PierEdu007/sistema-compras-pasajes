@@ -4,6 +4,7 @@
     "rutas": "Routes",
     "ubicanos": "Find Us",
     "terms": "Terms & Conditions",
+    "claims": "Claims Book",
     "blog": "Blog",
     "buyTicket": "Buy Ticket",
     "language": "Language"
@@ -59,25 +60,9 @@
   },
   "about": {
     "title": "About Us",
-    "description": "Inversiones Tunki Chasky S.R.L. is a leading intercity passenger transport and parcel logistics company in the Cusco region. Operating modern 3-row vehicles, we deliver Formal, Safe, Reliable, and Punctual services for all travelers."
+    "description": "Inversiones Tunki Chasky S.R.L. is a leading intercity passenger transport and parcel logistics company in the Cusco region. Operating modern 4 and 6-passenger vehicles, we deliver Formal, Safe, Reliable, and Punctual services for all travelers."
   },
   "dest": {
-    "title": "Routes and Destinations",
-    "subtitle": "Passenger Transport",
-    "enquire": "Inquire Now",
-    "express": "Express",
-    "comfort": "Comfort",
-    "daily": "Daily",
-    "jungle": "Jungle",
-    "fast": "Fast",
-    "valley": "Valley",
-    "frequent": "Frequent",
-    "train": "Train",
-    "punctual": "Punctual",
-    "direct": "Direct",
-    "executive": "Executive",
-    "veloz": "Fast",
-    "secure": "Safe",
     "1": {
       "title": "Machu Picchu Route",
       "desc": "Direct and fast connection for tourists and locals seeking punctuality to Hidroeléctrica."
@@ -100,28 +85,45 @@
     },
     "6": {
       "title": "National Route",
-      "desc": "Special service to the capital with GPS and 24/7 real-time monitoring."
+      "desc": "Special service to the capital city with GPS and 24/7 active tracking."
     },
     "7": {
-      "title": "Intercity Route",
-      "desc": "The fastest and safest option for traveling to Abancay."
-    }
+      "title": "Interurban Route",
+      "desc": "The fastest and safest travel choice connecting Cusco to Abancay."
+    },
+    "title": "Routes and Destinations",
+    "subtitle": "Passenger Transport",
+    "enquire": "Inquire Now",
+    "bookNow": "Buy Ticket",
+    "express": "Express",
+    "comfort": "Comfort",
+    "daily": "Daily",
+    "jungle": "Jungle",
+    "fast": "Fast",
+    "valley": "Valley",
+    "frequent": "Frequent",
+    "train": "Train",
+    "punctual": "Punctual",
+    "direct": "Direct",
+    "executive": "Executive",
+    "veloz": "Fast",
+    "secure": "Safe"
   },
   "test": {
-    "title": "What Our Passengers Say",
-    "subtitle": "Testimonials",
     "1": {
-      "text": "\"Excellent service, very fast and the vehicles are very comfortable. 100% recommended.\"",
-      "role": "Frequent Passenger"
+      "text": "\"Excellent service, very fast and the cars are very comfortable. 100% recommended.\"",
+      "role": "Frequent Traveler"
     },
     "2": {
-      "text": "\"The best option for sending parcels to Quillabamba. Highly reliable and punctual.\"",
-      "role": "Merchant"
+      "text": "\"The best choice for shipping parcels to Quillabamba. Very reliable and punctual.\"",
+      "role": "Business Owner"
     },
     "3": {
-      "text": "\"Safe and comfortable journey from Cusco to Machu Picchu / Hidroeléctrica. Certified drivers.\"",
+      "text": "\"Safe and comfortable trip from Cusco to Machu Picchu / Hidroeléctrica. Certified drivers.\"",
       "role": "Tourist"
-    }
+    },
+    "title": "What Our Passengers Say",
+    "subtitle": "Testimonials"
   },
   "map": {
     "title": "Find Us At",
@@ -129,27 +131,63 @@
     "cusco": "Cusco Terminal",
     "quillabamba": "Quillabamba Terminal"
   },
+  "trust": {
+    "security": {
+      "title": "100% Secure Purchase",
+      "desc": "256-bit SSL encryption & protected payments"
+    },
+    "gps": {
+      "title": "24/7 GPS Tracking",
+      "desc": "Modern monitored fleet & valid SOAT insurance"
+    },
+    "sunat": {
+      "title": "Official SUNAT Receipt",
+      "desc": "Instant electronic Receipt or Invoice"
+    },
+    "support": {
+      "title": "Support & Assistance",
+      "desc": "Personalized attention before and during your trip"
+    }
+  },
+  "trips": {
+    "scheduledDeparture": "Scheduled Departure",
+    "twoVehiclesAvailable": "2 vehicle types available",
+    "seats": "seats",
+    "seatsCount": "{{count}} seats",
+    "chooseVehicle": "Choose your vehicle type",
+    "selectUnitPrompt": "Select the vehicle you want to travel in:",
+    "passengers4": "4 Passengers",
+    "passengers6": "6 Passengers",
+    "desc4p": "Compact and fast car. 1 co-pilot + rear row of 3 seats.",
+    "desc6p": "Spacious and comfortable minivan. 3 rows of seats with extra room.",
+    "seatsAvailableOf": "{{count}} seats available / {{total}}",
+    "choose4p": "Choose 4p Car",
+    "choose6p": "Choose 6p Car",
+    "backToSchedules": "← Back to schedules",
+    "car4p": "Car (4 Passengers)",
+    "car6p": "Car (6 Passengers)"
+  },
   "booking": {
     "selectSeat": "Select Your Seat",
     "yourSelection": "Your Selection",
     "occupied": "Occupied",
     "available": "Available",
-    "blocked": "Blocked",
+    "blocked": "In Progress",
     "driver": "Driver",
-    "passengerData": "Passenger Information",
+    "passengerData": "Passenger Details",
     "firstName": "First Name",
     "lastName": "Last Name",
     "docType": "Document Type",
     "docNumber": "Document Number",
     "email": "Email Address",
     "phone": "Phone Number",
-    "needInvoice": "Do you need a Tax Invoice (Factura)?",
-    "ruc": "RUC Number",
+    "needInvoice": "Do you need a Tax Invoice?",
+    "ruc": "Tax ID Number (RUC)",
     "companyName": "Company Name",
     "fiscalAddress": "Fiscal Address",
     "notes": "Additional Notes",
     "pay": "Pay",
-    "timer": "Time Remaining",
+    "timer": "Remaining Time",
     "timeLeft": "You have {{minutes}}:{{seconds}} left to complete your purchase",
     "seatExpired": "Your seat reservation has expired. Please select another seat.",
     "confirmPurchase": "Confirm Purchase",
@@ -172,19 +210,24 @@
     "search": "Search",
     "optionalDesc": "Optional Description",
     "optionalDescHint": "Will be printed on your",
+    "optionalDescPlaceholder": "Ex: Round trip ticket executive service Tunky Chasky",
     "invoice": "Invoice",
     "receipt": "Receipt",
+    "directService": "Direct Service",
+    "seatAria": "Seat {{n}}",
+    "seatLockedExclusively": "Seat #{{seat}} locked exclusively for you.",
+    "seatLockedNote": "No one else can select it while you complete your purchase.",
     "alertSeatTaken": "Seat #{{seat}} has already been reserved or taken by another user.",
     "alertSeatError": "Error selecting seat. Please try again.",
     "alertExpired": "Your temporary reservation has expired. The seat has been released.",
     "alertPaymentError": "An error occurred processing your request. Please try again."
   },
   "yape": {
-    "title": "Confirm Payment via Yape",
-    "scanQr": "Scan the QR code or transfer to the number:",
+    "title": "Confirm Yape Payment",
+    "scanQr": "Scan the QR code or transfer to number:",
     "amountToPay": "Amount to pay:",
     "operationNumber": "Operation Number (Yape):",
-    "confirmBtn": "Confirm and Complete Booking",
+    "confirmBtn": "Confirm and Finalize Booking",
     "payTitle": "Pay with Yape",
     "subtitle": "Scan the QR code or transfer directly to confirm your ticket",
     "route": "Route",
@@ -196,18 +239,18 @@
     "copy": "Copy",
     "holder": "Account Holder",
     "opCode": "Yape Operation Code",
-    "opCodeHelp": "Enter the 6 digits shown as the Operation Number in Yape.",
+    "opCodeHelp": "Enter the 6 digits shown as Operation Number in Yape.",
     "phoneLabel": "Phone Number used for the Yape transfer",
     "phoneOptional": "Optional",
-    "phonePlaceholder": "Leave blank if it's the same as the passenger's phone",
+    "phonePlaceholder": "Leave blank if it's the same as passenger's phone",
     "phoneHelp": "If you don't enter a number, the previously registered passenger's phone will be used automatically.",
     "opError": "Please enter a valid operation code of at least 6 digits.",
     "processing": "Processing payment...",
     "confirmSubmit": "Confirm and Submit Payment"
   },
   "confirmation": {
-    "title": "Purchase Confirmed!",
-    "subtitle": "Your ticket has been successfully registered",
+    "title": "Booking Confirmed!",
+    "subtitle": "Your ticket has been successfully booked",
     "tripDetails": "Trip Details",
     "passengerDetails": "Passenger Details",
     "seatNumber": "Seat Number",
@@ -224,19 +267,98 @@
     "bus": "BUS",
     "total": "TOTAL",
     "opNumber": "Op #",
-    "emailNotice": "Your ticket and receipt will be sent to your email once the payment has been verified and confirmed.",
+    "emailNotice": "Your ticket and receipt will be sent to your email once payment has been verified and confirmed.",
     "backHome": "Back to Home",
     "passengerFallback": "Registered Passenger",
     "routeFallback": "Selected Route",
     "dateFallback": "Scheduled Date",
     "busFallback": "Standard Bus"
   },
+  "claims": {
+    "title": "Virtual Claims Book",
+    "subtitle": "In accordance with the Consumer Protection and Defense Code (Law No. 29571)",
+    "successTitle": "Claim Sheet Successfully Registered!",
+    "yourCodeIs": "Your registration code is:",
+    "indecopiNotice": "We have received your registration. In accordance with INDECOPI regulations, the company will respond to your request within a maximum period of fifteen (15) business days to the email provided.",
+    "sec1Title": "1. Identification of the Claiming Consumer",
+    "docType": "Document Type:",
+    "docNumber": "Document Number:",
+    "firstName": "First Name:",
+    "lastName": "Last Name:",
+    "email": "Email Address:",
+    "phone": "Phone / Mobile:",
+    "address": "Address:",
+    "addressPlaceholder": "Address, City and State",
+    "sec2Title": "2. Identification of the Contracted Service",
+    "assetType": "Asset Type:",
+    "serviceOption": "Passenger Transport Service",
+    "parcelOption": "Parcel & Money Transfer Service",
+    "amountClaimed": "Claimed Amount (S/):",
+    "serviceDesc": "Service Description (Ticket / Date / Route):",
+    "serviceDescPlaceholder": "Ex. Ticket Cusco - Hidroelectrica for 15/08/2026",
+    "sec3Title": "3. Detail of the Claim",
+    "claimType": "Type:",
+    "claimRadio": "Claim:",
+    "claimRadioDesc": "Disagreement with the service",
+    "complaintRadio": "Complaint:",
+    "complaintRadioDesc": "Discomfort regarding customer service",
+    "factsDetail": "Details of the facts:",
+    "factsPlaceholder": "Explain in detail what happened...",
+    "concreteRequest": "Consumer's specific request:",
+    "requestPlaceholder": "What solution or answer do you request from the company?",
+    "submitBtn": "Submit Claim Sheet",
+    "backHome": "Back to Home"
+  },
+  "terms": {
+    "title": "Terms and Conditions",
+    "sec1Title": "Ticket Purchase and General Service Conditions",
+    "sec1Item1": "Passengers must provide valid identification and, if applicable, Tax ID (RUC) and company name. NO CORRECTIONS, CANCELLATIONS OR REFUNDS are accepted once the payment receipt is issued.",
+    "sec1Item2": "It is the passenger's responsibility to verify the information on the ticket upon receipt. Acceptance of the ticket constitutes full agreement with these terms. NO REFUNDS ALLOWED.",
+    "sec1Item3": "Fares are referential and subject to change according to seasonal demand without prior notice.",
+    "sec1Item4": "Tickets are personal and non-transferable, valid strictly for the route, date, and time specified.",
+    "sec1Item5": "Passengers are entitled to transport up to 25 kg of personal luggage (max 40x40x30 cm). Excess luggage is subject to vehicle capacity and applicable rates.",
+    "sec1Item6": "Tickets with erasures, alterations, or damage will not be accepted for travel or rescheduling.",
+    "sec1Item7": "No modifications, rescheduling, or refunds are permitted for tickets purchased within 59 minutes of scheduled departure.",
+    "sec1Item8": "For safety and security reasons, 200 PEN banknotes are not accepted.",
+    "sec1Item9": "Counterfeit banknotes will be retained and reported to competent authorities.",
+    "sec1Item10": "Exchange of sales receipts for tax invoices after purchase is not permitted.",
+    "sec1Item11": "Passengers are solely responsible for their personal belongings. The company is not liable for undeclared items or improperly packed luggage.",
+    "sec1Item12": "All passengers are covered by mandatory road accident insurance (SOAT).",
+    "sec1Item13": "Convalescent passengers must travel accompanied by a healthcare professional under their own responsibility.",
+    "sec1Item14": "In case of road contingencies preventing normal transit, the company is authorized to arrange passenger transfers.",
+    "sec1Item15": "Diaper changing and the consumption of hot prepared food inside the vehicle cabin is prohibited.",
+    "sec1Item16": "Transport of gas cylinders, fireworks, or hazardous combustible materials is strictly prohibited.",
+    "sec2Title": "Travel of Minors",
+    "sec2Item1": "In accordance with Law No. 27337, minors traveling without their parents must present certified notarized travel authorization. Children under 9 years old may not travel unaccompanied.",
+    "sec2Item2": "Children over 5 years old must have their own full ticket and assigned seat.",
+    "sec3Title": "Boarding and Luggage",
+    "sec3Item1": "Passengers must arrive at the boarding point 30 minutes prior to departure. Failure to do so results in ticket forfeiture without refund.",
+    "sec3Item2": "Passengers and minors must present their valid original ID document and physical/electronic ticket to board.",
+    "sec3Item3": "Boarding is prohibited for persons under the influence of alcohol or unauthorized substances.",
+    "sec3Item4": "Carrying firearms, bladed weapons, explosives, or toxic substances is strictly prohibited.",
+    "sec3Item5": "Pets are not allowed in the passenger cabin, except certified service animals with valid health certificates.",
+    "sec3Item6": "Boarding or disembarking at unauthorized stops is strictly prohibited.",
+    "sec3Item7": "Disembarkation at intermediate points requires advance request and driver authorization based on road safety.",
+    "sec4Title": "Rescheduling and Postponements",
+    "sec4Item1": "Rescheduling requests must be made in person at least two (02) hours before the scheduled departure time.",
+    "sec4Item2": "Passengers may request Open-Date status for up to 30 calendar days from the original travel date.",
+    "sec4Item3": "In case of suspension due to force majeure, trips will be rescheduled within 12 hours of service resumption.",
+    "sec5Title": "Reservations",
+    "sec5Item1": "Reservations are valid temporarily and will be automatically canceled if payment is not confirmed.",
+    "sec5Item2": "Users must complete their payment via authorized channels to secure their seat.",
+    "sec6Title": "Parcel and Money Transfer Services",
+    "sec6Item1": "Senders must present valid ID and accurately declare parcel contents and packaging.",
+    "sec6Item2": "Parcels will only be released to the designated recipient upon presentation of original ID.",
+    "sec6Item3": "No claims will be accepted once the parcel has been inspected and collected from our office."
+  },
   "footer": {
     "officeCusco": "Cusco Office",
     "officeQuillabamba": "Quillabamba Office",
     "followUs": "Follow Us",
     "rights": "All rights reserved",
-    "company": "Tunky Chasky"
+    "company": "Tunky Chasky",
+    "legalSection": "Legal & Support",
+    "formalCompany": "Registered Enterprise"
   },
   "validation": {
     "rucFormat": "The tax ID (RUC) must contain exactly 11 numeric digits and start with 10 or 20.",
@@ -246,24 +368,24 @@
     "direccionFiscal": "Please enter the Fiscal Address.",
     "docLength": "The document number must be between 6 and 15 characters.",
     "namesRequired": "Please enter the passenger's First and Last Name.",
-    "invalidCharacters": "Special characters or code are not allowed for security reasons.",
-    "invalidEmail": "Please enter a valid email address (e.g. user@example.com).",
-    "invalidPhone": "Please enter a valid phone or mobile number (at least 9 digits).",
-    "invalidNames": "First and last names must only contain letters and spaces (no numbers or symbols).",
-    "invalidPassport": "Document number must contain between 6 and 15 alphanumeric characters."
+    "invalidCharacters": "Special characters or non-permitted code detected for security purposes.",
+    "invalidEmail": "Please enter a valid email address (example: user@domain.com).",
+    "invalidPhone": "Please enter a valid phone number (minimum 9 digits).",
+    "invalidNames": "First and last names may only contain letters and spaces.",
+    "invalidPassport": "The document number must contain between 6 and 15 alphanumeric characters."
   },
   "vehicle": {
     "van4": "Car (4 Passengers)",
     "van6": "Car (6 Passengers)"
   },
   "comunicado": {
-    "important": "Important",
-    "title": "ANNOUNCEMENT",
-    "subtitle": "Dear users, before making your purchase, please keep the following in mind:",
-    "item1": "Ticket purchases must be made under the name of the person who will use the service.",
-    "item2": "Minors traveling without their parents must have the corresponding notarized travel authorization.",
-    "item3": "Traveling under the influence of alcohol or any illegal substance is strictly prohibited.",
-    "footer": "Please remember that your purchase is subject to the terms and conditions established by the company and published on this website."
+    "important": "Important Notice",
+    "title": "OFFICIAL NOTICE",
+    "subtitle": "Dear passengers, before completing your booking, please note the following:",
+    "item1": "Tickets must be purchased under the exact legal name of the passenger traveling.",
+    "item2": "Minors traveling without parents must carry a notarized travel authorization.",
+    "item3": "Traveling under the influence of alcohol or prohibited substances is strictly forbidden.",
+    "footer": "Please note that all purchases are subject to the terms and conditions established by the company and published on this website."
   },
   "common": {
     "loading": "Loading...",
@@ -271,19 +393,21 @@
     "back": "Back",
     "continue": "Continue",
     "cancel": "Cancel",
-    "close": "Close"
+    "close": "Close",
+    "whatsappChat": "WhatsApp Chat",
+    "chatWithUs": "Chat with us"
   },
   "admin": {
-    "login": "Log In",
+    "login": "Sign In",
     "dashboard": "Admin Dashboard",
     "trips": "Trips",
     "sales": "Sales",
     "logout": "Log Out",
     "createTrip": "Create Trip",
     "editTrip": "Edit Trip",
-    "uploadInvoice": "Upload Invoice",
-    "sendInvoice": "Send Invoice",
-    "invoiceSent": "Invoice Sent",
-    "pendingInvoices": "Pending Invoices"
+    "uploadInvoice": "Upload Receipt",
+    "sendInvoice": "Send Receipt",
+    "invoiceSent": "Receipt Sent",
+    "pendingInvoices": "Pending Receipts"
   }
 }

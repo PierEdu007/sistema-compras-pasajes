@@ -490,7 +490,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
             value={formData.descripcion_opcional || ''}
             onChange={handleChange}
             disabled={disabled}
-            placeholder="Ej: Pasaje ida y vuelta servicio ejecutivo Tunky Chasky"
+            placeholder={t('booking.optionalDescPlaceholder', 'Ej: Pasaje ida y vuelta servicio ejecutivo Tunky Chasky')}
           />
         </div>
       </div>

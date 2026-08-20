@@ -20,7 +20,7 @@ export default function Footer() {
               {t('about.description', 'Líderes en transporte terrestre interurbano y logística de encomiendas en la región Cusco.')}
             </p>
             <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.75)', marginBottom: '12px' }}>
-              <strong>RUC:</strong> 20608425676 | Empresa Formal
+              <strong>RUC:</strong> 20608425676 | {t('footer.formalCompany', 'Empresa Formal')}
             </div>
             <div className="payment-methods" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
               <span style={{ background: 'rgba(255,255,255,0.12)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -54,13 +54,13 @@ export default function Footer() {
           </div>
 
           <div className="footer-col">
-            <h4>Atención y Legal</h4>
+            <h4>{t('footer.legalSection', 'Atención y Legal')}</h4>
             <div className="footer-links" style={{ marginTop: 0, paddingTop: 0, borderTop: 'none' }}>
               <Link to="/terminos" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <FaShieldAlt /> {t('nav.terms', 'Términos y Condiciones')}
               </Link>
               <Link to="/libro-de-reclamaciones" style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.08)', padding: '6px 12px', borderRadius: '6px', width: 'fit-content', color: '#fef08a' }}>
-                <FaBook /> Libro de Reclamaciones
+                <FaBook /> {t('nav.claims', 'Libro de Reclamaciones')}
               </Link>
               <Link to="/admin" style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.7 }}>
                 {t('admin.login', 'Acceso Administrativo')}

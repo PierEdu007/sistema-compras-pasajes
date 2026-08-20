@@ -4,6 +4,7 @@
     "rutas": "Rutas",
     "ubicanos": "Ubícanos",
     "terms": "Términos y Condiciones",
+    "claims": "Libro de Reclamaciones",
     "blog": "Blog",
     "buyTicket": "Comprar Pasaje",
     "language": "Idioma"
@@ -59,25 +60,9 @@
   },
   "about": {
     "title": "Sobre Nosotros",
-    "description": "Inversiones Tunki Chasky S.R.L. es una empresa líder en transporte terrestre interurbano y logística de encomiendas en la región Cusco. Con camionetas modernas de 3 filas, ofrecemos un servicio Formal, Seguro, Confiable y Puntual para satisfacer las necesidades de nuestros usuarios."
+    "description": "Inversiones Tunki Chasky S.R.L. es una empresa líder en transporte terrestre interurbano y logística de encomiendas en la región Cusco. Con autos modernos de 4 y 6 pasajeros, ofrecemos un servicio Formal, Seguro, Confiable y Puntual para satisfacer las necesidades de nuestros usuarios."
   },
   "dest": {
-    "title": "Rutas y Destinos",
-    "subtitle": "Transporte de Pasajeros",
-    "enquire": "Consultar Ahora",
-    "express": "Express",
-    "comfort": "Confort",
-    "daily": "Diario",
-    "jungle": "Selva",
-    "fast": "Rápido",
-    "valley": "Valle",
-    "frequent": "Frecuente",
-    "train": "Tren",
-    "punctual": "Puntual",
-    "direct": "Directo",
-    "executive": "Ejecutivo",
-    "veloz": "Veloz",
-    "secure": "Seguro",
     "1": {
       "title": "Ruta a Machu Picchu",
       "desc": "Servicio directo y veloz para turistas y locales buscando puntualidad hacia Hidroeléctrica."
@@ -105,13 +90,28 @@
     "7": {
       "title": "Ruta Interurbana",
       "desc": "La opción más veloz y segura para viajar hacia Abancay."
-    }
+    },
+    "title": "Rutas y Destinos",
+    "subtitle": "Transporte de Pasajeros",
+    "enquire": "Consultar Ahora",
+    "bookNow": "Comprar Pasaje",
+    "express": "Express",
+    "comfort": "Confort",
+    "daily": "Diario",
+    "jungle": "Selva",
+    "fast": "Rápido",
+    "valley": "Valle",
+    "frequent": "Frecuente",
+    "train": "Tren",
+    "punctual": "Puntual",
+    "direct": "Directo",
+    "executive": "Ejecutivo",
+    "veloz": "Veloz",
+    "secure": "Seguro"
   },
   "test": {
-    "title": "Lo que dicen nuestros pasajeros",
-    "subtitle": "Testimonios",
     "1": {
-      "text": "\"Excelente servicio, muy rápido y las camionetas son muy cómodas. Recomendado al 100%.\"",
+      "text": "\"Excelente servicio, muy rápido y los autos son muy cómodos. Recomendado al 100%.\"",
       "role": "Pasajero Frecuente"
     },
     "2": {
@@ -121,13 +121,51 @@
     "3": {
       "text": "\"Viaje seguro y cómodo desde Cusco a Machu Picchu / Hidroeléctrica. Conductores certificados.\"",
       "role": "Turista"
-    }
+    },
+    "title": "Lo que dicen nuestros pasajeros",
+    "subtitle": "Testimonios"
   },
   "map": {
     "title": "Encuéntranos en",
     "subtitle": "Visítanos",
     "cusco": "Terminal Cusco",
     "quillabamba": "Terminal Quillabamba"
+  },
+  "trust": {
+    "security": {
+      "title": "Compra 100% Segura",
+      "desc": "Cifrado SSL 256 bits y pagos protegidos"
+    },
+    "gps": {
+      "title": "Monitoreo GPS 24/7",
+      "desc": "Flota moderna fiscalizada y SOAT vigente"
+    },
+    "sunat": {
+      "title": "Comprobante SUNAT",
+      "desc": "Boleta o Factura electrónica al instante"
+    },
+    "support": {
+      "title": "Soporte y Asistencia",
+      "desc": "Atención personalizada antes y durante tu viaje"
+    }
+  },
+  "trips": {
+    "scheduledDeparture": "Salida Programada",
+    "twoVehiclesAvailable": "2 tipos de vehículo disponibles",
+    "seats": "asientos",
+    "seatsCount": "{{count}} asientos",
+    "chooseVehicle": "Elige tu tipo de vehículo",
+    "selectUnitPrompt": "Selecciona la unidad en la que deseas viajar:",
+    "passengers4": "4 Pasajeros",
+    "passengers6": "6 Pasajeros",
+    "desc4p": "Auto compacto y rápido. 1 copiloto + fila trasera de 3 asientos.",
+    "desc6p": "Minivan amplia y confortable. 3 filas de asientos con mayor espacio.",
+    "seatsAvailableOf": "{{count}} asientos disponibles / {{total}}",
+    "choose4p": "Elegir Auto 4p",
+    "choose6p": "Elegir Auto 6p",
+    "backToSchedules": "← Volver a la lista de horarios",
+    "car4p": "Auto 4 Pasajeros",
+    "car6p": "Auto 6 Pasajeros"
   },
   "booking": {
     "selectSeat": "Selecciona Tu Asiento",
@@ -145,7 +183,7 @@
     "phone": "Teléfono",
     "needInvoice": "¿Deseas Factura Electrónica?",
     "ruc": "Número de RUC",
-    "companyName": "Razón Social",
+    "companyName": "Razón Social / Nombre de la Empresa",
     "fiscalAddress": "Dirección Fiscal",
     "notes": "Notas adicionales",
     "pay": "Pagar",
@@ -164,7 +202,7 @@
     "invoiceElectronic": "FACTURA ELECTRÓNICA",
     "receiptElectronic": "BOLETA DE VENTA ELECTRÓNICA",
     "dniOption": "DNI (Boleta)",
-    "rucOption": "RUC (Invoice)",
+    "rucOption": "RUC (Factura)",
     "ceOption": "Carnet de Extranjería (Boleta)",
     "passportOption": "Pasaporte (Boleta)",
     "rucNumber": "N° RUC",
@@ -172,8 +210,13 @@
     "search": "Buscar",
     "optionalDesc": "Descripción Opcional",
     "optionalDescHint": "Aparecerá impresa en su",
+    "optionalDescPlaceholder": "Ej: Pasaje ida y vuelta servicio ejecutivo Tunky Chasky",
     "invoice": "Factura",
     "receipt": "Boleta",
+    "directService": "Servicio Directo",
+    "seatAria": "Asiento {{n}}",
+    "seatLockedExclusively": "Asiento #{{seat}} bloqueado exclusivamente para ti.",
+    "seatLockedNote": "Nadie más puede seleccionarlo mientras completas tu compra.",
     "alertSeatTaken": "El asiento #{{seat}} ya ha sido reservado u ocupado por otro usuario.",
     "alertSeatError": "Error al seleccionar el asiento. Por favor intenta de nuevo.",
     "alertExpired": "Tu reserva temporal ha expirado. El asiento ha sido liberado.",
@@ -231,12 +274,91 @@
     "dateFallback": "Fecha Programada",
     "busFallback": "Bus Estándar"
   },
+  "claims": {
+    "title": "Libro de Reclamaciones Virtual",
+    "subtitle": "Conforme a lo establecido en el Código de Protección y Defensa del Consumidor (Ley N° 29571)",
+    "successTitle": "¡Hoja de Reclamación Registrada con Éxito!",
+    "yourCodeIs": "Tu código de registro es:",
+    "indecopiNotice": "Hemos recibido tu registro. Conforme a la normativa de INDECOPI, la empresa dará respuesta a tu solicitud en un plazo máximo de quince (15) días hábiles al correo electrónico proporcionado.",
+    "sec1Title": "1. Identificación del Consumidor Reclamante",
+    "docType": "Tipo Documento:",
+    "docNumber": "N° Documento:",
+    "firstName": "Nombres:",
+    "lastName": "Apellidos:",
+    "email": "Correo Electrónico:",
+    "phone": "Teléfono / Celular:",
+    "address": "Domicilio:",
+    "addressPlaceholder": "Dirección, Ciudad y Departamento",
+    "sec2Title": "2. Identificación del Servicio Contratado",
+    "assetType": "Tipo de Bien:",
+    "serviceOption": "Servicio de Transporte de Pasajeros",
+    "parcelOption": "Servicio de Encomiendas y Giros",
+    "amountClaimed": "Monto Reclamado (S/):",
+    "serviceDesc": "Descripción del Servicio (Boleto / Fecha / Ruta):",
+    "serviceDescPlaceholder": "Ej. Boleto Cusco - Hidroeléctrica del 15/08/2026",
+    "sec3Title": "3. Detalle de la Reclamación",
+    "claimType": "Tipo:",
+    "claimRadio": "Reclamo:",
+    "claimRadioDesc": "Disconformidad con el servicio",
+    "complaintRadio": "Queja:",
+    "complaintRadioDesc": "Malestar respecto a la atención",
+    "factsDetail": "Detalle de los hechos:",
+    "factsPlaceholder": "Explica detalladamente lo sucedido...",
+    "concreteRequest": "Pedido concreto del consumidor:",
+    "requestPlaceholder": "¿Qué solución o respuesta solicitas de la empresa?",
+    "submitBtn": "Enviar Hoja de Reclamación",
+    "backHome": "Volver al Inicio"
+  },
+  "terms": {
+    "title": "Términos y Condiciones",
+    "sec1Title": "De la compra de boletos de viaje y condiciones generales del servicio",
+    "sec1Item1": "El pasajero solicitará información según su interés en caso decida comprar un boleto de viaje estará en la obligación de proporcionar información relativa a su identificación personal y de ser el necesario, número de RUC y razón social, NO SE ADMITE RECTIFICACIONES, ANULACIONES O DEVOLUCIONES una vez emitido el comprobante de pago.",
+    "sec1Item2": "Es responsabilidad del pasajero verificar la información contenida en el boleto de viaje, el mismo que de no ser conforme, el pasajero podrá solicitar su rectificación inmediata. Con la recepción satisfactoria del boleto de viaje, el pasajero declara la aceptación plena de su contenido y las condiciones de contratación del servicio establecidas en el presente. NO SE ADMITEN DEVOLUCIONES.",
+    "sec1Item3": "Las tarifas son referenciales y pueden variar de acuerdo a la temporada sin previo aviso.",
+    "sec1Item4": "El boleto de viaje es personal e intransferible, valido solo para la ruta, fecha y hora de viaje consignado en dicho documento.",
+    "sec1Item5": "Los pasajeros tienen el derecho a transportar 25 kilogramos de equipaje o su equivalente en volumen a 40 cm x 40 cm x 30 cm, exclusivamente maletas, maletines y bolsos con artículos de uso personal, el exceso de equipaje será admitido siempre y cuando la capacidad del vehículo lo permita previo pago de la tarifa vigente.",
+    "sec1Item6": "Con posterioridad a la emisión del boleto y para posibles reclamaciones o cambio de hora y fecha de viaje no se admitirán borrones ni enmendaduras en el boleto de viaje.",
+    "sec1Item7": "No se admiten cambios, modificaciones, ni devoluciones en boletos de viaje adquiridos 59 minutos antes de la hora consignada en el boleto de viaje.",
+    "sec1Item8": "No se admiten billetes de la denominación (200) soles por temas de seguridad.",
+    "sec1Item9": "Los billetes falsos presentados en ventanilla serán retenidos, picados y reportados a la autoridad competente.",
+    "sec1Item10": "No se admite cambio de boleta de venta por factura.",
+    "sec1Item11": "Dentro y fuera del vehículo o los terminales, el pasajero es responsable de la custodia de sus pertenencias, la empresa no se responsabiliza por la pérdida o daño de objetos no declarados, así mismo, no se responsabiliza por el daño de equipajes defectuosamente embalados.",
+    "sec1Item12": "El pasajero viajará protegido por una póliza de seguro contra accidentes de tránsito (SOAT).",
+    "sec1Item13": "La empresa se reserva la obligación de transportar pasajeros convalecientes, de ser admitidos el pasajero viajará acompañado de un profesional de la salud y bajo su responsabilidad.",
+    "sec1Item14": "En caso ocurra una eventualidad que impida continuar y/o iniciar el viaje habilitado ya sea en el lugar de origen o durante el viaje, la empresa queda autorizada para realizar el transbordo de pasajeros.",
+    "sec1Item15": "Prohibido el cambio de pañales en el salón del vehículo, así como el consumo o traslado de alimentos preparados.",
+    "sec1Item16": "Prohibido transportar balones de gas o materias inflamables fuera del rango establecido por la autoridad competente.",
+    "sec2Title": "Del viaje de menores de edad",
+    "sec2Item1": "Conforme a lo establecido por la ley N° 27337 (ley general de transporte), los menores de edad que viajen solos o en compañía de un adulto que no sean sus padres, presentarán la respectiva autorización notarial de viaje. No está permitido que menores de nueve (09) años viajen solos.",
+    "sec2Item2": "Los niños mayores de cinco (05) años de edad pagan su respectivo pasaje, viajan con boleto de viaje y asiento asignado.",
+    "sec3Title": "Del abordaje de pasajeros, embarque y desembarque de equipajes",
+    "sec3Item1": "El pasajero se presentará en el punto de embarque 30 minutos antes de la hora de viaje especificada en el boleto, caso contrario perderá el derecho de viaje y el importe pagado.",
+    "sec3Item2": "Para abordar el vehículo el pasajero presentará su boleto de viaje físico o electrónico y su documento de identidad original.",
+    "sec3Item3": "No se permite abordar cuando el titular se encuentre bajo los efectos del alcohol o sustancias ilícitas.",
+    "sec3Item4": "Está prohibido abordar con armas de fuego o elementos punzocortantes, explosivos o corrosivos.",
+    "sec3Item5": "Queda prohibido transportar mascotas en el salón, salvo animales de asistencia debidamente acreditados.",
+    "sec3Item6": "No se admite el embarque o desembarque en lugares no autorizados por la autoridad de transporte.",
+    "sec3Item7": "El desembarque en puntos intermedios estará sujeto a la condición de la vía y autorización del conductor.",
+    "sec4Title": "De las postergaciones y reprogramaciones de viajes",
+    "sec4Item1": "La solicitud de postergación o reprogramación debe realizarse mínimo con dos (02) horas de anticipación.",
+    "sec4Item2": "El boleto podrá quedar en 'Fecha Libre' por un plazo máximo de 30 días naturales.",
+    "sec4Item3": "En caso de suspensión por causas de fuerza mayor, el viaje será reprogramado dentro de las 12 horas siguientes.",
+    "sec5Title": "De las reservas",
+    "sec5Item1": "Las reservas realizadas tienen vigencia limitada y se liberan automáticamente de no confirmarse el pago.",
+    "sec5Item2": "El usuario debe confirmar su pago mediante los canales autorizados para asegurar su asiento.",
+    "sec6Title": "Del servicio de encomiendas y giros",
+    "sec6Item1": "El remitente debe presentar obligatoriamente su DNI y declarar el contenido exacto del paquete.",
+    "sec6Item2": "El recojo se realizará en las oficinas autorizadas previa presentación del DNI del destinatario.",
+    "sec6Item3": "No se admitirán reclamos posteriores al retiro conforme de la encomienda."
+  },
   "footer": {
     "officeCusco": "Oficina Cusco",
     "officeQuillabamba": "Oficina Quillabamba",
     "followUs": "Síguenos",
     "rights": "Todos los derechos reservados",
-    "company": "Tunky Chasky"
+    "company": "Tunky Chasky",
+    "legalSection": "Atención y Legal",
+    "formalCompany": "Empresa Formal"
   },
   "validation": {
     "rucFormat": "El RUC debe contener exactamente 11 dígitos numéricos y comenzar con 10 o 20.",
@@ -271,7 +393,9 @@
     "back": "Volver",
     "continue": "Continuar",
     "cancel": "Cancelar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "whatsappChat": "Chat por WhatsApp",
+    "chatWithUs": "Chat con nosotros"
   },
   "admin": {
     "login": "Iniciar Sesión",

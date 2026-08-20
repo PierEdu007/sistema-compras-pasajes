@@ -81,28 +81,28 @@ export default function VehicleSelectModal({ schedule, onClose }: VehicleSelectM
           {/* Tarjeta Auto 4 Pasajeros */}
           <div className={`vehicle-option-card ${schedule.opcion4p.isFull ? 'sold-out' : ''}`}>
             <div className="vehicle-option-badge badge-4p">
-              <FaCar style={{ marginRight: '5px' }} /> 4 Pasajeros
+              <FaCar style={{ marginRight: '5px' }} /> {t('trips.passengers4', '4 Pasajeros')}
             </div>
             <div className="vehicle-option-img-wrap">
               <img 
                 src={auto4pImg} 
-                alt="Auto 4 Pasajeros" 
+                alt={t('vehicle.van4', 'Auto (4 Pasajeros)')} 
                 className="vehicle-option-img" 
               />
             </div>
             <div className="vehicle-option-info">
-              <h4>Auto (4 Pasajeros)</h4>
+              <h4>{t('vehicle.van4', 'Auto (4 Pasajeros)')}</h4>
               <p className="vehicle-option-desc">
-                Auto compacto y rápido. 1 copiloto + fila trasera de 3 asientos.
+                {t('trips.desc4p', 'Auto compacto y rápido. 1 copiloto + fila trasera de 3 asientos.')}
               </p>
               
               <div className="vehicle-option-seats">
                 {schedule.opcion4p.isFull ? (
-                  <span className="badge badge-danger">Agotado</span>
+                  <span className="badge badge-danger">{t('search.soldOut', 'Agotado')}</span>
                 ) : (
                   <span className={`badge ${schedule.opcion4p.asientos_libres <= 2 ? 'badge-warning' : 'badge-success'}`}>
                     <FaCheckCircle style={{ marginRight: '4px' }} />
-                    {schedule.opcion4p.asientos_libres} asientos disponibles / 4
+                    {t('trips.seatsAvailableOf', '{{count}} asientos disponibles / {{total}}', { count: schedule.opcion4p.asientos_libres, total: 4 })}
                   </span>
                 )}
               </div>
@@ -117,7 +117,7 @@ export default function VehicleSelectModal({ schedule, onClose }: VehicleSelectM
                   onClick={() => handleSelectVehicle(schedule.opcion4p.id, '4p', schedule.opcion4p.isFull)}
                   disabled={schedule.opcion4p.isFull}
                 >
-                  {schedule.opcion4p.isFull ? 'Agotado' : 'Elegir Auto 4p'}
+                  {schedule.opcion4p.isFull ? t('search.soldOut', 'Agotado') : t('trips.choose4p', 'Elegir Auto 4p')}
                 </button>
               </div>
             </div>
@@ -126,28 +126,28 @@ export default function VehicleSelectModal({ schedule, onClose }: VehicleSelectM
           {/* Tarjeta Auto 6 Pasajeros */}
           <div className={`vehicle-option-card ${schedule.opcion6p.isFull ? 'sold-out' : ''}`}>
             <div className="vehicle-option-badge badge-6p">
-              <FaUsers style={{ marginRight: '5px' }} /> 6 Pasajeros
+              <FaUsers style={{ marginRight: '5px' }} /> {t('trips.passengers6', '6 Pasajeros')}
             </div>
             <div className="vehicle-option-img-wrap">
               <img 
                 src={camioneta6pImg} 
-                alt="Auto 6 Pasajeros" 
+                alt={t('vehicle.van6', 'Auto (6 Pasajeros)')} 
                 className="vehicle-option-img" 
               />
             </div>
             <div className="vehicle-option-info">
-              <h4>Auto (6 Pasajeros)</h4>
+              <h4>{t('vehicle.van6', 'Auto (6 Pasajeros)')}</h4>
               <p className="vehicle-option-desc">
-                Minivan amplia y confortable. 3 filas de asientos con mayor espacio.
+                {t('trips.desc6p', 'Minivan amplia y confortable. 3 filas de asientos con mayor espacio.')}
               </p>
               
               <div className="vehicle-option-seats">
                 {schedule.opcion6p.isFull ? (
-                  <span className="badge badge-danger">Agotado</span>
+                  <span className="badge badge-danger">{t('search.soldOut', 'Agotado')}</span>
                 ) : (
                   <span className={`badge ${schedule.opcion6p.asientos_libres <= 2 ? 'badge-warning' : 'badge-success'}`}>
                     <FaCheckCircle style={{ marginRight: '4px' }} />
-                    {schedule.opcion6p.asientos_libres} asientos disponibles / 6
+                    {t('trips.seatsAvailableOf', '{{count}} asientos disponibles / {{total}}', { count: schedule.opcion6p.asientos_libres, total: 6 })}
                   </span>
                 )}
               </div>
@@ -162,7 +162,7 @@ export default function VehicleSelectModal({ schedule, onClose }: VehicleSelectM
                   onClick={() => handleSelectVehicle(schedule.opcion6p.id, '6p', schedule.opcion6p.isFull)}
                   disabled={schedule.opcion6p.isFull}
                 >
-                  {schedule.opcion6p.isFull ? 'Agotado' : 'Elegir Auto 6p'}
+                  {schedule.opcion6p.isFull ? t('search.soldOut', 'Agotado') : t('trips.choose6p', 'Elegir Auto 6p')}
                 </button>
               </div>
             </div>
@@ -172,7 +172,7 @@ export default function VehicleSelectModal({ schedule, onClose }: VehicleSelectM
         {/* Footer del Modal */}
         <div className="vehicle-modal-actions">
           <button className="btn btn-text" onClick={onClose} style={{ color: '#64748b' }}>
-            ← Volver a la lista de horarios
+            {t('trips.backToSchedules', '← Volver a la lista de horarios')}
           </button>
         </div>
       </div>

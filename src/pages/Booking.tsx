@@ -505,7 +505,7 @@ export default function Booking() {
             <span>|</span>
             <span><FaClock /> {viaje.hora_viaje.substring(0, 5)}</span>
             <span>|</span>
-            <span>Servicio Directo</span>
+            <span>{t('booking.directService', 'Servicio Directo')}</span>
           </div>
         </div>
       </div>
@@ -538,8 +538,8 @@ export default function Booking() {
                   <div style={{ backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', color: '#065f46', padding: '10px 14px', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.88rem', marginBottom: '14px' }}>
                     <FaLock style={{ fontSize: '1.1rem', flexShrink: 0, color: '#10b981' }} />
                     <div>
-                      <strong>Asiento #{selectedSeat} bloqueado exclusivamente para ti.</strong>
-                      <div style={{ fontSize: '0.8rem', color: '#047857' }}>Nadie más puede seleccionarlo mientras completas tu compra.</div>
+                      <strong>{t('booking.seatLockedExclusively', 'Asiento #{{seat}} bloqueado exclusivamente para ti.', { seat: selectedSeat })}</strong>
+                      <div style={{ fontSize: '0.8rem', color: '#047857' }}>{t('booking.seatLockedNote', 'Nadie más puede seleccionarlo mientras completas tu compra.')}</div>
                     </div>
                   </div>
 

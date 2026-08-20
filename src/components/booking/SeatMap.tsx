@@ -90,7 +90,7 @@ export default function SeatMap({
                   className={`seat-btn pos-${seat.pos} ${getSeatClass(seat.n)}`}
                   onClick={() => handleSeatClick(seat.n, seatStatuses[seat.n] || 'DISPONIBLE')}
                   disabled={disabled || seat.n === 1 || seatStatuses[seat.n] === 'PAGADO' || seatStatuses[seat.n] === 'BLOQUEADO'}
-                  aria-label={`Asiento ${seat.n}`}
+                  aria-label={t('booking.seatAria', 'Asiento {{n}}', { n: seat.n })}
                 >
                   <span className="seat-number">{seat.n}</span>
                 </button>

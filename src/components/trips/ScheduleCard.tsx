@@ -32,9 +32,9 @@ export default function ScheduleCard({ schedule, onSelectSchedule }: ScheduleCar
         <div className="schedule-header-row">
           <h4 className="schedule-title">
             <FaBus style={{ color: '#0f4c81', marginRight: '6px' }} />
-            Salida Programada
+            {t('trips.scheduledDeparture', 'Salida Programada')}
           </h4>
-          <span className="schedule-units-tag">2 tipos de vehículo disponibles</span>
+          <span className="schedule-units-tag">{t('trips.twoVehiclesAvailable', '2 tipos de vehículo disponibles')}</span>
         </div>
 
         {/* Mini vistas de los 2 vehículos disponibles */}
@@ -42,9 +42,9 @@ export default function ScheduleCard({ schedule, onSelectSchedule }: ScheduleCar
           <div className="mini-vehicle-badge">
             <img src={auto4pImg} alt="Auto 4p" className="mini-vehicle-thumb" />
             <div className="mini-vehicle-info">
-              <span className="mini-v-name">Auto 4 Pasajeros</span>
+              <span className="mini-v-name">{t('trips.car4p', 'Auto 4 Pasajeros')}</span>
               <span className={`mini-v-seats ${schedule.opcion4p.isFull ? 'seats-sold' : ''}`}>
-                {schedule.opcion4p.isFull ? 'Agotado' : `${schedule.opcion4p.asientos_libres} asientos`}
+                {schedule.opcion4p.isFull ? t('search.soldOut', 'Agotado') : t('trips.seatsCount', '{{count}} asientos', { count: schedule.opcion4p.asientos_libres })}
               </span>
             </div>
           </div>
@@ -54,9 +54,9 @@ export default function ScheduleCard({ schedule, onSelectSchedule }: ScheduleCar
           <div className="mini-vehicle-badge">
             <img src={camioneta6pImg} alt="Auto 6p" className="mini-vehicle-thumb" />
             <div className="mini-vehicle-info">
-              <span className="mini-v-name">Auto 6 Pasajeros</span>
+              <span className="mini-v-name">{t('trips.car6p', 'Auto 6 Pasajeros')}</span>
               <span className={`mini-v-seats ${schedule.opcion6p.isFull ? 'seats-sold' : ''}`}>
-                {schedule.opcion6p.isFull ? 'Agotado' : `${schedule.opcion6p.asientos_libres} asientos`}
+                {schedule.opcion6p.isFull ? t('search.soldOut', 'Agotado') : t('trips.seatsCount', '{{count}} asientos', { count: schedule.opcion6p.asientos_libres })}
               </span>
             </div>
           </div>
