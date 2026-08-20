@@ -124,7 +124,7 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
     cliente_denominacion: clienteNombre,
     cliente_direccion: data.direccionFiscal || 'CUSCO',
     cliente_email: data.email || 'reservas@turismotunkychasky.com.pe',
-    fecha_de_emision: new Date().toISOString().split('T')[0],
+    fecha_de_emision: new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Lima' }).format(new Date()),
     moneda: 1, // Soles (PEN)
     porcentaje_de_igv: config.tipoIgv === 1 ? 18.00 : 0.00,
     total_igv: 0.00,
