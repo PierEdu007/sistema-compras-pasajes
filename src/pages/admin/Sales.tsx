@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
-import { FaBell, FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaKey, FaServer, FaSearch, FaFilter, FaSync, FaDownload, FaPhone, FaEnvelope, FaWhatsapp } from 'react-icons/fa';
+import { FaBell, FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaKey, FaServer, FaSearch, FaFilter, FaSync, FaDownload, FaPhone, FaEnvelope, FaWhatsapp, FaClock } from 'react-icons/fa';
 import { generateInvoicePDF, generateTicketPDF } from '../../utils/invoiceGenerator';
 import { SunatConfigModal } from '../../components/admin/SunatConfigModal';
 import { emitirComprobanteSunat, getSunatConfig } from '../../services/sunatService';
@@ -903,7 +903,7 @@ const AdminSales: React.FC = () => {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>ID Venta</th>
+              <th>ID / Fecha Compra</th>
               <th>Viaje</th>
               <th>Asiento</th>
               <th>Pasajero</th>
@@ -929,7 +929,38 @@ const AdminSales: React.FC = () => {
 
                 return (
                   <tr key={v.id}>
-                    <td style={{ fontSize: '0.85em', color: '#666' }}>{v.id.substring(0, 8)}...</td>
+                    <td>
+                      <span style={{ fontSize: '0.82em', color: '#666', fontFamily: 'monospace', fontWeight: 'bold' }}>
+                        {v.id.substring(0, 8)}...
+                      </span>
+                      <div 
+                        style={{ 
+                          fontSize: '0.78em', 
+                          color: '#0f4c81', 
+                          fontWeight: 700, 
+                          marginTop: '4px', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '4px',
+                          background: '#f1f5f9',
+                          padding: '2px 6px',
+                          borderRadius: '6px',
+                          width: 'fit-content'
+                        }}
+                        title="Fecha y Hora exacta de la compra realizada"
+                      >
+                        <FaClock style={{ color: '#742284', fontSize: '0.9em', flexShrink: 0 }} />
+                        {v.created_at ? new Date(v.created_at).toLocaleString('es-PE', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
+                          hour12: true
+                        }) : '—'}
+                      </div>
+                    </td>
                     <td>
                       {v.viajes?.rutas?.origen} - {v.viajes?.rutas?.destino}<br/>
                       <small style={{ color: '#7f8c8d' }}>{v.viajes?.fecha_viaje} {v.viajes?.hora_viaje}</small>
