@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { 
   FaBolt, FaCouch, FaSun, FaRoad, FaLeaf, FaTachometerAlt, 
@@ -302,7 +303,7 @@ export default function Destinations() {
       </div>
 
       {/* === Tourist Information Modal === */}
-      {activeModal && (
+      {activeModal && createPortal(
         <div 
           className="destination-modal-overlay"
           onClick={(e) => {
@@ -426,7 +427,8 @@ export default function Destinations() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </section>
   );

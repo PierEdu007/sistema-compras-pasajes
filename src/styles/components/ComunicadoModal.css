@@ -4,13 +4,13 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 99999;
+  z-index: 100000 !important;
   padding: 1rem;
   overflow: hidden;
 }
@@ -236,3 +236,81 @@
     font-size: 0.9rem;
   }
 }
+
+/* ==========================================================================
+   Dark Mode Overrides para ComunicadoModal
+   ========================================================================== */
+[data-theme="dark"] .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.85);
+}
+
+[data-theme="dark"] .modal-content {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .modal-header {
+  background: #152238 !important;
+  border-bottom-color: #1e293b !important;
+}
+
+[data-theme="dark"] .modal-header h3 {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .close-button {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .close-button:hover {
+  color: #f87171 !important;
+  background-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+[data-theme="dark"] .modal-body {
+  background: #0f172a !important;
+  scrollbar-color: #334155 #0f172a;
+}
+
+[data-theme="dark"] .modal-body::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+[data-theme="dark"] .modal-body::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+[data-theme="dark"] .comunicado-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .comunicado-subtitle {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .comunicado-list {
+  background-color: #152238 !important;
+  border-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .comunicado-list li {
+  color: #f1f5f9 !important;
+  border-bottom-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .comunicado-list li::before {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .comunicado-footer {
+  background-color: #2e1d05 !important;
+  border-color: #ca8a04 !important;
+  color: #fef08a !important;
+}
+
+[data-theme="dark"] .modal-actions {
+  background: #152238 !important;
+  border-top-color: #1e293b !important;
+}
+

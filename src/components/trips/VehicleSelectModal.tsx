@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { FaTimes, FaCheckCircle, FaClock, FaArrowRight, FaCar, FaUsers } from 'react-icons/fa';
@@ -42,7 +43,7 @@ export default function VehicleSelectModal({ schedule, onClose }: VehicleSelectM
     navigate(url);
   };
 
-  return (
+  return createPortal(
     <div 
       className="modal-overlay vehicle-modal-overlay"
       onClick={(e) => {
@@ -176,6 +177,7 @@ export default function VehicleSelectModal({ schedule, onClose }: VehicleSelectM
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

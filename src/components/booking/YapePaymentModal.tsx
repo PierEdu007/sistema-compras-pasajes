@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { FaCopy, FaCheckCircle, FaQrcode, FaLock, FaTimes } from 'react-icons/fa';
 import {
@@ -62,26 +63,24 @@ export default function YapePaymentModal({
     }
 
     const cleanOp = sanitizeOperationCode(nroOperacion);
-    const cleanTel = telefonoYape ? sanitizePhone(telefonoYape) : '';
-
-    if (!cleanOp || !PATTERNS.YAPE_OP.test(cleanOp)) {
+    if (!cleanOp || cleanOp.length < 6) {
       setError(t('yape.opError', 'Por favor ingresa un código de operación válido de al menos 6 dígitos.'));
       return;
     }
 
-    if (cleanTel && (!PATTERNS.PHONE.test(cleanTel) || cleanTel.replace(/\D/g, '').length < 9)) {
-      setError(t('validation.invalidPhone', 'Por favor ingresa un número de teléfono o celular válido (mínimo 9 dígitos).'));
+    if (telefonoYape.trim() && !PATTERNS.PHONE.test(sanitizePhone(telefonoYape))) {
+      setError(t('validation.phoneLength', 'El teléfono debe contener 9 dígitos válidos comenzando con 9.'));
       return;
     }
 
     setError('');
     onConfirm({
       nro_operacion: cleanOp,
-      telefono_yape: cleanTel
+      telefono_yape: sanitizePhone(telefonoYape)
     });
   };
 
-  return (
+  return createPortal(
     <div className="yape-modal-overlay">
       <div className="yape-modal-content fade-in slide-up">
         <button className="yape-modal-close" onClick={onClose} disabled={disabled} type="button">
@@ -203,6 +202,7 @@ export default function YapePaymentModal({
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

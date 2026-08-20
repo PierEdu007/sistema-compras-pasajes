@@ -1241,20 +1241,38 @@ img {
   border-color: #2c3e55 !important;
 }
 
-/* ── Comunicado modal ── */
-[data-theme="dark"] .comunicado-modal-box {
+/* ── Modales Globales — Garantizar que SIEMPRE queden por encima del Header (z-index: 1000) ── */
+.modal-overlay,
+.destination-modal-overlay,
+.vehicle-modal-overlay,
+.yape-modal-overlay {
+  z-index: 100000 !important;
+}
+
+/* ── Comunicado Modal en Modo Oscuro ── */
+[data-theme="dark"] .modal-content {
   background: #0f172a !important;
   border-color: #334155 !important;
-  color: #e2e8f0 !important;
 }
 
-[data-theme="dark"] .comunicado-modal-box h2,
-[data-theme="dark"] .comunicado-modal-box h3 {
-  color: #f8fafc !important;
+[data-theme="dark"] .comunicado-list {
+  background-color: #152238 !important;
+  border-color: #2c3e55 !important;
 }
 
-[data-theme="dark"] .comunicado-modal-box p {
-  color: #cbd5e1 !important;
+[data-theme="dark"] .comunicado-list li {
+  color: #f1f5f9 !important;
+  border-bottom-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .comunicado-list li::before {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .comunicado-footer {
+  background-color: #2e1d05 !important;
+  border-color: #ca8a04 !important;
+  color: #fef08a !important;
 }
 
 

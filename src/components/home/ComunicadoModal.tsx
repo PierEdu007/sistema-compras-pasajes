@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import '../../styles/components/ComunicadoModal.css';
 
@@ -21,7 +22,7 @@ export default function ComunicadoModal() {
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div 
       className="modal-overlay"
       onClick={(e) => {
@@ -67,6 +68,7 @@ export default function ComunicadoModal() {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
