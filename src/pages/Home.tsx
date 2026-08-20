@@ -6,6 +6,7 @@ import TrustBar from '../components/home/TrustBar';
 import Benefits from '../components/home/Benefits';
 import About from '../components/home/About';
 import Destinations from '../components/home/Destinations';
+import TravelGuideSEO from '../components/home/TravelGuideSEO';
 import Testimonials from '../components/home/Testimonials';
 import MapSection from '../components/home/MapSection';
 import ComunicadoModal from '../components/home/ComunicadoModal';
@@ -46,6 +47,9 @@ export default function Home() {
 
       {/* Destinations Section */}
       <Destinations />
+
+      {/* Guía de Viaje Cusco - Quillabamba & Preguntas Frecuentes (SEO) */}
+      <TravelGuideSEO />
 
       {/* Testimonials Section */}
       <Testimonials />
