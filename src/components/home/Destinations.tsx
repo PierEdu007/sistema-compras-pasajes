@@ -406,11 +406,11 @@ export default function Destinations() {
                   <a 
                     href="/viajes?origen=CUSCO&destino=QUILLABAMBA"
                     className="btn btn-primary"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold' }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', color: '#ffffff', backgroundColor: '#0284c7' }}
                     onClick={() => setActiveModal(null)}
                   >
-                    <span>{isEn ? 'Book Online Ticket' : 'Comprar Pasaje Online'}</span>
-                    <FaArrowRight />
+                    <span style={{ color: '#ffffff' }}>{isEn ? 'Book Online Ticket' : 'Comprar Pasaje Online'}</span>
+                    <FaArrowRight style={{ color: '#ffffff' }} />
                   </a>
                 ) : (
                   <a 
@@ -418,10 +418,10 @@ export default function Destinations() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="btn btn-primary"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', background: '#25D366', borderColor: '#25D366' }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', background: '#25D366', borderColor: '#25D366', color: '#ffffff' }}
                   >
-                    <FaWhatsapp style={{ fontSize: '1.2rem' }} />
-                    <span>{isEn ? 'Inquire on WhatsApp' : 'Consultar por WhatsApp'}</span>
+                    <FaWhatsapp style={{ fontSize: '1.2rem', color: '#ffffff' }} />
+                    <span style={{ color: '#ffffff' }}>{isEn ? 'Inquire on WhatsApp' : 'Consultar por WhatsApp'}</span>
                   </a>
                 )}
               </div>

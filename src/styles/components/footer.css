@@ -111,3 +111,43 @@
   font-size: 0.875rem;
   color: rgba(255, 255, 255, 0.6);
 }
+
+/* ==========================================================================
+   Dark Mode Overrides para Footer
+   ========================================================================== */
+[data-theme="dark"] .footer {
+  background: linear-gradient(135deg, #09121f, #0f1c30) !important;
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .footer-brand h3 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .footer-desc {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .payment-methods span {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .footer-contact li {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .footer-social a,
+[data-theme="dark"] .footer-links a {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .footer-social a:hover,
+[data-theme="dark"] .footer-links a:hover {
+  color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .footer-bottom {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  color: #64748b !important;
+}
+

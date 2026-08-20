@@ -19,17 +19,17 @@ export default function Footer() {
             <p className="footer-desc">
               {t('about.description', 'Líderes en transporte terrestre interurbano y logística de encomiendas en la región Cusco.')}
             </p>
-            <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.75)', marginBottom: '12px' }}>
+            <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.85)', marginBottom: '12px' }}>
               <strong>RUC:</strong> 20608425676 | {t('footer.formalCompany', 'Empresa Formal')}
             </div>
             <div className="payment-methods" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-              <span style={{ background: 'rgba(255,255,255,0.12)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <FaCreditCard /> Visa / Mastercard
+              <span style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '500' }}>
+                <FaCreditCard style={{ color: '#38bdf8' }} /> Visa / Mastercard
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.12)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <FaMobileAlt /> Yape / Plin
+              <span style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '500' }}>
+                <FaMobileAlt style={{ color: '#c084fc' }} /> Yape / Plin
               </span>
-              <span style={{ background: 'rgba(16,185,129,0.2)', color: '#34d399', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 'bold' }}>
+              <span style={{ background: 'rgba(16,185,129,0.2)', color: '#34d399', border: '1px solid rgba(52,211,153,0.3)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold' }}>
                 <FaLock /> SSL Seguro
               </span>
             </div>

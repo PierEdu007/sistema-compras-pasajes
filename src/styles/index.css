@@ -289,7 +289,7 @@ img {
   color: #f8fafc;
 }
 
-[data-theme="dark"] a {
+[data-theme="dark"] a:not(.btn):not(.btn-primary):not(.btn-secondary):not(.btn-danger):not(.nav-link-btn) {
   color: #38bdf8;
 }
 
@@ -1274,5 +1274,36 @@ img {
   border-color: #ca8a04 !important;
   color: #fef08a !important;
 }
+
+/* ── Botones y Acciones en Modo Oscuro (Texto blanco de alto contraste) ── */
+[data-theme="dark"] .btn,
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] .btn-secondary,
+[data-theme="dark"] .btn-danger,
+[data-theme="dark"] a.btn,
+[data-theme="dark"] a.btn-primary,
+[data-theme="dark"] button.btn,
+[data-theme="dark"] button.btn-primary,
+[data-theme="dark"] .btn-search,
+[data-theme="dark"] .schedule-select-btn,
+[data-theme="dark"] .vehicle-select-btn,
+[data-theme="dark"] .modal-close-btn,
+[data-theme="dark"] .btn-yape-submit,
+[data-theme="dark"] .destination-modal-footer a,
+[data-theme="dark"] .destination-modal-footer .btn {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .btn-primary {
+  background-color: #0284c7 !important;
+  border-color: #0284c7 !important;
+}
+
+[data-theme="dark"] .btn-primary:hover {
+  background-color: #0369a1 !important;
+  border-color: #0369a1 !important;
+  color: #ffffff !important;
+}
+
 
 
