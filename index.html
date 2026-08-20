@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
+    <!-- Detección Inmediata de Modo Oscuro / Claro -->
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('theme');
+          var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+      })();
+    </script>
+    
     <!-- Metadatos SEO Principales -->
     <title>Pasajes Cusco a Quillabamba y Machu Picchu | Tunky Chasky</title>
     <meta name="description" content="Compra pasajes de bus y camioneta online Cusco a Quillabamba, Hidroeléctrica (Machu Picchu), Quellouno, Calca y Abancay. Salidas diarias, confort y envíos de encomiendas." />

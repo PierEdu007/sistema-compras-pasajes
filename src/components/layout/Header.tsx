@@ -1,7 +1,8 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
-import { FaPhoneAlt, FaEnvelope, FaFacebook, FaInstagram, FaWhatsapp } from 'react-icons/fa';
+import { FaPhoneAlt, FaEnvelope, FaFacebook, FaInstagram, FaWhatsapp, FaSun, FaMoon } from 'react-icons/fa';
+import { useTheme } from '../../hooks/useTheme';
 import '../../styles/components/header.css';
 
 // Import the Tunki Chasky logo
@@ -9,6 +10,7 @@ import logoImg from '../../assets/logo.png';
 
 export default function Header() {
   const { t, i18n } = useTranslation();
+  const { isDark, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
@@ -93,6 +95,7 @@ export default function Header() {
           <button 
             className="mobile-toggle" 
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Menu"
           >
             {menuOpen ? '✕' : '☰'}
           </button>
@@ -103,12 +106,24 @@ export default function Header() {
             <button className="nav-link-btn" onClick={() => handleNavClick('#ubicanos')}>{t('nav.ubicanos', 'Ubícanos')}</button>
             <Link to="/terminos" onClick={() => setMenuOpen(false)}>{t('nav.terms', 'Términos y Condiciones')}</Link>
             
-            <button className="lang-toggle" onClick={toggleLanguage}>
-              {i18n.language.startsWith('es') ? 'EN' : 'ES'}
-            </button>
+            <div className="nav-actions">
+              <button 
+                className="theme-toggle-btn"
+                onClick={toggleTheme}
+                title={isDark ? (i18n.language.startsWith('es') ? 'Cambiar a modo claro' : 'Switch to light mode') : (i18n.language.startsWith('es') ? 'Cambiar a modo oscuro' : 'Switch to dark mode')}
+                aria-label={isDark ? 'Modo claro' : 'Modo oscuro'}
+              >
+                {isDark ? <FaSun className="theme-icon sun-icon" /> : <FaMoon className="theme-icon moon-icon" />}
+              </button>
+
+              <button className="lang-toggle" onClick={toggleLanguage}>
+                {i18n.language.startsWith('es') ? 'EN' : 'ES'}
+              </button>
+            </div>
           </nav>
         </div>
       </div>
     </header>
   );
 }
+

@@ -125,6 +125,42 @@
   width: 100%;
 }
 
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.theme-toggle-btn {
+  background: rgba(0, 0, 0, 0.04);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-full);
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.theme-toggle-btn:hover {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+  transform: scale(1.08);
+}
+
+.theme-toggle-btn .sun-icon {
+  color: #f59e0b;
+}
+
+.theme-toggle-btn .moon-icon {
+  color: #0284c7;
+}
+
 .lang-toggle {
   background: none;
   border: 2px solid var(--color-border);
@@ -134,6 +170,10 @@
   color: var(--color-primary);
   cursor: pointer;
   transition: all var(--transition-fast);
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .lang-toggle:hover {
@@ -167,7 +207,8 @@
     width: 100%;
     background-color: var(--color-white);
     flex-direction: column;
-    padding: 1rem;
+    padding: 1.5rem;
+    gap: 1.25rem;
     box-shadow: var(--shadow-md);
     clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
     transition: all var(--transition-normal);
@@ -176,4 +217,11 @@
   .nav-menu.active {
     clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
   }
+
+  .nav-actions {
+    margin-top: 0.5rem;
+    width: 100%;
+    justify-content: center;
+  }
 }
+
