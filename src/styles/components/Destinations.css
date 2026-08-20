@@ -132,3 +132,254 @@
     font-size: 2rem;
   }
 }
+
+/* === Tourist Info Badge on Card === */
+.tourist-info-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(15, 76, 129, 0.85);
+  backdrop-filter: blur(6px);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  transition: all 0.25s ease;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.destination-card:hover .tourist-info-badge {
+  background: #742284;
+  transform: scale(1.05);
+}
+
+.card-clickable-area {
+  cursor: pointer;
+}
+
+/* === Tourist Destination Modal === */
+.destination-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.destination-modal-box {
+  background: #ffffff;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.destination-modal-hero {
+  position: relative;
+  height: 220px;
+  width: 100%;
+  overflow: hidden;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+}
+
+.destination-modal-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.destination-modal-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.5) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  color: #ffffff;
+}
+
+.destination-modal-hero-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  color: #ffffff;
+}
+
+.destination-modal-hero-subtitle {
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  margin: 4px 0 0 0;
+}
+
+.destination-modal-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.destination-modal-close-btn:hover {
+  background: #e11d48;
+  transform: scale(1.1);
+}
+
+.destination-modal-content {
+  padding: 1.5rem;
+  color: #334155;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.tourist-quick-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 1rem 0 1.5rem 0;
+}
+
+.tourist-info-chip {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.tourist-info-chip-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.tourist-info-chip-val {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #0f4c81;
+}
+
+.tourist-section-block {
+  margin-bottom: 1.2rem;
+}
+
+.tourist-section-block h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #742284;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tourist-highlights-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.tourist-highlights-list li {
+  background: #f1f5f9;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tourist-tips-box {
+  background: #fefce8;
+  border-left: 4px solid #eab308;
+  padding: 12px 14px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  color: #854d0e;
+  margin-top: 1rem;
+}
+
+.destination-modal-footer {
+  padding: 1rem 1.5rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.destination-modal-footer .price-display {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f4c81;
+}
+
+.destination-modal-footer .price-display small {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .tourist-quick-info-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .tourist-highlights-list {
+    grid-template-columns: 1fr;
+  }
+  .destination-modal-hero {
+    height: 180px;
+  }
+  .destination-modal-hero-title {
+    font-size: 1.3rem;
+  }
+  .destination-modal-footer {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+}
+
