@@ -282,15 +282,6 @@ export default function Destinations() {
                       <span>{t('dest.bookNow', 'Comprar Pasaje')}</span>
                       <FaArrowRight />
                     </a>
-                  ) : dest.id === 3 ? (
-                    <a 
-                      href="/viajes?origen=CUSCO&destino=QUELLOUNO"
-                      className="btn-text btn-book"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#742284', fontWeight: 'bold' }}
-                    >
-                      <span>{t('dest.bookNow', 'Comprar Pasaje')}</span>
-                      <FaArrowRight />
-                    </a>
                   ) : (
                     <a 
                       href={`https://wa.me/51997475405?text=Hola,%20quiero%20información%20sobre%20la%20ruta%20${encodeURIComponent(dest.title)}`}
@@ -413,16 +404,6 @@ export default function Destinations() {
                 {activeModal.id === 2 ? (
                   <a 
                     href="/viajes?origen=CUSCO&destino=QUILLABAMBA"
-                    className="btn btn-primary"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold' }}
-                    onClick={() => setActiveModal(null)}
-                  >
-                    <span>{isEn ? 'Book Online Ticket' : 'Comprar Pasaje Online'}</span>
-                    <FaArrowRight />
-                  </a>
-                ) : activeModal.id === 3 ? (
-                  <a 
-                    href="/viajes?origen=CUSCO&destino=QUELLOUNO"
                     className="btn btn-primary"
                     style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold' }}
                     onClick={() => setActiveModal(null)}

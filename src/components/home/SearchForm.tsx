@@ -27,12 +27,11 @@ export default function SearchForm() {
   const [destino, setDestino] = useState('');
   const [fecha, setFecha] = useState(today); // Fecha por defecto: hoy
 
-  const ALLOWED_CITIES = ['CUSCO', 'QUILLABAMBA', 'KITENI'];
+  const ALLOWED_CITIES = ['CUSCO', 'QUILLABAMBA'];
 
   const rutas = [
     { value: 'CUSCO', label: 'Cusco' },
-    { value: 'QUILLABAMBA', label: 'Quillabamba' },
-    { value: 'KITENI', label: 'Kiteni' }
+    { value: 'QUILLABAMBA', label: 'Quillabamba' }
   ];
 
   const handleSearch = (e: React.FormEvent) => {
