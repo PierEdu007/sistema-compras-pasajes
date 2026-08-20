@@ -682,4 +682,579 @@ img {
   color: #cbd5e1 !important;
 }
 
+/* ==========================================================================
+   DARK MODE COMPLEMENTARIO — Secciones sin cobertura previa
+   ========================================================================== */
+
+/* ── Sección Benefits (Home) ── */
+[data-theme="dark"] .benefits-section {
+  background-color: #0b1322 !important;
+}
+
+[data-theme="dark"] .benefit-card {
+  background-color: #152238 !important;
+  border-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .benefit-card:hover {
+  border-color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .benefit-content h3 {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .benefit-content p {
+  color: #94a3b8 !important;
+}
+
+/* ── Sección About (Home) ── */
+[data-theme="dark"] .about-section {
+  background-color: #0f172a !important;
+}
+
+[data-theme="dark"] .about-section h2 {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .about-desc {
+  color: #cbd5e1 !important;
+}
+
+/* ── Search Form Container (Home Hero) ── */
+[data-theme="dark"] .search-form-container {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .search-form-container h2 {
+  color: #f8fafc !important;
+}
+
+/* ── Sección Testimonials ── */
+[data-theme="dark"] .testimonials-section {
+  background: #0f172a !important;
+}
+
+[data-theme="dark"] .testimonial-card {
+  background: #152238 !important;
+  border-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .testimonial-text {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .author-info h4 {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .author-info span {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .author-img {
+  border-color: #2c3e55 !important;
+}
+
+/* ── Destinations section header subtitle ── */
+[data-theme="dark"] .section-header .subtitle {
+  color: #f43f5e !important;
+}
+
+[data-theme="dark"] .card-meta {
+  border-top-color: #2c3e55 !important;
+  color: #94a3b8 !important;
+}
+
+/* ── Trips page ── */
+[data-theme="dark"] .schedules-count {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .schedules-hint {
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .trip-time-col {
+  background-color: #0f172a !important;
+  border-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .schedule-title {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .schedule-units-tag {
+  background-color: #1e3a5f !important;
+  color: #7dd3fc !important;
+}
+
+[data-theme="dark"] .schedule-vehicles-preview {
+  background-color: #0f172a !important;
+  border-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .mini-v-name {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .mini-v-seats {
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .mini-v-seats.seats-sold {
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .mini-vehicle-divider {
+  background-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .trip-price {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .schedule-action-col {
+  background-color: #0b1322 !important;
+}
+
+/* Vehicle Selection Modal (Trips) */
+[data-theme="dark"] .vehicle-modal-content {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .vehicle-modal-header {
+  background: linear-gradient(to right, #0f172a, #152238) !important;
+  border-bottom-color: #1e293b !important;
+}
+
+[data-theme="dark"] .vehicle-modal-badge {
+  background-color: #1e3a5f !important;
+  color: #7dd3fc !important;
+}
+
+[data-theme="dark"] .vehicle-modal-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .vehicle-modal-subtitle {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .vehicle-modal-close {
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .vehicle-modal-close:hover {
+  background-color: #3b1515 !important;
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .vehicle-option-card {
+  background-color: #152238 !important;
+  border-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .vehicle-option-card.sold-out {
+  background-color: #0f172a !important;
+}
+
+[data-theme="dark"] .vehicle-option-info h4 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .vehicle-option-desc {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .vehicle-option-footer {
+  border-top-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .vehicle-option-price {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .badge-4p {
+  background-color: #4b1a1a !important;
+  color: #fca5a5 !important;
+  border-color: #7f1d1d !important;
+}
+
+[data-theme="dark"] .badge-6p {
+  background-color: #1e293b !important;
+  color: #94a3b8 !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .vehicle-modal-actions {
+  background-color: #0b1322 !important;
+  border-top-color: #1e293b !important;
+}
+
+/* ── Booking Page — Seat map ── */
+[data-theme="dark"] .vehicle-layout {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .vehicle-layout::before {
+  background: linear-gradient(180deg, #1e293b, #0f172a) !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .vehicle-mirror-left,
+[data-theme="dark"] .vehicle-mirror-right {
+  background-color: #334155 !important;
+}
+
+[data-theme="dark"] .seat-available {
+  background-color: #152238 !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .seat-available:hover:not(:disabled) {
+  background-color: #1e3a5f !important;
+}
+
+[data-theme="dark"] .seat-map-legend {
+  border-bottom-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .legend-item {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .seat-map-title {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .booking-header {
+  background-color: #0284c7 !important;
+}
+
+[data-theme="dark"] .timer-box {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+  color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .timer-expired {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  color: #f87171 !important;
+}
+
+/* Claims Book */
+[data-theme="dark"] .claims-form-box {
+  background: #152238 !important;
+  border-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .claims-section-title {
+  color: #38bdf8 !important;
+  border-bottom-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .claims-success-box {
+  background: #062817 !important;
+  border-color: #059669 !important;
+}
+
+[data-theme="dark"] .claims-success-title {
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .claims-success-code-text {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .claims-code-highlight {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .claims-success-notice {
+  color: #94a3b8 !important;
+}
+
+/* ── Confirmation Page ── */
+[data-theme="dark"] .confirmation-card {
+  background: #152238 !important;
+  border-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .confirmation-header h1 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .confirmation-subtitle {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .verification-status-banner {
+  background: #2d2000 !important;
+  border-color: #ca8a04 !important;
+  color: #fde68a !important;
+}
+
+[data-theme="dark"] .ticket-details-box {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .ticket-header {
+  color: #64748b !important;
+  border-bottom-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .ticket-header .code {
+  color: #c084fc !important;
+}
+
+[data-theme="dark"] .ticket-col small {
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .ticket-col strong {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .ticket-divider {
+  border-top-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .op-number {
+  color: #94a3b8 !important;
+}
+
+/* ── Footer ── */
+[data-theme="dark"] .footer {
+  background: linear-gradient(135deg, #0a1628, #14213d) !important;
+}
+
+[data-theme="dark"] .footer-col h4 {
+  color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .footer-brand h3 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .footer-desc {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+[data-theme="dark"] .footer-contact li {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-theme="dark"] .footer-social a,
+[data-theme="dark"] .footer-links a {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+[data-theme="dark"] .footer-links {
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .footer-bottom {
+  background-color: rgba(0, 0, 0, 0.35) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* ── InteractiveHero search glassy box ── */
+[data-theme="dark"] .hero-search-box {
+  background: rgba(11, 19, 34, 0.88) !important;
+  border-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .hero-search-box h2,
+[data-theme="dark"] .hero-search-title {
+  color: #f8fafc !important;
+}
+
+/* ── TrustBar ── */
+[data-theme="dark"] .trust-bar-section {
+  background: #0f172a !important;
+  border-bottom-color: #1e293b !important;
+}
+
+[data-theme="dark"] .trust-bar-item h4 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .trust-bar-item p {
+  color: #94a3b8 !important;
+}
+
+/* ── Section headers across the site ── */
+[data-theme="dark"] .section-header h2 {
+  color: #38bdf8 !important;
+}
+
+/* ── Empty state ── */
+[data-theme="dark"] .empty-state {
+  background-color: #152238 !important;
+  border-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .empty-state h3 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .empty-state p {
+  color: #94a3b8 !important;
+}
+
+/* ── WhatsApp button ── */
+[data-theme="dark"] .whatsapp-float {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ── Map Section ── */
+[data-theme="dark"] .map-section {
+  background: #0b1322 !important;
+}
+
+[data-theme="dark"] .map-section h2 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .map-wrapper {
+  border-color: #1e293b !important;
+}
+
+/* ── Admin overrides that might show to some users ── */
+[data-theme="dark"] .admin-table thead th {
+  background: #0f172a !important;
+  color: #94a3b8 !important;
+  border-bottom-color: #334155 !important;
+}
+
+[data-theme="dark"] .admin-table tbody tr {
+  border-bottom-color: #1e293b !important;
+}
+
+[data-theme="dark"] .admin-table tbody td {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .admin-table tbody tr:hover {
+  background-color: #152238 !important;
+}
+
+[data-theme="dark"] .admin-card {
+  background: #152238 !important;
+  border-color: #2c3e55 !important;
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .admin-card h2,
+[data-theme="dark"] .admin-card h3,
+[data-theme="dark"] .admin-card h4 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .admin-sidebar {
+  background: #0b1322 !important;
+  border-right-color: #1e293b !important;
+}
+
+[data-theme="dark"] .admin-sidebar .sidebar-link {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .admin-sidebar .sidebar-link:hover,
+[data-theme="dark"] .admin-sidebar .sidebar-link.active {
+  background: #152238 !important;
+  color: #38bdf8 !important;
+}
+
+/* ── Inputs, selects, textareas — global dark ── */
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #475569 !important;
+}
+
+[data-theme="dark"] select option {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+/* ── Price summary / info cards in booking ── */
+[data-theme="dark"] .price-summary-card {
+  background: #0f172a !important;
+  border-color: #2c3e55 !important;
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .price-summary-card h3,
+[data-theme="dark"] .price-summary-card strong {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .price-summary-card .price-value,
+[data-theme="dark"] .price-summary-card .total {
+  color: #34d399 !important;
+}
+
+/* ── Step titles inside forms ── */
+[data-theme="dark"] .step-title {
+  color: #38bdf8 !important;
+  border-bottom-color: #2c3e55 !important;
+}
+
+/* ── Modales Yape y Términos ── */
+[data-theme="dark"] .yape-modal-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .terms-content p {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .terms-content strong {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .terms-content table {
+  border-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .terms-content table th {
+  background: #0f172a !important;
+  color: #94a3b8 !important;
+  border-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .terms-content table td {
+  color: #e2e8f0 !important;
+  border-color: #2c3e55 !important;
+}
+
+/* ── Comunicado modal ── */
+[data-theme="dark"] .comunicado-modal-box {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .comunicado-modal-box h2,
+[data-theme="dark"] .comunicado-modal-box h3 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .comunicado-modal-box p {
+  color: #cbd5e1 !important;
+}
+
 
