@@ -8,5 +8,11 @@
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.culqi.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; frame-src 'self' https://checkout.culqi.com https://www.google.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.nubefact.com https://www.nubefact.com https://api.apis.net.pe https://api.resend.com https://*.cloudflare.com https://api.culqi.com https://checkout.culqi.com https://cloudflareinsights.com https://static.cloudflareinsights.com; frame-ancestors 'none';
 
+/
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /assets/*
   Cache-Control: public, max-age=31536000, immutable

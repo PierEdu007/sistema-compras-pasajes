@@ -1,1 +1,5 @@
+# Redireccionar www al dominio principal canónico
+https://www.turismotunkychasky.com.pe/* https://turismotunkychasky.com.pe/:splat 301
+
+# SPA fallback para React Router
 /*    /index.html   200

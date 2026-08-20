@@ -4,9 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- Detección Inmediata de Modo Oscuro / Claro -->
+    <!-- Detección Inmediata de Redirección Canónica & Modo Oscuro / Claro -->
     <script>
       (function() {
+        if (window.location.hostname === 'www.turismotunkychasky.com.pe') {
+          window.location.replace('https://turismotunkychasky.com.pe' + window.location.pathname + window.location.search + window.location.hash);
+          return;
+        }
         try {
           var saved = localStorage.getItem('theme');
           var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
