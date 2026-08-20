@@ -224,9 +224,409 @@ img {
   background: var(--color-surface);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-accent);
+  background: var(--color-primary-dark);
   border-radius: 5px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
 }
+
+/* ==========================================================================
+   Automatic Dark Mode Theme (@media (prefers-color-scheme: dark))
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: #38bdf8;
+    --color-primary-light: #7dd3fc;
+    --color-primary-dark: #0284c7;
+    --color-accent: #f43f5e;
+    --color-accent-vibrant: #fbbf24;
+    --color-dark: #f8fafc;
+    --color-surface: #0b1322;
+    --color-surface-dark: #152238;
+    --color-text: #e2e8f0;
+    --color-text-light: #94a3b8;
+    --color-white: #17263c;
+    --color-border: #2c3e55;
+    
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: #f8fafc;
+  }
+
+  a {
+    color: #38bdf8;
+  }
+
+  /* Form Inputs in Dark Mode */
+  .form-label {
+    color: #cbd5e1;
+  }
+
+  .form-control {
+    background-color: #0b1322 !important;
+    color: #f8fafc !important;
+    border-color: #2c3e55 !important;
+  }
+
+  .form-control:focus {
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25) !important;
+  }
+
+  select.form-control option {
+    background-color: #0b1322;
+    color: #f8fafc;
+  }
+
+  /* Glassmorphism */
+  .glass {
+    background: rgba(15, 23, 42, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Header & Navigation in Dark Mode */
+  .header {
+    background-color: #0b1322 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid #1e293b;
+  }
+
+  .header.scrolled {
+    background-color: rgba(11, 19, 34, 0.96) !important;
+  }
+
+  .brand-name {
+    color: #38bdf8 !important;
+  }
+
+  .brand-slogan {
+    color: #94a3b8 !important;
+  }
+
+  .nav-link {
+    color: #e2e8f0 !important;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: #38bdf8 !important;
+  }
+
+  .lang-btn {
+    background: #17263c !important;
+    color: #e2e8f0 !important;
+    border-color: #2c3e55 !important;
+  }
+
+  .lang-btn.active {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    border-color: #0284c7 !important;
+  }
+
+  /* Trust Bar in Dark Mode */
+  .trust-bar-section {
+    background: #0f172a !important;
+    border-bottom-color: #1e293b !important;
+  }
+
+  .trust-bar-item {
+    background: #152238 !important;
+    border-color: #2c3e55 !important;
+    color: #e2e8f0 !important;
+  }
+
+  .trust-bar-item:hover {
+    background: #1e2d48 !important;
+    border-color: #38bdf8 !important;
+  }
+
+  .trust-bar-item h4 {
+    color: #f8fafc !important;
+  }
+
+  .trust-bar-item p {
+    color: #94a3b8 !important;
+  }
+
+  /* Destination & Cards */
+  .destinations-section {
+    background: #0b1322 !important;
+  }
+
+  .section-header h2 {
+    color: #f8fafc !important;
+  }
+
+  .destination-card {
+    background: #152238 !important;
+    border-color: #2c3e55 !important;
+  }
+
+  .card-content h3 {
+    color: #38bdf8 !important;
+  }
+
+  .card-content p {
+    color: #94a3b8 !important;
+  }
+
+  .card-meta {
+    border-top-color: #2c3e55 !important;
+    color: #cbd5e1 !important;
+  }
+
+  /* Destination Modal in Dark Mode */
+  .destination-modal-box {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #334155 !important;
+  }
+
+  .destination-modal-title {
+    color: #f8fafc !important;
+  }
+
+  .destination-modal-subtitle {
+    color: #94a3b8 !important;
+  }
+
+  .destination-modal-title-box {
+    border-bottom-color: #1e293b !important;
+  }
+
+  .tourist-info-chip {
+    background: #152238 !important;
+    border-color: #2c3e55 !important;
+  }
+
+  .tourist-info-chip-label {
+    color: #94a3b8 !important;
+  }
+
+  .tourist-info-chip-val {
+    color: #38bdf8 !important;
+  }
+
+  .tourist-section-block h4 {
+    color: #c084fc !important;
+  }
+
+  .tourist-section-block p {
+    color: #cbd5e1 !important;
+  }
+
+  .tourist-highlights-list li {
+    background: #152238 !important;
+    border-color: #2c3e55 !important;
+    color: #e2e8f0 !important;
+  }
+
+  .tourist-tips-box {
+    background: #3b2005 !important;
+    border-color: #eab308 !important;
+    color: #fef08a !important;
+  }
+
+  .destination-modal-footer {
+    background: #0f172a !important;
+    border-top-color: #1e293b !important;
+  }
+
+  .destination-modal-footer .price-display {
+    color: #38bdf8 !important;
+  }
+
+  /* Testimonials */
+  .testimonials-section {
+    background: #0f172a !important;
+  }
+
+  .testimonial-card {
+    background: #152238 !important;
+    border-color: #2c3e55 !important;
+    color: #e2e8f0 !important;
+  }
+
+  .testimonial-text {
+    color: #cbd5e1 !important;
+  }
+
+  .author-info h4 {
+    color: #f8fafc !important;
+  }
+
+  .author-info p {
+    color: #94a3b8 !important;
+  }
+
+  /* Map Section */
+  .map-section {
+    background: #0b1322 !important;
+  }
+
+  .map-wrapper {
+    border-color: #1e293b !important;
+  }
+
+  /* Trips Page & Schedule Cards in Dark Mode */
+  .page-trips, .trips-page {
+    background: #0b1322 !important;
+  }
+
+  .schedule-card, .trip-card {
+    background: #152238 !important;
+    border-color: #2c3e55 !important;
+    color: #e2e8f0 !important;
+  }
+
+  .schedule-time {
+    color: #f8fafc !important;
+  }
+
+  .schedule-unit-pill {
+    background: #1e2d48 !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+  }
+
+  .schedule-price .num {
+    color: #38bdf8 !important;
+  }
+
+  .vehicle-select-modal-box {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #334155 !important;
+  }
+
+  .vehicle-select-modal-header {
+    border-bottom-color: #1e293b !important;
+  }
+
+  .vehicle-select-modal-header h3 {
+    color: #f8fafc !important;
+  }
+
+  .vehicle-select-modal-header p {
+    color: #94a3b8 !important;
+  }
+
+  .vehicle-option-card {
+    background: #152238 !important;
+    border-color: #2c3e55 !important;
+  }
+
+  .vehicle-option-info h4 {
+    color: #f8fafc !important;
+  }
+
+  .vehicle-option-desc {
+    color: #94a3b8 !important;
+  }
+
+  /* Booking Page & Seat Map in Dark Mode */
+  .page-booking {
+    background: #0b1322 !important;
+  }
+
+  .seat-map-container {
+    background: #152238 !important;
+    border: 1px solid #2c3e55 !important;
+  }
+
+  .seat-map-title {
+    color: #f8fafc !important;
+  }
+
+  .vehicle-layout {
+    background-color: #0b1322 !important;
+    border-color: #334155 !important;
+  }
+
+  .vehicle-layout::before {
+    background: linear-gradient(180deg, #1e293b, #0b1322) !important;
+  }
+
+  .booking-form-container {
+    background: #152238 !important;
+    border: 1px solid #2c3e55 !important;
+  }
+
+  .step-title {
+    color: #f8fafc !important;
+    border-bottom-color: #2c3e55 !important;
+  }
+
+  .price-summary-card {
+    background: #0f172a !important;
+    border-color: #2c3e55 !important;
+  }
+
+  .timer-display {
+    background: #0f172a !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+  }
+
+  /* Yape Modal in Dark Mode */
+  .yape-modal-content {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+  }
+
+  .yape-modal-body {
+    background: #0f172a !important;
+  }
+
+  .yape-num-box {
+    background: #152238 !important;
+    border-color: #2c3e55 !important;
+    color: #f8fafc !important;
+  }
+
+  /* Confirmation Page & Tickets in Dark Mode */
+  .confirmation-card {
+    background: #152238 !important;
+    border-color: #2c3e55 !important;
+    color: #e2e8f0 !important;
+  }
+
+  .confirmation-header h1 {
+    color: #f8fafc !important;
+  }
+
+  .ticket-details-box {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+  }
+
+  .ticket-info-grid strong {
+    color: #f8fafc !important;
+  }
+
+  /* Terms and Claims in Dark Mode */
+  .terms-container {
+    color: #e2e8f0 !important;
+  }
+
+  .terms-content h2 {
+    color: #38bdf8 !important;
+    border-bottom-color: #334155 !important;
+  }
+
+  .terms-content li {
+    color: #cbd5e1 !important;
+  }
+}
+

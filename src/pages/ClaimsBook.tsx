@@ -50,17 +50,17 @@ export default function ClaimsBook() {
       </div>
 
       {submitted ? (
-        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '30px', textAlign: 'center' }}>
-          <div style={{ color: '#16a34a', fontSize: '3rem', marginBottom: '15px' }}>
+        <div className="claims-success-box">
+          <div className="claims-success-icon">
             <FaCheckCircle />
           </div>
-          <h2 style={{ color: '#166534', fontSize: '1.4rem', margin: '0 0 10px 0' }}>
+          <h2 className="claims-success-title">
             {t('claims.successTitle', '¡Hoja de Reclamación Registrada con Éxito!')}
           </h2>
-          <p style={{ color: '#374151', fontSize: '1rem', marginBottom: '15px' }}>
-            {t('claims.yourCodeIs', 'Tu código de registro es:')} <strong style={{ color: '#0f4c81', fontSize: '1.2rem' }}>{claimCode}</strong>
+          <p className="claims-success-code-text">
+            {t('claims.yourCodeIs', 'Tu código de registro es:')} <strong className="claims-code-highlight">{claimCode}</strong>
           </p>
-          <p style={{ color: '#6b7280', fontSize: '0.88rem', maxWidth: '600px', margin: '0 auto 20px auto', lineHeight: 1.5 }}>
+          <p className="claims-success-notice">
             {t('claims.indecopiNotice', 'Hemos recibido tu registro. Conforme a la normativa de INDECOPI, la empresa dará respuesta a tu solicitud en un plazo máximo de quince (15) días hábiles al correo electrónico proporcionado.')}
           </p>
           <button 
@@ -72,10 +72,10 @@ export default function ClaimsBook() {
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '25px', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
+        <form onSubmit={handleSubmit} className="claims-form-box">
           
           {/* SECCIÓN 1: IDENTIFICACIÓN DEL CONSUMIDOR */}
-          <h3 style={{ fontSize: '1.1rem', color: '#0f4c81', borderBottom: '2px solid #f1f5f9', paddingBottom: '8px', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h3 className="claims-section-title">
             <FaUser /> {t('claims.sec1Title', '1. Identificación del Consumidor Reclamante')}
           </h3>
 

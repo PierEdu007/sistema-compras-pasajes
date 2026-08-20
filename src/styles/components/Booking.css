@@ -292,3 +292,97 @@
 #culqi-container {
   margin-top: var(--spacing-xl);
 }
+
+/* Claims Book Styles */
+.claims-form-box {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.claims-section-title {
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 8px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.claims-success-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 14px;
+  padding: 30px;
+  text-align: center;
+}
+
+.claims-success-icon {
+  color: #16a34a;
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.claims-success-title {
+  color: #166534;
+  font-size: 1.4rem;
+  margin: 0 0 10px 0;
+}
+
+.claims-success-code-text {
+  color: #374151;
+  font-size: 1rem;
+  margin-bottom: 15px;
+}
+
+.claims-code-highlight {
+  color: #0f4c81;
+  font-size: 1.2rem;
+}
+
+.claims-success-notice {
+  color: #6b7280;
+  font-size: 0.88rem;
+  max-width: 600px;
+  margin: 0 auto 20px auto;
+  line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .claims-form-box {
+    background: #152238;
+    border-color: #2c3e55;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .claims-section-title {
+    color: #38bdf8;
+    border-bottom-color: #2c3e55;
+  }
+
+  .claims-success-box {
+    background: #062817;
+    border-color: #059669;
+  }
+
+  .claims-success-title {
+    color: #34d399;
+  }
+
+  .claims-success-code-text {
+    color: #e2e8f0;
+  }
+
+  .claims-code-highlight {
+    color: #38bdf8;
+  }
+
+  .claims-success-notice {
+    color: #94a3b8;
+  }
+}
+
