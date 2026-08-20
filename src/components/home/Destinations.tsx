@@ -321,76 +321,88 @@ export default function Destinations() {
           aria-modal="true"
         >
           <div className="destination-modal-box">
-            {/* Hero Image & Title */}
-            <div className="destination-modal-hero">
-              <img src={activeModal.image} alt={activeModal.title} />
-              <button 
-                className="destination-modal-close-btn"
-                onClick={() => setActiveModal(null)}
-                aria-label="Cerrar"
-                title="Cerrar"
-              >
-                <FaTimes />
-              </button>
-              <div className="destination-modal-hero-overlay">
-                <h3 className="destination-modal-hero-title">
-                  {activeModal.touristInfo.placeName}
-                </h3>
-                <p className="destination-modal-hero-subtitle">
-                  {activeModal.touristInfo.subtitle}
-                </p>
+            {/* Close Button Pinned at Top */}
+            <button 
+              className="destination-modal-close-btn"
+              onClick={() => setActiveModal(null)}
+              aria-label="Cerrar"
+              title="Cerrar"
+            >
+              <FaTimes />
+            </button>
+
+            {/* Scrollable Container (Hero + Content) */}
+            <div className="destination-modal-scroll-area">
+              {/* Hero Image Banner */}
+              <div className="destination-modal-hero">
+                <img src={activeModal.image} alt={activeModal.title} />
+                <div className="destination-modal-hero-badge">
+                  <FaCompass /> {isEn ? 'Tourist Guide' : 'Guía Turística'}
+                </div>
+              </div>
+
+              {/* Title & Tourist Details */}
+              <div className="destination-modal-content">
+                <div className="destination-modal-title-box">
+                  <span className="destination-modal-tag">
+                    <FaMapPin /> {activeModal.priceTag.split('·')[0].trim()}
+                  </span>
+                  <h2 className="destination-modal-title">
+                    {activeModal.touristInfo.placeName}
+                  </h2>
+                  <p className="destination-modal-subtitle">
+                    {activeModal.touristInfo.subtitle}
+                  </p>
+                </div>
+
+                {/* Quick Info Grid */}
+                <div className="tourist-quick-info-grid">
+                  <div className="tourist-info-chip">
+                    <span className="tourist-info-chip-label"><FaMountain /> {isEn ? 'Altitude' : 'Altitud'}</span>
+                    <span className="tourist-info-chip-val">{activeModal.touristInfo.altitude}</span>
+                  </div>
+                  <div className="tourist-info-chip">
+                    <span className="tourist-info-chip-label"><FaCloudSun /> {isEn ? 'Climate' : 'Clima'}</span>
+                    <span className="tourist-info-chip-val">{activeModal.touristInfo.climate}</span>
+                  </div>
+                  <div className="tourist-info-chip">
+                    <span className="tourist-info-chip-label"><FaClock /> {isEn ? 'Travel Time' : 'Duración'}</span>
+                    <span className="tourist-info-chip-val">{activeModal.touristInfo.duration}</span>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="tourist-section-block">
+                  <h4><FaCompass /> {isEn ? 'About this Destination' : 'Acerca de este Destino'}</h4>
+                  <p>{activeModal.touristInfo.touristDescription}</p>
+                </div>
+
+                {/* Highlights */}
+                <div className="tourist-section-block">
+                  <h4><FaMapPin /> {isEn ? 'Key Tourist Attractions & Highlights' : 'Principales Atractivos Turísticos'}</h4>
+                  <ul className="tourist-highlights-list">
+                    {activeModal.touristInfo.highlights.map((item, idx) => (
+                      <li key={idx}>
+                        <span style={{ color: '#16a34a', marginRight: '4px' }}>✓</span> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Gastronomy */}
+                <div className="tourist-section-block">
+                  <h4><FaUtensils /> {isEn ? 'Gastronomy & Local Delicacies' : 'Gastronomía y Sabores Locales'}</h4>
+                  <p>{activeModal.touristInfo.gastronomy}</p>
+                </div>
+
+                {/* Tips */}
+                <div className="tourist-tips-box">
+                  <strong>💡 {isEn ? 'Traveler Tips:' : 'Consejos para el Viajero:'}</strong> {activeModal.touristInfo.tips}
+                </div>
               </div>
             </div>
 
-            {/* Modal Body */}
-            <div className="destination-modal-content">
-              {/* Quick Info Grid */}
-              <div className="tourist-quick-info-grid">
-                <div className="tourist-info-chip">
-                  <span className="tourist-info-chip-label"><FaMountain /> {isEn ? 'Altitude' : 'Altitud'}</span>
-                  <span className="tourist-info-chip-val">{activeModal.touristInfo.altitude}</span>
-                </div>
-                <div className="tourist-info-chip">
-                  <span className="tourist-info-chip-label"><FaCloudSun /> {isEn ? 'Climate' : 'Clima'}</span>
-                  <span className="tourist-info-chip-val">{activeModal.touristInfo.climate}</span>
-                </div>
-                <div className="tourist-info-chip">
-                  <span className="tourist-info-chip-label"><FaClock /> {isEn ? 'Travel Time' : 'Duración'}</span>
-                  <span className="tourist-info-chip-val">{activeModal.touristInfo.duration}</span>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="tourist-section-block">
-                <h4><FaCompass /> {isEn ? 'About this Destination' : 'Acerca de este Destino'}</h4>
-                <p>{activeModal.touristInfo.touristDescription}</p>
-              </div>
-
-              {/* Highlights */}
-              <div className="tourist-section-block">
-                <h4><FaMapPin /> {isEn ? 'Key Tourist Attractions & Highlights' : 'Principales Atractivos Turísticos'}</h4>
-                <ul className="tourist-highlights-list">
-                  {activeModal.touristInfo.highlights.map((item, idx) => (
-                    <li key={idx}>
-                      <span style={{ color: '#16a34a', marginRight: '4px' }}>✓</span> {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Gastronomy */}
-              <div className="tourist-section-block">
-                <h4><FaUtensils /> {isEn ? 'Gastronomy & Local Delicacies' : 'Gastronomía y Sabores Locales'}</h4>
-                <p>{activeModal.touristInfo.gastronomy}</p>
-              </div>
-
-              {/* Tips */}
-              <div className="tourist-tips-box">
-                <strong>💡 {isEn ? 'Traveler Tips:' : 'Consejos para el Viajero:'}</strong> {activeModal.touristInfo.tips}
-              </div>
-            </div>
-
-            {/* Modal Footer */}
+            {/* Sticky Modal Footer */}
             <div className="destination-modal-footer">
               <div className="price-display">
                 <small>{isEn ? 'Reference Fare' : 'Tarifa Referencial'}</small>
