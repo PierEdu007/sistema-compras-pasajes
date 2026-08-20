@@ -42,13 +42,13 @@ export default function YapePaymentModal({
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
 
-  const YAPE_NUMBER = '927 670 019';
+  const YAPE_NUMBER = '997 475 405';
   const YAPE_TITULAR = "Inversiones Tunky Chasky S.R.L.";
 
   if (!isOpen) return null;
 
   const handleCopyNumber = () => {
-    navigator.clipboard.writeText('927670019');
+    navigator.clipboard.writeText('997475405');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

@@ -113,16 +113,36 @@ export default function Destinations() {
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>{dest.meta2Icon} {dest.meta2Text}</span>
                 </div>
                 <div className="card-actions">
-                  <a 
-                    href={`https://wa.me/51927670019?text=Hola,%20quiero%20información%20sobre%20la%20ruta%20${encodeURIComponent(dest.title)}`}
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="btn-text"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                  >
-                    <span>{t('dest.enquire', 'Consultar Ahora')}</span>
-                    <FaArrowRight />
-                  </a>
+                  {dest.id === 2 ? (
+                    <a 
+                      href="/viajes?origen=CUSCO&destino=QUILLABAMBA"
+                      className="btn-text btn-book"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#742284', fontWeight: 'bold' }}
+                    >
+                      <span>{t('dest.bookNow', 'Comprar Pasaje')}</span>
+                      <FaArrowRight />
+                    </a>
+                  ) : dest.id === 3 ? (
+                    <a 
+                      href="/viajes?origen=CUSCO&destino=QUELLOUNO"
+                      className="btn-text btn-book"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#742284', fontWeight: 'bold' }}
+                    >
+                      <span>{t('dest.bookNow', 'Comprar Pasaje')}</span>
+                      <FaArrowRight />
+                    </a>
+                  ) : (
+                    <a 
+                      href={`https://wa.me/51997475405?text=Hola,%20quiero%20información%20sobre%20la%20ruta%20${encodeURIComponent(dest.title)}`}
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="btn-text"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <span>{t('dest.enquire', 'Consultar Ahora')}</span>
+                      <FaArrowRight />
+                    </a>
+                  )}
                 </div>
               </div>
             </article>
