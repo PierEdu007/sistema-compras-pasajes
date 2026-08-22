@@ -25,8 +25,11 @@ CREATE POLICY "ventas_update_authenticated_only" ON ventas
 -- no son sensibles y no incluyen contraseñas ni tokens.
 
 -- ============================================================
--- 2. CONSTRAINT UNIQUE EN nro_operacion (Anti-Reutilización Yape)
+-- 2. COLUMNA Y CONSTRAINT UNIQUE EN nro_operacion (Anti-Reutilización Yape)
 -- ============================================================
+
+-- Asegurar que la columna nro_operacion exista en la tabla ventas
+ALTER TABLE ventas ADD COLUMN IF NOT EXISTS nro_operacion TEXT;
 
 -- Prevenir que un mismo código de operación de Yape se use para múltiples ventas.
 -- Se usa un índice parcial porque nro_operacion puede ser NULL (ventas por tarjeta).
