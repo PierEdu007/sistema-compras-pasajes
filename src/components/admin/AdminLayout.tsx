@@ -12,6 +12,21 @@ const AdminLayout: React.FC = () => {
   const [activeNotification, setActiveNotification] = useState<SaleNotificationData | null>(null);
 
   useEffect(() => {
+    // Todo el panel de administración (/admin/*) debe permanecer siempre en modo claro
+    const prevTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', 'light');
+    return () => {
+      // Restaurar tema previo al salir del panel de administración
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      } else if (prevTheme) {
+        document.documentElement.setAttribute('data-theme', prevTheme);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     // Suscripción Global a Nuevas Ventas en Supabase
     const channel = supabase
       .channel('admin-layout-global-realtime')
