@@ -554,11 +554,34 @@
 
 .vehicle-modal-actions {
   flex-shrink: 0;
-  padding: 0.75rem 1.5rem;
+  padding: 0.85rem 1.5rem;
   border-top: 1px solid #e2e8f0;
   display: flex;
   justify-content: center;
   background-color: #f8fafc;
+}
+
+.btn-back-schedules {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 0.65rem 1.4rem;
+  border-radius: 8px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+}
+
+.btn-back-schedules:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+  border-color: #94a3b8;
+  transform: translateY(-1px);
 }
 
 /* Empty State */

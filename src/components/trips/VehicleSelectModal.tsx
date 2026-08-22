@@ -172,7 +172,7 @@ export default function VehicleSelectModal({ schedule, onClose }: VehicleSelectM
 
         {/* Footer del Modal */}
         <div className="vehicle-modal-actions">
-          <button className="btn btn-text" onClick={onClose} style={{ color: '#64748b' }}>
+          <button className="btn-back-schedules" onClick={onClose} type="button">
             {t('trips.backToSchedules', '← Volver a la lista de horarios')}
           </button>
         </div>
