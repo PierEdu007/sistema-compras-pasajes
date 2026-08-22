@@ -276,7 +276,147 @@
   box-shadow: 0 6px 20px rgba(116, 34, 132, 0.45);
 }
 
-.btn-yape-submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.yape-optional-hint {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.8rem;
 }
+
+/* ==========================================================================
+   Dark Mode Overrides para Modal de Yape
+   ========================================================================== */
+[data-theme="dark"] .yape-modal-content {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+}
+
+[data-theme="dark"] .yape-modal-close {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .yape-modal-close:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .yape-modal-header {
+  background: linear-gradient(135deg, #581c87 0%, #3b0764 100%) !important;
+}
+
+[data-theme="dark"] .yape-modal-header h2 {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .yape-modal-subtitle {
+  color: #e9d5ff !important;
+}
+
+[data-theme="dark"] .yape-summary-card {
+  background: #152238 !important;
+  border-color: #2c3e55 !important;
+}
+
+[data-theme="dark"] .yape-summary-card .summary-item {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .yape-summary-card .summary-item.total {
+  color: #f8fafc !important;
+  border-top-color: #334155 !important;
+}
+
+[data-theme="dark"] .yape-summary-card .amount {
+  color: #c084fc !important;
+}
+
+[data-theme="dark"] .yape-qr-box {
+  background: #ffffff !important;
+  border-color: #a855f7 !important;
+}
+
+[data-theme="dark"] .yape-qr-caption {
+  color: #742284 !important;
+}
+
+[data-theme="dark"] .yape-phone-info .info-label {
+  color: #cbd5e1 !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="dark"] .phone-number-row .phone-number {
+  color: #c084fc !important;
+}
+
+[data-theme="dark"] .btn-copy {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .btn-copy:hover {
+  background: #334155 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .btn-copy.copied {
+  background: #064e3b !important;
+  color: #6ee7b7 !important;
+  border-color: #059669 !important;
+}
+
+[data-theme="dark"] .titular-info {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .titular-info strong {
+  color: #f1f5f9 !important;
+}
+
+/* Títulos y Etiquetas de los Campos (Form Labels) en Modo Oscuro - ALTO CONTRASTE */
+[data-theme="dark"] .yape-form .form-label {
+  color: #f8fafc !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px;
+}
+
+[data-theme="dark"] .yape-form .form-label .required {
+  color: #fb7185 !important;
+}
+
+[data-theme="dark"] .yape-optional-hint {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .yape-form .form-control {
+  background-color: #0b1322 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .yape-form .form-control::placeholder {
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .yape-form .form-control:focus {
+  border-color: #c084fc !important;
+  box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.25) !important;
+}
+
+[data-theme="dark"] .yape-form .help-text {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .btn-yape-submit {
+  background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(147, 51, 234, 0.4) !important;
+}
+
+[data-theme="dark"] .btn-yape-submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%) !important;
+  box-shadow: 0 6px 22px rgba(147, 51, 234, 0.55) !important;
+}
+

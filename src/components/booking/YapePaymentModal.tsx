@@ -167,7 +167,7 @@ export default function YapePaymentModal({
 
             <div className="form-group">
               <label className="form-label" htmlFor="telefono_yape">
-                {t('yape.phoneLabel', 'Número de Celular desde el que Yapeaste')} <small style={{ color: '#64748b' }}>({t('yape.phoneOptional', 'Opcional')})</small>
+                {t('yape.phoneLabel', 'Número de Celular desde el que Yapeaste')} <span className="yape-optional-hint">({t('yape.phoneOptional', 'Opcional')})</span>
               </label>
               <input
                 id="telefono_yape"
@@ -179,7 +179,7 @@ export default function YapePaymentModal({
                 maxLength={15}
                 disabled={disabled}
               />
-              <small className="help-text" style={{ display: 'block', marginTop: '4px', color: '#64748b', fontSize: '0.75rem' }}>
+              <small className="help-text">
                 {t('yape.phoneHelp', 'Si no ingresas un número, se usará automáticamente el teléfono del pasajero registrado anteriormente.')}
               </small>
             </div>
