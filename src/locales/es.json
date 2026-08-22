@@ -130,7 +130,12 @@
     "title": "Encuéntranos en",
     "subtitle": "Visítanos",
     "cusco": "Terminal Cusco",
-    "quillabamba": "Terminal Quillabamba"
+    "quillabamba": "Terminal Quillabamba",
+    "addressLabel": "Dirección de la Agencia Principal:",
+    "addressValue": "Av. Antonio Lorena 318, Santiago, Cusco",
+    "phonesLabel": "Central Telefónica & WhatsApp:",
+    "phonesValue": "+51 927 670 019 | Fijo: (084) 500393",
+    "openGoogleMaps": "Cómo llegar"
   },
   "trust": {
     "security": {

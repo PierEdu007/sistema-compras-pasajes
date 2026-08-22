@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { FaMapMarkerAlt, FaPhoneAlt, FaDirections, FaExternalLinkAlt } from 'react-icons/fa';
 import '../../styles/components/MapSection.css';
 
 export default function MapSection() {
@@ -20,6 +21,40 @@ export default function MapSection() {
             loading="lazy"
             title="Ubicación Tunki Chasky"
           ></iframe>
+        </div>
+
+        {/* Dirección de texto debajo del mapa */}
+        <div className="map-address-card">
+          <div className="map-address-item">
+            <div className="map-address-icon">
+              <FaMapMarkerAlt />
+            </div>
+            <div className="map-address-details">
+              <span className="map-address-label">{t('map.addressLabel', 'Dirección de la Agencia Principal:')}</span>
+              <strong className="map-address-text">{t('map.addressValue', 'Av. Antonio Lorena 318, Santiago, Cusco')}</strong>
+            </div>
+          </div>
+
+          <div className="map-address-item">
+            <div className="map-address-icon">
+              <FaPhoneAlt />
+            </div>
+            <div className="map-address-details">
+              <span className="map-address-label">{t('map.phonesLabel', 'Central Telefónica & WhatsApp:')}</span>
+              <strong className="map-address-text">{t('map.phonesValue', '+51 927 670 019 | Fijo: (084) 500393')}</strong>
+            </div>
+          </div>
+
+          <div className="map-address-action">
+            <a
+              href="https://maps.google.com/?q=-13.5263093,-71.9859922"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-outline map-directions-btn"
+            >
+              <FaDirections /> {t('map.openGoogleMaps', 'Cómo llegar')} <FaExternalLinkAlt style={{ fontSize: '0.75rem' }} />
+            </a>
+          </div>
         </div>
       </div>
     </section>

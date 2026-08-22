@@ -130,7 +130,12 @@
     "title": "Find Us At",
     "subtitle": "Visit Us",
     "cusco": "Cusco Terminal",
-    "quillabamba": "Quillabamba Terminal"
+    "quillabamba": "Quillabamba Terminal",
+    "addressLabel": "Main Office Address:",
+    "addressValue": "Av. Antonio Lorena 318, Santiago, Cusco",
+    "phonesLabel": "Phone Support & WhatsApp:",
+    "phonesValue": "+51 927 670 019 | Landline: (084) 500393",
+    "openGoogleMaps": "Get Directions"
   },
   "trust": {
     "security": {
