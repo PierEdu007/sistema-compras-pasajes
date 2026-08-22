@@ -71,6 +71,12 @@ export function useAuth() {
     return true;
   }, [logout]);
 
+  // Lista blanca exacta de correos autorizados como ADMIN (fallback si user_roles no existe)
+  const AUTHORIZED_ADMIN_EMAILS = [
+    'admin@tunky.com',
+    'admin@turismotunkychasky.com.pe',
+  ];
+
   const fetchRole = useCallback(async (currentUser: User) => {
     try {
       setLoading(true);
@@ -82,12 +88,8 @@ export function useAuth() {
       
       if (error) {
         console.error('Error fetching user role:', error);
-        // Fallback: si hay algún error de BD, verificar si es el admin conocido
-        if (
-          currentUser.email === 'admin@tunky.com' ||
-          currentUser.email === 'admin@turismotunkychasky.com.pe' ||
-          currentUser.email?.includes('admin')
-        ) {
+        // Fallback: verificar si es un admin autorizado por email exacto
+        if (currentUser.email && AUTHORIZED_ADMIN_EMAILS.includes(currentUser.email.toLowerCase())) {
           setRole('ADMIN' as Rol);
         } else {
           setRole(null);
@@ -95,12 +97,8 @@ export function useAuth() {
       } else if (data) {
         setRole((data as any).rol as Rol);
       } else {
-        // No se encontró fila en user_roles — asignar ADMIN si el email lo indica
-        if (
-          currentUser.email === 'admin@tunky.com' ||
-          currentUser.email === 'admin@turismotunkychasky.com.pe' ||
-          currentUser.email?.includes('admin')
-        ) {
+        // No se encontró fila en user_roles — verificar lista blanca exacta
+        if (currentUser.email && AUTHORIZED_ADMIN_EMAILS.includes(currentUser.email.toLowerCase())) {
           setRole('ADMIN' as Rol);
         } else {
           setRole(null);

@@ -1,8 +1,25 @@
 // Cloudflare Pages Function: /api/registrar-venta
-// Hardened serverless endpoint with input validation, sanitization, and parameterized queries
+// Hardened serverless endpoint with input validation, sanitization, parameterized queries and restricted CORS
 
-const SUPABASE_URL = 'https://ybnenttufdztznupgigk.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_Mdx2PoPGjjz1S7FtJpSucw__QkNvuMF';
+const ALLOWED_ORIGINS = [
+  'https://turismotunkychasky.com.pe',
+  'https://www.turismotunkychasky.com.pe',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+];
+
+function getCorsHeaders(request) {
+  const origin = request?.headers?.get('Origin') || '';
+  const isAllowed = ALLOWED_ORIGINS.includes(origin) || origin.endsWith('.pages.dev');
+  return {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': isAllowed ? origin : 'https://turismotunkychasky.com.pe',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
+  };
+}
 
 // Strict UUID regex
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -17,12 +34,9 @@ function sanitizeStr(str, maxLen = 100) {
 }
 
 export async function onRequestPost(context) {
-  const corsHeaders = {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  };
+  const corsHeaders = getCorsHeaders(context.request);
+  const SUPABASE_URL = context.env?.SUPABASE_URL || context.env?.VITE_SUPABASE_URL || 'https://ybnenttufdztznupgigk.supabase.co';
+  const SUPABASE_ANON_KEY = context.env?.SUPABASE_ANON_KEY || context.env?.VITE_SUPABASE_ANON_KEY || '';
 
   try {
     const body = await context.request.json();
@@ -170,13 +184,9 @@ export async function onRequestPost(context) {
   }
 }
 
-export async function onRequestOptions() {
+export async function onRequestOptions(context) {
   return new Response(null, {
     status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    },
+    headers: getCorsHeaders(context.request),
   });
 }

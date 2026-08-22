@@ -45,6 +45,9 @@ const DEFAULT_CONFIG_KEY = 'sunat_pse_config';
 
 // Cargar configuración guardada de Nubefact / PSE
 export function getSunatConfig(): SunatConfig {
+  const envApiUrl = (import.meta.env.VITE_NUBEFACT_API_URL as string) || '';
+  const envApiToken = (import.meta.env.VITE_NUBEFACT_API_TOKEN as string) || '';
+
   const saved = localStorage.getItem(DEFAULT_CONFIG_KEY);
   if (saved) {
     try {
@@ -52,8 +55,8 @@ export function getSunatConfig(): SunatConfig {
       if (parsed && typeof parsed === 'object') {
         return {
           enabled: parsed.enabled ?? true,
-          apiUrl: parsed.apiUrl || 'https://api.nubefact.com/api/v1/ad363ac5-880b-4f3f-be7a-247d2908a9d6',
-          apiToken: parsed.apiToken || '3c4fcc1af04b48b4b3fe291e485c1fa061857d24cc8143ce9d73f312b4836cbc',
+          apiUrl: parsed.apiUrl || envApiUrl,
+          apiToken: parsed.apiToken || envApiToken,
           serieBoleta: parsed.serieBoleta || 'BBB1',
           serieFactura: parsed.serieFactura || 'FFF1',
           tipoIgv: parsed.tipoIgv ?? 8
@@ -64,9 +67,9 @@ export function getSunatConfig(): SunatConfig {
     }
   }
   return {
-    enabled: true,
-    apiUrl: (import.meta.env.VITE_NUBEFACT_API_URL as string) || 'https://api.nubefact.com/api/v1/ad363ac5-880b-4f3f-be7a-247d2908a9d6',
-    apiToken: (import.meta.env.VITE_NUBEFACT_API_TOKEN as string) || '3c4fcc1af04b48b4b3fe291e485c1fa061857d24cc8143ce9d73f312b4836cbc',
+    enabled: Boolean(envApiUrl && envApiToken),
+    apiUrl: envApiUrl,
+    apiToken: envApiToken,
     serieBoleta: 'BBB1',
     serieFactura: 'FFF1',
     tipoIgv: 8 // Exonerado por ley de transporte terrestre de pasajeros (IGV 0%)

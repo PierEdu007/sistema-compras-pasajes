@@ -1,13 +1,47 @@
 // Cloudflare Pages Function: /api/dni
-// Proxies DNI lookups to apis.net.pe to avoid browser CORS restrictions
+// Proxies DNI lookups to apis.net.pe with restricted CORS and input validation
+
+const ALLOWED_ORIGINS = [
+  'https://turismotunkychasky.com.pe',
+  'https://www.turismotunkychasky.com.pe',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+];
+
+function getCorsOrigin(request) {
+  const origin = request?.headers?.get('Origin') || '';
+  const isAllowed = ALLOWED_ORIGINS.includes(origin) || origin.endsWith('.pages.dev');
+  return isAllowed ? origin : 'https://turismotunkychasky.com.pe';
+}
+
 export async function onRequest(context) {
-  const url = new URL(context.request.url);
+  const { request } = context;
+  const allowOrigin = getCorsOrigin(request);
+
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': allowOrigin,
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Vary': 'Origin',
+      },
+    });
+  }
+
+  const url = new URL(request.url);
   const numero = url.searchParams.get('numero');
 
   if (!numero || !/^[0-9]{8}$/.test(numero)) {
     return new Response(JSON.stringify({ error: 'DNI inválido' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': allowOrigin,
+        'Vary': 'Origin',
+      },
     });
   }
 
@@ -22,14 +56,19 @@ export async function onRequest(context) {
       status: res.status,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': allowOrigin,
         'Cache-Control': 'public, max-age=86400',
+        'Vary': 'Origin',
       },
     });
   } catch (err) {
     return new Response(JSON.stringify({ error: 'Error al consultar RENIEC' }), {
       status: 502,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': allowOrigin,
+        'Vary': 'Origin',
+      },
     });
   }
 }

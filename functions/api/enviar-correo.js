@@ -1,18 +1,38 @@
 // Cloudflare Pages Function: /api/enviar-correo
-// Hardened email dispatcher with origin verification, recipient validation, and phishing protection
+// Hardened email dispatcher with origin verification, recipient validation, SSRF protection, and restricted CORS
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-export async function onRequest(context) {
-  const { request } = context;
-  const origin = request.headers.get('Origin') || request.headers.get('Referer') || '';
+const ALLOWED_ORIGINS = [
+  'https://turismotunkychasky.com.pe',
+  'https://www.turismotunkychasky.com.pe',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+];
 
-  const corsHeaders = {
+function getCorsHeaders(request) {
+  const origin = request?.headers?.get('Origin') || request?.headers?.get('Referer') || '';
+  const isAllowed = ALLOWED_ORIGINS.some(allowed => origin.startsWith(allowed)) || origin.includes('.pages.dev');
+  return {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': origin || '*',
+    'Access-Control-Allow-Origin': isAllowed ? (request?.headers?.get('Origin') || 'https://turismotunkychasky.com.pe') : 'https://turismotunkychasky.com.pe',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
   };
+}
+
+// SSRF Whitelist for attachments
+const ALLOWED_ATTACHMENT_PREFIXES = [
+  'https://api.nubefact.com/',
+  'https://www.nubefact.com/',
+  'https://ybnenttufdztznupgigk.supabase.co/',
+];
+
+export async function onRequest(context) {
+  const { request } = context;
+  const corsHeaders = getCorsHeaders(request);
 
   if (request.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: corsHeaders });
@@ -55,11 +75,18 @@ export async function onRequest(context) {
       }
     }
 
-    // 3. Procesar adjuntos y descargar PDF / XML de NubeFact en el servidor (Sin restricciones CORS)
+    // 3. Procesar adjuntos con validación SSRF estricta
     const emailAttachments = Array.isArray(attachments) ? [...attachments] : [];
 
     async function fetchUrlAsBase64Server(url) {
       try {
+        if (!url || typeof url !== 'string') return null;
+        const isUrlAllowed = ALLOWED_ATTACHMENT_PREFIXES.some(prefix => url.startsWith(prefix));
+        if (!isUrlAllowed) {
+          console.warn('SSRF Blocked: URL de adjunto no permitida:', url);
+          return null;
+        }
+
         const fileRes = await fetch(url);
         if (!fileRes.ok) return null;
         const buf = await fileRes.arrayBuffer();
@@ -114,9 +141,8 @@ export async function onRequest(context) {
     // 4. Sanitize Subject
     const cleanSubject = String(subject).replace(/[\r\n]/g, '').slice(0, 150);
 
-    // 5. Secure Resend API Key retrieval (from env or verified admin client key or default fallback)
-    const fallbackKey = ['re', 'GCoWHfWU', 'DgyPBr9gtV93XBcuSEAfzgKb'].join('_');
-    const resendApiKey = clientKey || context.env?.RESEND_API_KEY || context.env?.VITE_RESEND_API_KEY || fallbackKey;
+    // 5. Secure Resend API Key retrieval (from env or verified admin client key)
+    const resendApiKey = clientKey || context.env?.RESEND_API_KEY || context.env?.VITE_RESEND_API_KEY || '';
     if (!resendApiKey || !resendApiKey.startsWith('re_')) {
       return new Response(
         JSON.stringify({ error: 'Servicio de correo no configurado (falta API Key de Resend)' }),
