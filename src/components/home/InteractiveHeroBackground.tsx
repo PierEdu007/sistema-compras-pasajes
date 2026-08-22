@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import heroLandscapeImg from '../../assets/hero-landscape.png';
+import heroLandscapeNightImg from '../../assets/hero-landscape-night.jpg';
 import '../../styles/components/InteractiveHero.css';
 
 const InteractiveHeroBackground: React.FC = () => {
-  const bgRef = useRef<HTMLImageElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
   const cloud1Ref = useRef<HTMLDivElement>(null);
   const cloud2Ref = useRef<HTMLDivElement>(null);
   const sunbeamRef = useRef<HTMLDivElement>(null);
@@ -82,13 +83,19 @@ const InteractiveHeroBackground: React.FC = () => {
 
   return (
     <div className="interactive-hero-wrapper">
-      {/* 1. Base Mountain Background (Machu Picchu) - 120% full-bleed */}
-      <img
-        ref={bgRef}
-        src={heroLandscapeImg}
-        alt="Machu Picchu - Turismo Tunki Chasky"
-        className="interactive-hero-bg"
-      />
+      {/* 1. Base Mountain Background (Machu Picchu Day & Night Crossfade) - 120% full-bleed */}
+      <div ref={bgRef} className="interactive-hero-bg-container">
+        <img
+          src={heroLandscapeImg}
+          alt="Machu Picchu Día - Turismo Tunki Chasky"
+          className="interactive-hero-bg interactive-hero-bg-day"
+        />
+        <img
+          src={heroLandscapeNightImg}
+          alt="Machu Picchu Noche - Turismo Tunki Chasky"
+          className="interactive-hero-bg interactive-hero-bg-night"
+        />
+      </div>
 
       {/* 2. Golden Andean Sunbeam Glow */}
       <div ref={sunbeamRef} className="sunbeam-glow" />

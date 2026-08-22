@@ -14,8 +14,8 @@
   background: #0b1523;
 }
 
-/* Base Mountain Image with Vibrant Colors and 120% Oversize (No Edge Gaps) */
-.interactive-hero-bg {
+/* Base Mountain Container with 120% Oversize for 3D Parallax */
+.interactive-hero-bg-container {
   position: absolute;
   top: -10%;
   left: -10%;
@@ -23,12 +23,42 @@
   height: 120%;
   min-width: 120%;
   min-height: 120%;
-  object-fit: cover;
-  object-position: center 38%;
   will-change: transform;
   transition: transform 0.12s cubic-bezier(0.25, 1, 0.5, 1);
-  /* Vibrant Lush Green & Warm Andean Sunlight Filters */
+}
+
+.interactive-hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 38%;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease;
+}
+
+/* 1. Machu Picchu Día */
+.interactive-hero-bg-day {
+  opacity: 1;
   filter: saturate(1.45) contrast(1.18) brightness(1.1);
+  z-index: 1;
+}
+
+/* 2. Machu Picchu Noche Estrellada */
+.interactive-hero-bg-night {
+  opacity: 0;
+  filter: saturate(1.15) contrast(1.1) brightness(1.05);
+  z-index: 2;
+}
+
+/* Transición a Noche en Modo Oscuro */
+[data-theme="dark"] .interactive-hero-bg-day {
+  opacity: 0;
+}
+
+[data-theme="dark"] .interactive-hero-bg-night {
+  opacity: 1;
 }
 
 /* Light Vibrant Overlay (Lush Green & Golden Sun Tint, NOT Dull Grey) */
@@ -44,7 +74,17 @@
     rgba(16, 185, 129, 0.04) 40%,
     rgba(11, 21, 35, 0.65) 100%
   );
-  z-index: 1;
+  z-index: 3;
+  transition: background 0.8s ease;
+}
+
+[data-theme="dark"] .interactive-hero-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(4, 9, 18, 0.45) 0%,
+    rgba(15, 23, 42, 0.08) 40%,
+    rgba(7, 14, 26, 0.75) 100%
+  );
 }
 
 /* ----------------------------------------------------
@@ -138,7 +178,7 @@
   }
 }
 
-/* Ambient Warm Sunbeam */
+/* Ambient Warm Sunbeam (Day) / Moonlight Glow (Night) */
 .sunbeam-glow {
   position: absolute;
   top: -5%;
@@ -150,6 +190,18 @@
   pointer-events: none;
   z-index: 2;
   animation: ambientSunPulse 9s ease-in-out infinite alternate;
+  transition: background 0.8s ease, opacity 0.8s ease;
+}
+
+[data-theme="dark"] .sunbeam-glow {
+  background: radial-gradient(circle, rgba(147, 197, 253, 0.22) 0%, rgba(96, 165, 250, 0.08) 45%, rgba(255, 255, 255, 0) 70%);
+  opacity: 0.85;
+}
+
+[data-theme="dark"] .clouds-container {
+  opacity: 0.4;
+  filter: brightness(0.7) hue-rotate(190deg);
+  transition: opacity 0.8s ease, filter 0.8s ease;
 }
 
 @keyframes ambientSunPulse {
