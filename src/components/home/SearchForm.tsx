@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaBus } from 'react-icons/fa';
+import { FaBus, FaCalendarAlt } from 'react-icons/fa';
 
 export default function SearchForm() {
   const { t } = useTranslation();
@@ -99,7 +99,10 @@ export default function SearchForm() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">{t('search.date', 'Fecha de viaje')}</label>
+            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+              <FaCalendarAlt style={{ color: '#00AEEF', fontSize: '0.95rem' }} />
+              <span>{t('search.date', 'Fecha de viaje')}</span>
+            </label>
             <input 
               type="date" 
               className="form-control" 
