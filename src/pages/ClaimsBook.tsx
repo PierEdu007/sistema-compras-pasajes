@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaBook, FaCheckCircle, FaExclamationCircle, FaUser, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaFileAlt } from 'react-icons/fa';
-import '../styles/components/Booking.css';
+import '../styles/components/ClaimsBook.css';
 
 export default function ClaimsBook() {
   const { t } = useTranslation();
@@ -33,18 +33,18 @@ export default function ClaimsBook() {
   };
 
   return (
-    <div className="container py-5" style={{ maxWidth: '850px', minHeight: '80vh' }}>
-      <div className="text-center mb-4">
-        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '60px', height: '60px', borderRadius: '50%', background: '#eff6ff', color: '#0f4c81', fontSize: '1.8rem', marginBottom: '15px' }}>
+    <div className="claims-page">
+      <div className="claims-header">
+        <div className="claims-header-icon">
           <FaBook />
         </div>
-        <h1 style={{ fontSize: '1.8rem', color: '#0f4c81', fontWeight: 'bold', margin: '0 0 8px 0' }}>
+        <h1 className="claims-main-title">
           {t('claims.title', 'Libro de Reclamaciones Virtual')}
         </h1>
-        <p style={{ color: '#64748b', fontSize: '0.95rem', margin: 0 }}>
+        <p className="claims-subtitle">
           {t('claims.subtitle', 'Conforme a lo establecido en el Código de Protección y Defensa del Consumidor (Ley N° 29571)')}
         </p>
-        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '8px', display: 'inline-block', marginTop: '12px', fontSize: '0.85rem', color: '#334155' }}>
+        <div className="claims-company-badge">
           <strong>Razón Social:</strong> INVERSIONES TUNKI CHASKY S.R.L. | <strong>RUC:</strong> 20608425676
         </div>
       </div>
@@ -79,14 +79,13 @@ export default function ClaimsBook() {
             <FaUser /> {t('claims.sec1Title', '1. Identificación del Consumidor Reclamante')}
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px', marginBottom: '15px' }}>
-            <div className="form-group">
-              <label style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>{t('claims.docType', 'Tipo Documento:')}</label>
+          <div className="claims-grid-2">
+            <div className="claims-form-group">
+              <label className="claims-label">{t('claims.docType', 'Tipo Documento:')}</label>
               <select 
-                className="form-control" 
+                className="claims-select" 
                 value={formData.tipoDoc}
                 onChange={(e) => setFormData({ ...formData, tipoDoc: e.target.value })}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
               >
                 <option value="DNI">DNI</option>
                 <option value="CE">{t('booking.ceOption', 'Carnet de Extranjería')}</option>
@@ -95,150 +94,141 @@ export default function ClaimsBook() {
               </select>
             </div>
 
-            <div className="form-group">
-              <label style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>{t('claims.docNumber', 'N° Documento:')}</label>
+            <div className="claims-form-group">
+              <label className="claims-label">{t('claims.docNumber', 'N° Documento:')}</label>
               <input 
                 type="text" 
-                className="form-control" 
+                className="claims-input" 
                 required
                 value={formData.nroDoc}
                 onChange={(e) => setFormData({ ...formData, nroDoc: e.target.value })}
                 placeholder="Ej. 72849182"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
               />
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px', marginBottom: '15px' }}>
-            <div className="form-group">
-              <label style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>{t('claims.firstName', 'Nombres:')}</label>
+          <div className="claims-grid-2">
+            <div className="claims-form-group">
+              <label className="claims-label">{t('claims.firstName', 'Nombres:')}</label>
               <input 
                 type="text" 
-                className="form-control" 
+                className="claims-input" 
                 required
                 value={formData.nombres}
                 onChange={(e) => setFormData({ ...formData, nombres: e.target.value })}
                 placeholder="Nombres completos"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
               />
             </div>
 
-            <div className="form-group">
-              <label style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>{t('claims.lastName', 'Apellidos:')}</label>
+            <div className="claims-form-group">
+              <label className="claims-label">{t('claims.lastName', 'Apellidos:')}</label>
               <input 
                 type="text" 
-                className="form-control" 
+                className="claims-input" 
                 required
                 value={formData.apellidos}
                 onChange={(e) => setFormData({ ...formData, apellidos: e.target.value })}
                 placeholder="Apellidos completos"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
               />
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px', marginBottom: '15px' }}>
-            <div className="form-group">
-              <label style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>
-                <FaEnvelope style={{ marginRight: '4px' }} /> {t('claims.email', 'Correo Electrónico:')}
+          <div className="claims-grid-2">
+            <div className="claims-form-group">
+              <label className="claims-label">
+                <FaEnvelope /> {t('claims.email', 'Correo Electrónico:')}
               </label>
               <input 
                 type="email" 
-                className="form-control" 
+                className="claims-input" 
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="correo@ejemplo.com"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
               />
             </div>
 
-            <div className="form-group">
-              <label style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>
-                <FaPhoneAlt style={{ marginRight: '4px' }} /> {t('claims.phone', 'Teléfono / Celular:')}
+            <div className="claims-form-group">
+              <label className="claims-label">
+                <FaPhoneAlt /> {t('claims.phone', 'Teléfono / Celular:')}
               </label>
               <input 
                 type="tel" 
-                className="form-control" 
+                className="claims-input" 
                 required
                 value={formData.telefono}
                 onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
                 placeholder="997475405"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
               />
             </div>
           </div>
 
-          <div className="form-group" style={{ marginBottom: '25px' }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>
-              <FaMapMarkerAlt style={{ marginRight: '4px' }} /> {t('claims.address', 'Domicilio:')}
+          <div className="claims-form-group">
+            <label className="claims-label">
+              <FaMapMarkerAlt /> {t('claims.address', 'Domicilio:')}
             </label>
             <input 
               type="text" 
-              className="form-control" 
+              className="claims-input" 
               required
               value={formData.domicilio}
               onChange={(e) => setFormData({ ...formData, domicilio: e.target.value })}
               placeholder={t('claims.addressPlaceholder', 'Dirección, Ciudad y Departamento')}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
             />
           </div>
 
           {/* SECCIÓN 2: IDENTIFICACIÓN DEL SERVICIO / BIEN */}
-          <h3 style={{ fontSize: '1.1rem', color: '#0f4c81', borderBottom: '2px solid #f1f5f9', paddingBottom: '8px', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h3 className="claims-section-title">
             <FaFileAlt /> {t('claims.sec2Title', '2. Identificación del Servicio Contratado')}
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px', marginBottom: '15px' }}>
-            <div className="form-group">
-              <label style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>{t('claims.assetType', 'Tipo de Bien:')}</label>
+          <div className="claims-grid-2">
+            <div className="claims-form-group">
+              <label className="claims-label">{t('claims.assetType', 'Tipo de Bien:')}</label>
               <select 
-                className="form-control" 
+                className="claims-select" 
                 value={formData.tipoBien}
                 onChange={(e) => setFormData({ ...formData, tipoBien: e.target.value })}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
               >
                 <option value="SERVICIO">{t('claims.serviceOption', 'Servicio de Transporte de Pasajeros')}</option>
                 <option value="ENCOMIENDA">{t('claims.parcelOption', 'Servicio de Encomiendas y Giros')}</option>
               </select>
             </div>
 
-            <div className="form-group">
-              <label style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>{t('claims.amountClaimed', 'Monto Reclamado (S/):')}</label>
+            <div className="claims-form-group">
+              <label className="claims-label">{t('claims.amountClaimed', 'Monto Reclamado (S/):')}</label>
               <input 
                 type="number" 
                 step="0.01" 
-                className="form-control" 
+                className="claims-input" 
                 value={formData.montoReclamado}
                 onChange={(e) => setFormData({ ...formData, montoReclamado: e.target.value })}
                 placeholder="Ej. 50.00"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
               />
             </div>
           </div>
 
-          <div className="form-group" style={{ marginBottom: '25px' }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>{t('claims.serviceDesc', 'Descripción del Servicio (Boleto / Fecha / Ruta):')}</label>
+          <div className="claims-form-group">
+            <label className="claims-label">{t('claims.serviceDesc', 'Descripción del Servicio (Boleto / Fecha / Ruta):')}</label>
             <input 
               type="text" 
-              className="form-control" 
+              className="claims-input" 
               required
               value={formData.descripcionBien}
               onChange={(e) => setFormData({ ...formData, descripcionBien: e.target.value })}
               placeholder={t('claims.serviceDescPlaceholder', 'Ej. Boleto Cusco - Hidroeléctrica del 15/08/2026')}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
             />
           </div>
 
           {/* SECCIÓN 3: DETALLE DE LA RECLAMACIÓN */}
-          <h3 style={{ fontSize: '1.1rem', color: '#0f4c81', borderBottom: '2px solid #f1f5f9', paddingBottom: '8px', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h3 className="claims-section-title">
             <FaExclamationCircle /> {t('claims.sec3Title', '3. Detalle de la Reclamación')}
           </h3>
 
-          <div className="form-group" style={{ marginBottom: '15px' }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>{t('claims.claimType', 'Tipo:')}</label>
-            <div style={{ display: 'flex', gap: '20px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>
+          <div className="claims-form-group">
+            <label className="claims-label">{t('claims.claimType', 'Tipo de Registro:')}</label>
+            <div className="claims-radios-container">
+              <label className={`claims-radio-card ${formData.tipoReclamo === 'RECLAMO' ? 'active' : ''}`}>
                 <input 
                   type="radio" 
                   name="tipoReclamo" 
@@ -246,9 +236,13 @@ export default function ClaimsBook() {
                   checked={formData.tipoReclamo === 'RECLAMO'}
                   onChange={() => setFormData({ ...formData, tipoReclamo: 'RECLAMO' })}
                 />
-                <strong>{t('claims.claimRadio', 'Reclamo:')}</strong> {t('claims.claimRadioDesc', 'Disconformidad con el servicio')}
+                <div className="claims-radio-content">
+                  <span className="claims-radio-name">{t('claims.claimRadio', 'Reclamo')}</span>
+                  <span className="claims-radio-desc">{t('claims.claimRadioDesc', 'Disconformidad con el servicio')}</span>
+                </div>
               </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>
+
+              <label className={`claims-radio-card ${formData.tipoReclamo === 'QUEJA' ? 'active' : ''}`}>
                 <input 
                   type="radio" 
                   name="tipoReclamo" 
@@ -256,41 +250,41 @@ export default function ClaimsBook() {
                   checked={formData.tipoReclamo === 'QUEJA'}
                   onChange={() => setFormData({ ...formData, tipoReclamo: 'QUEJA' })}
                 />
-                <strong>{t('claims.complaintRadio', 'Queja:')}</strong> {t('claims.complaintRadioDesc', 'Malestar respecto a la atención')}
+                <div className="claims-radio-content">
+                  <span className="claims-radio-name">{t('claims.complaintRadio', 'Queja')}</span>
+                  <span className="claims-radio-desc">{t('claims.complaintRadioDesc', 'Malestar respecto a la atención')}</span>
+                </div>
               </label>
             </div>
           </div>
 
-          <div className="form-group" style={{ marginBottom: '15px' }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>{t('claims.factsDetail', 'Detalle de los hechos:')}</label>
+          <div className="claims-form-group">
+            <label className="claims-label">{t('claims.factsDetail', 'Detalle de los hechos:')}</label>
             <textarea 
               rows={4} 
-              className="form-control" 
+              className="claims-textarea" 
               required
               value={formData.detalle}
               onChange={(e) => setFormData({ ...formData, detalle: e.target.value })}
               placeholder={t('claims.factsPlaceholder', 'Explica detalladamente lo sucedido...')}
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', resize: 'vertical' }}
             />
           </div>
 
-          <div className="form-group" style={{ marginBottom: '25px' }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>{t('claims.concreteRequest', 'Pedido concreto del consumidor:')}</label>
+          <div className="claims-form-group">
+            <label className="claims-label">{t('claims.concreteRequest', 'Pedido concreto del consumidor:')}</label>
             <textarea 
-              rows={2} 
-              className="form-control" 
+              rows={3} 
+              className="claims-textarea" 
               required
               value={formData.pedido}
               onChange={(e) => setFormData({ ...formData, pedido: e.target.value })}
               placeholder={t('claims.requestPlaceholder', '¿Qué solución o respuesta solicitas de la empresa?')}
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', resize: 'vertical' }}
             />
           </div>
 
           <button 
             type="submit" 
-            className="btn btn-primary"
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            className="claims-submit-btn"
           >
             <FaBook /> {t('claims.submitBtn', 'Enviar Hoja de Reclamación')}
           </button>
