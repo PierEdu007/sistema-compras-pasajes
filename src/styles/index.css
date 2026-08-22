@@ -1222,9 +1222,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 /* ── Inputs, selects, textareas — global dark ── */
-[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
-[data-theme="dark"] select,
-[data-theme="dark"] textarea {
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not(.admin-form-control):not(.admin-login-box input),
+[data-theme="dark"] select:not(.admin-login-box select),
+[data-theme="dark"] textarea:not(.admin-login-box textarea) {
   background-color: #0f172a !important;
   color: #f1f5f9 !important;
   border-color: #334155 !important;

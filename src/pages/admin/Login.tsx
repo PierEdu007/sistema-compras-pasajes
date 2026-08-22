@@ -25,6 +25,21 @@ const AdminLogin: React.FC = () => {
   const { user, loading } = useAuth();
 
   useEffect(() => {
+    // El apartado de login administrativo siempre debe ser en modo claro
+    const prevTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', 'light');
+    return () => {
+      // Restaurar tema previo al salir si existía
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      } else if (prevTheme) {
+        document.documentElement.setAttribute('data-theme', prevTheme);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (user && !loading) {
       sessionStorage.removeItem('admin_login_fails');
       sessionStorage.removeItem('admin_session_expired_msg');
