@@ -58,8 +58,11 @@ export async function onRequest(context) {
     const body = await request.json();
     const { apiUrl, apiToken, payload } = body;
 
-    const targetUrl = (apiUrl || context.env?.NUBEFACT_API_URL || context.env?.VITE_NUBEFACT_API_URL || '').trim();
-    const targetToken = (apiToken || context.env?.NUBEFACT_API_TOKEN || context.env?.VITE_NUBEFACT_API_TOKEN || '').trim();
+    const DEFAULT_NUBEFACT_URL = 'https://api.nubefact.com/api/v1/ad363ac5-880b-4f3f-be7a-247d2908a9d6';
+    const DEFAULT_NUBEFACT_TOKEN = '3c4fcc1af04b48b4b3fe291e485c1fa061857d24cc8143ce9d73f312b4836cbc';
+
+    const targetUrl = (apiUrl || context.env?.NUBEFACT_API_URL || context.env?.VITE_NUBEFACT_API_URL || DEFAULT_NUBEFACT_URL).trim();
+    const targetToken = (apiToken || context.env?.NUBEFACT_API_TOKEN || context.env?.VITE_NUBEFACT_API_TOKEN || DEFAULT_NUBEFACT_TOKEN).trim();
 
     if (!targetUrl || !targetToken) {
       return new Response(

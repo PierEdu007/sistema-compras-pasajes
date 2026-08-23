@@ -44,11 +44,13 @@ export interface SunatResponse {
 }
 
 const DEFAULT_CONFIG_KEY = 'sunat_pse_config';
+const DEFAULT_NUBEFACT_URL = 'https://api.nubefact.com/api/v1/ad363ac5-880b-4f3f-be7a-247d2908a9d6';
+const DEFAULT_NUBEFACT_TOKEN = '3c4fcc1af04b48b4b3fe291e485c1fa061857d24cc8143ce9d73f312b4836cbc';
 
 // Cargar configuración guardada de Nubefact / PSE
 export function getSunatConfig(): SunatConfig {
-  const envApiUrl = (import.meta.env.VITE_NUBEFACT_API_URL as string) || '';
-  const envApiToken = (import.meta.env.VITE_NUBEFACT_API_TOKEN as string) || '';
+  const envApiUrl = (import.meta.env.VITE_NUBEFACT_API_URL as string) || DEFAULT_NUBEFACT_URL;
+  const envApiToken = (import.meta.env.VITE_NUBEFACT_API_TOKEN as string) || DEFAULT_NUBEFACT_TOKEN;
 
   const saved = localStorage.getItem(DEFAULT_CONFIG_KEY);
   if (saved) {
@@ -56,9 +58,9 @@ export function getSunatConfig(): SunatConfig {
       const parsed = JSON.parse(saved);
       if (parsed && typeof parsed === 'object') {
         return {
-          enabled: parsed.enabled ?? true,
-          apiUrl: parsed.apiUrl || envApiUrl,
-          apiToken: parsed.apiToken || envApiToken,
+          enabled: parsed.enabled !== false,
+          apiUrl: (parsed.apiUrl && parsed.apiUrl.trim()) ? parsed.apiUrl.trim() : envApiUrl,
+          apiToken: (parsed.apiToken && parsed.apiToken.trim()) ? parsed.apiToken.trim() : envApiToken,
           serieBoleta: parsed.serieBoleta || 'BBB1',
           serieFactura: parsed.serieFactura || 'FFF1',
           tipoIgv: parsed.tipoIgv ?? 8
@@ -69,7 +71,7 @@ export function getSunatConfig(): SunatConfig {
     }
   }
   return {
-    enabled: true, // Habilitado por defecto para usar variables de entorno en el servidor
+    enabled: true,
     apiUrl: envApiUrl,
     apiToken: envApiToken,
     serieBoleta: 'BBB1',
@@ -87,14 +89,13 @@ export function saveSunatConfig(config: SunatConfig): void {
  * Emitir Comprobante Electrónico (Boleta o Factura) directamente a SUNAT mediante API PSE
  */
 export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?: SunatConfig): Promise<SunatResponse> {
-  const config = customConfig || getSunatConfig();
-
-  if (config.enabled === false) {
-    return {
-      success: false,
-      error: 'La facturación automática a SUNAT está deshabilitada en la configuración.'
-    };
-  }
+  const loadedConfig = customConfig || getSunatConfig();
+  const config: SunatConfig = {
+    ...loadedConfig,
+    enabled: true,
+    apiUrl: loadedConfig.apiUrl || DEFAULT_NUBEFACT_URL,
+    apiToken: loadedConfig.apiToken || DEFAULT_NUBEFACT_TOKEN
+  };
 
   const isFactura = data.tipoDocumento === 'RUC';
   const tipoComprobante = isFactura ? 1 : 2; // 1 = Factura, 2 = Boleta
