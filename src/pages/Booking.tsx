@@ -28,14 +28,20 @@ import '../styles/components/Booking.css';
 // Interfaz extendida para el viaje
 interface ViajeBooking {
   id: string;
+  ruta_id?: string;
+  vehiculo_id?: string;
   hora_viaje: string;
   precio_base: number;
   fecha_viaje: string;
   vehiculos: {
+    id?: string;
+    tipo?: string;
     nombre_display: string;
+    total_asientos_pasajero?: number;
     layout_json: VehicleLayout;
   };
   rutas: {
+    id?: string;
     origen: string;
     destino: string;
   };
@@ -74,14 +80,20 @@ export default function Booking() {
           .from('viajes')
           .select(`
             id,
+            ruta_id,
+            vehiculo_id,
             hora_viaje,
             precio_base,
             fecha_viaje,
             vehiculos (
+              id,
+              tipo,
               nombre_display,
+              total_asientos_pasajero,
               layout_json
             ),
             rutas (
+              id,
               origen,
               destino
             )
@@ -93,13 +105,107 @@ export default function Booking() {
           throw new Error('Viaje no encontrado');
         }
 
-        const rawViaje = data as unknown as ViajeBooking;
+        let rawViaje = data as unknown as ViajeBooking;
 
-        // Normalizar vehículo a Auto (4 Pasajeros) o (6 Pasajeros)
-        const is6Seats = tipoParam === '6p' ? true :
-                         tipoParam === '4p' ? false :
+        // Determinar si se solicita 4p o 6p
+        const wants6p = tipoParam === '6p' ? true :
+                        tipoParam === '4p' ? false :
+                        (rawViaje.vehiculos?.total_asientos_pasajero === 6 || 
                          rawViaje.vehiculos?.nombre_display?.includes('6') || 
-                         rawViaje.vehiculos?.nombre_display?.includes('Ertiga');
+                         rawViaje.vehiculos?.tipo?.includes('6'));
+
+        const currentIs6p = rawViaje.vehiculos?.total_asientos_pasajero === 6 || 
+                            rawViaje.vehiculos?.nombre_display?.includes('6') || 
+                            rawViaje.vehiculos?.tipo?.includes('6');
+
+        // Si el tipo solicitado difiere del viaje cargado, buscar o crear el viaje hermano dedicado
+        if (wants6p !== currentIs6p) {
+          const { data: siblingTrips } = await supabase
+            .from('viajes')
+            .select(`
+              id,
+              ruta_id,
+              vehiculo_id,
+              hora_viaje,
+              precio_base,
+              fecha_viaje,
+              vehiculos (
+                id,
+                tipo,
+                nombre_display,
+                total_asientos_pasajero,
+                layout_json
+              ),
+              rutas (
+                id,
+                origen,
+                destino
+              )
+            `)
+            .eq('ruta_id', rawViaje.ruta_id || (rawViaje.rutas?.id || ''))
+            .eq('fecha_viaje', rawViaje.fecha_viaje)
+            .eq('hora_viaje', rawViaje.hora_viaje)
+            .eq('estado', 'ACTIVO');
+
+          const foundSibling = (siblingTrips as any[])?.find(st => 
+            wants6p 
+              ? (st.vehiculos?.total_asientos_pasajero === 6 || st.vehiculos?.nombre_display?.includes('6') || st.vehiculos?.tipo?.includes('6'))
+              : (st.vehiculos?.total_asientos_pasajero === 4 || st.vehiculos?.nombre_display?.includes('4') || st.vehiculos?.tipo?.includes('4'))
+          );
+
+          if (foundSibling) {
+            rawViaje = foundSibling as unknown as ViajeBooking;
+          } else {
+            // Si no existe el viaje para este vehículo, obtener el ID del vehículo y crearlo
+            const { data: vehList } = await supabase
+              .from('vehiculos')
+              .select('*')
+              .eq('activo', true);
+
+            const targetVeh = (vehList as any[])?.find(v => 
+              wants6p 
+                ? (v.total_asientos_pasajero === 6 || v.tipo?.includes('6') || v.nombre_display?.includes('6'))
+                : (v.total_asientos_pasajero === 4 || v.tipo?.includes('4') || v.nombre_display?.includes('4'))
+            );
+
+            if (targetVeh) {
+              const { data: newTrip } = await (supabase.from('viajes') as any)
+                .insert({
+                  ruta_id: rawViaje.ruta_id || (rawViaje.rutas?.id || ''),
+                  vehiculo_id: targetVeh.id,
+                  fecha_viaje: rawViaje.fecha_viaje,
+                  hora_viaje: rawViaje.hora_viaje,
+                  precio_base: rawViaje.precio_base || 50,
+                  estado: 'ACTIVO'
+                })
+                .select(`
+                  id,
+                  ruta_id,
+                  vehiculo_id,
+                  hora_viaje,
+                  precio_base,
+                  fecha_viaje,
+                  vehiculos (
+                    id,
+                    tipo,
+                    nombre_display,
+                    total_asientos_pasajero,
+                    layout_json
+                  ),
+                  rutas (
+                    id,
+                    origen,
+                    destino
+                  )
+                `)
+                .single();
+
+              if (newTrip) {
+                rawViaje = newTrip as unknown as ViajeBooking;
+              }
+            }
+          }
+        }
 
         const layout4: VehicleLayout = {
           filas: [
@@ -117,11 +223,15 @@ export default function Booking() {
         };
 
         rawViaje.vehiculos = {
-          nombre_display: is6Seats ? 'Auto (6 Pasajeros)' : 'Auto (4 Pasajeros)',
-          layout_json: is6Seats ? layout6 : layout4
+          id: rawViaje.vehiculos?.id,
+          tipo: wants6p ? 'CAMIONETA_6' : 'CAMIONETA_4',
+          nombre_display: wants6p ? 'Auto (6 Pasajeros)' : 'Auto (4 Pasajeros)',
+          total_asientos_pasajero: wants6p ? 6 : 4,
+          layout_json: wants6p ? layout6 : layout4
         };
 
         setViaje(rawViaje);
+        fetchSeatStatuses(rawViaje.id);
       } catch (err) {
         console.error('Error fetching trip details:', err);
       } finally {
@@ -172,31 +282,33 @@ export default function Booking() {
   };
 
   useEffect(() => {
-    if (!viajeId) return;
+    const activeId = viaje?.id || viajeId;
+    if (!activeId) return;
 
-    fetchSeatStatuses(viajeId);
+    fetchSeatStatuses(activeId);
 
     const channel = supabase
-      .channel(`viaje-seats-${viajeId}`)
+      .channel(`viaje-seats-${activeId}`)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'asientos_bloqueos', filter: `viaje_id=eq.${viajeId}` },
-        () => fetchSeatStatuses(viajeId)
+        { event: '*', schema: 'public', table: 'asientos_bloqueos', filter: `viaje_id=eq.${activeId}` },
+        () => fetchSeatStatuses(activeId)
       )
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'ventas', filter: `viaje_id=eq.${viajeId}` },
-        () => fetchSeatStatuses(viajeId)
+        { event: '*', schema: 'public', table: 'ventas', filter: `viaje_id=eq.${activeId}` },
+        () => fetchSeatStatuses(activeId)
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [viajeId]);
+  }, [viaje?.id, viajeId]);
 
   const handleSelectSeat = async (seatNumber: number) => {
-    if (seatNumber === 1 || !viajeId) return;
+    const activeId = viaje?.id || viajeId;
+    if (seatNumber === 1 || !activeId) return;
     setIsProcessing(true);
     try {
       let sessionToken = sessionStorage.getItem('booking_session_token');
@@ -210,7 +322,7 @@ export default function Booking() {
         try {
           await (supabase.from('asientos_bloqueos') as any)
             .delete()
-            .eq('viaje_id', viajeId)
+            .eq('viaje_id', activeId)
             .eq('numero_asiento', selectedSeat)
             .eq('sesion_token', sessionToken);
         } catch (_e) {}
@@ -222,7 +334,7 @@ export default function Booking() {
 
       // 1. Ejecutar RPC en Postgres para bloquear el asiento
       const { error } = await (supabase as any).rpc('bloquear_asiento', {
-        p_viaje_id: viajeId,
+        p_viaje_id: activeId,
         p_numero_asiento: seatNumber,
         p_sesion_token: sessionToken,
         p_minutos: 10
@@ -230,14 +342,14 @@ export default function Booking() {
 
       if (error && error.message?.includes('ASIENTO_NO_DISPONIBLE')) {
         alert(t('booking.alertSeatTaken', 'El asiento #{{seat}} ya ha sido reservado u ocupado por otro usuario.', { seat: seatNumber }));
-        fetchSeatStatuses(viajeId);
+        fetchSeatStatuses(activeId);
         return;
       }
 
       // 2. Inserción directa en asientos_bloqueos para visibilidad inmediata
       try {
         await (supabase.from('asientos_bloqueos') as any).upsert({
-          viaje_id: viajeId,
+          viaje_id: activeId,
           numero_asiento: seatNumber,
           estado: 'BLOQUEADO',
           expira_at: expiraIso,
@@ -266,12 +378,13 @@ export default function Booking() {
   };
 
   const handleTimerExpire = async () => {
-    if (viajeId && selectedSeat) {
+    const activeId = viaje?.id || viajeId;
+    if (activeId && selectedSeat) {
       const sessionToken = sessionStorage.getItem('booking_session_token');
       try {
         await (supabase.from('asientos_bloqueos') as any)
           .delete()
-          .eq('viaje_id', viajeId)
+          .eq('viaje_id', activeId)
           .eq('numero_asiento', selectedSeat)
           .eq('sesion_token', sessionToken);
       } catch (_e) {}
@@ -281,7 +394,7 @@ export default function Booking() {
     setExpiresAt(null);
     setIsYapeModalOpen(false);
     alert(t('booking.alertExpired', 'Tu reserva temporal ha expirado. El asiento ha sido liberado.'));
-    if (viajeId) fetchSeatStatuses(viajeId);
+    if (activeId) fetchSeatStatuses(activeId);
   };
 
   const handlePassengerSubmit = (passengerData: PassengerData) => {

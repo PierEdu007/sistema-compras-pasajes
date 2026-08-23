@@ -170,36 +170,40 @@ export default function Trips() {
           const calculatedSchedules: ScheduleWithVehicles[] = [];
 
           for (const [_hKey, tripsInHour] of horasMap.entries()) {
-            const explicit4 = tripsInHour.find(v => v.vehiculos?.nombre_display?.includes('4') || v.vehiculos?.total_asientos_pasajero === 4);
-            const explicit6 = tripsInHour.find(v => v.vehiculos?.nombre_display?.includes('6') || v.vehiculos?.total_asientos_pasajero === 6);
+            const explicit4 = tripsInHour.find(v => v.vehiculos?.nombre_display?.includes('4') || v.vehiculos?.total_asientos_pasajero === 4 || v.vehiculos?.tipo?.includes('4'));
+            const explicit6 = tripsInHour.find(v => v.vehiculos?.nombre_display?.includes('6') || v.vehiculos?.total_asientos_pasajero === 6 || v.vehiculos?.tipo?.includes('6'));
             const baseTrip = tripsInHour[0];
 
-            // 1. Calcular para 4p
+            // 1. Calcular para 4p (solo cuenta bloqueos del viaje específico de 4p)
             const v4Trip = explicit4 || baseTrip;
             const v4Id = explicit4 ? explicit4.id : `${baseTrip.id}?tipo=4p`;
-            const v4Ocupados = (bloqueosData || []).filter((b: any) => {
-              if (b.viaje_id !== (explicit4?.id || baseTrip.id)) return false;
-              if (b.estado === 'PAGADO') return b.numero_asiento >= 2 && b.numero_asiento <= 5;
-              if (b.estado === 'BLOQUEADO') {
-                const expDate = new Date(b.expira_at);
-                return expDate > now && b.numero_asiento >= 2 && b.numero_asiento <= 5;
-              }
-              return false;
-            }).length;
+            const v4Ocupados = explicit4
+              ? (bloqueosData || []).filter((b: any) => {
+                  if (b.viaje_id !== explicit4.id) return false;
+                  if (b.estado === 'PAGADO') return b.numero_asiento >= 2 && b.numero_asiento <= 5;
+                  if (b.estado === 'BLOQUEADO') {
+                    const expDate = new Date(b.expira_at);
+                    return expDate > now && b.numero_asiento >= 2 && b.numero_asiento <= 5;
+                  }
+                  return false;
+                }).length
+              : 0;
             const v4Libres = Math.max(0, 4 - v4Ocupados);
 
-            // 2. Calcular para 6p
+            // 2. Calcular para 6p (solo cuenta bloqueos del viaje específico de 6p)
             const v6Trip = explicit6 || baseTrip;
             const v6Id = explicit6 ? explicit6.id : `${baseTrip.id}?tipo=6p`;
-            const v6Ocupados = (bloqueosData || []).filter((b: any) => {
-              if (b.viaje_id !== (explicit6?.id || baseTrip.id)) return false;
-              if (b.estado === 'PAGADO') return b.numero_asiento >= 2 && b.numero_asiento <= 7;
-              if (b.estado === 'BLOQUEADO') {
-                const expDate = new Date(b.expira_at);
-                return expDate > now && b.numero_asiento >= 2 && b.numero_asiento <= 7;
-              }
-              return false;
-            }).length;
+            const v6Ocupados = explicit6
+              ? (bloqueosData || []).filter((b: any) => {
+                  if (b.viaje_id !== explicit6.id) return false;
+                  if (b.estado === 'PAGADO') return b.numero_asiento >= 2 && b.numero_asiento <= 7;
+                  if (b.estado === 'BLOQUEADO') {
+                    const expDate = new Date(b.expira_at);
+                    return expDate > now && b.numero_asiento >= 2 && b.numero_asiento <= 7;
+                  }
+                  return false;
+                }).length
+              : 0;
             const v6Libres = Math.max(0, 6 - v6Ocupados);
 
             calculatedSchedules.push({
