@@ -539,7 +539,7 @@ export default function Booking() {
             numero_asiento: selectedSeat,
             estado: 'PAGADO',
             expira_at: '2099-12-31T23:59:59Z',
-            sesion_token: 'PAGADO'
+            sesion_token: `PAGADO_${activeVehicleType}`
           });
         } catch (_e) {}
       }

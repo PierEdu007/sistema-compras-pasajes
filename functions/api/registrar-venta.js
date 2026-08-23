@@ -51,6 +51,11 @@ export async function onRequestPost(context) {
       telefono,
       monto_pagado,
       culqi_charge_id,
+      metodo_pago,
+      nro_operacion,
+      razon_social,
+      direccion_fiscal,
+      descripcion_opcional,
     } = body;
 
     // 1. Strict Input Validations
@@ -90,7 +95,16 @@ export async function onRequestPost(context) {
     const cleanNroDoc = sanitizeStr(nro_documento, 20);
     const cleanEmail = sanitizeStr(email, 100).toLowerCase();
     const cleanTelefono = sanitizeStr(telefono, 20);
-    const cleanChargeId = sanitizeStr(culqi_charge_id, 200) || `YAPE-${Date.now()}`;
+    const cleanMetodo = sanitizeStr(metodo_pago, 20) || 'YAPE';
+    const cleanOp = sanitizeStr(nro_operacion, 30);
+    const cleanRS = sanitizeStr(razon_social, 120);
+    const cleanDir = sanitizeStr(direccion_fiscal, 150);
+    const cleanDesc = sanitizeStr(descripcion_opcional, 200);
+
+    // Permitir delimitadores | y : en culqi_charge_id para los metadatos
+    let cleanChargeId = typeof culqi_charge_id === 'string'
+      ? culqi_charge_id.replace(/[<>{}()\[\]\\`~$^%*+;=?]/g, '').slice(0, 250).trim()
+      : `YAPE-${Date.now()}`;
 
     // 2. Configure Database Authorization Headers
     let authHeaders;
@@ -124,6 +138,13 @@ export async function onRequestPost(context) {
       telefono: cleanTelefono || '927670019',
       monto_pagado: cleanMonto,
       culqi_charge_id: cleanChargeId,
+      metodo_pago: cleanMetodo,
+      nro_operacion: cleanOp || null,
+      razon_social: cleanRS || null,
+      direccion_fiscal: cleanDir || null,
+      descripcion_opcional: cleanDesc || null,
+      estado: 'PENDIENTE',
+      comprobante_emitido: false,
     };
 
     const ventaRes = await fetch(`${SUPABASE_URL}/rest/v1/ventas`, {
@@ -151,8 +172,9 @@ export async function onRequestPost(context) {
     });
 
     // 5. Insert permanently into asientos_bloqueos as PAGADO with vehicle type isolation
-    const tipoVehiculo = cleanChargeId.includes('TIPO:6P') ? '6P' : cleanChargeId.includes('TIPO:4P') ? '4P' : '';
-    const sesionToken = tipoVehiculo ? `PAGADO_${tipoVehiculo}` : 'PAGADO';
+    const is6 = cleanChargeId.includes('6P') || cleanChargeId.includes('6p');
+    const tipoVehiculo = is6 ? '6P' : '4P';
+    const sesionToken = `PAGADO_${tipoVehiculo}`;
 
     const bloqueoPayload = {
       viaje_id,
