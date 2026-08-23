@@ -490,19 +490,19 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
             </div>
 
             {/* Verificación de DNI del Pasajero (Quien va a viajar) para Factura */}
-            <div className="form-group" style={{ gridColumn: '1 / -1', background: '#f8fafc', padding: '12px', borderRadius: '10px', border: '1px dashed #cbd5e1' }}>
-              <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>
-                  <strong>{t('booking.passengerDni', 'DNI del Pasajero (Quien va a viajar)')}</strong> <span style={{color: 'red'}}>*</span>
+            <div className="form-group passenger-dni-box">
+              <label className="form-label">
+                <span className="passenger-dni-title">
+                  {t('booking.passengerDni', 'DNI del Pasajero (Quien va a viajar)')} <span style={{color: 'red'}}>*</span>
                 </span>
                 {loadingDniLookup && (
-                  <span style={{ fontSize: '0.75rem', color: '#0284c7', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <FaSpinner className="spin" /> {t('booking.lookingUp', 'Consultando')} RENIEC...
                   </span>
                 )}
               </label>
               
-              <div style={{ display: 'flex', gap: '6px' }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
                 <input 
                   type="text" 
                   className="form-control" 
@@ -518,18 +518,18 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
                   onClick={() => fetchDniPasajeroData(dniPasajero)}
                   disabled={disabled || loadingDniLookup || !dniPasajero}
                   style={{
-                    background: 'var(--color-primary)',
+                    background: 'var(--color-primary, #0284c7)',
                     color: '#fff',
                     border: 'none',
                     borderRadius: '8px',
-                    padding: '0 14px',
-                    fontSize: '0.85rem',
+                    padding: '0 16px',
+                    fontSize: '0.9rem',
                     fontWeight: 600,
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '5px'
+                    gap: '6px'
                   }}
                   title="Verificar DNI en RENIEC"
                 >
@@ -539,24 +539,12 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
               </div>
 
               {dniLookupSuccessMsg && (
-                <div style={{
-                  marginTop: '8px',
-                  background: '#f0fdf4',
-                  border: '1px solid #86efac',
-                  color: '#166534',
-                  padding: '0.4rem 0.6rem',
-                  borderRadius: '6px',
-                  fontSize: '0.82rem',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}>
+                <div className="passenger-dni-success">
                   <FaCheck /> {dniLookupSuccessMsg}
                 </div>
               )}
               
-              <small style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '4px', display: 'block' }}>
+              <small className="passenger-dni-help">
                 ℹ️ Al consultar el DNI se auto-completarán los Nombres y Apellidos del pasajero y se incluirá en el detalle de la Factura.
               </small>
             </div>

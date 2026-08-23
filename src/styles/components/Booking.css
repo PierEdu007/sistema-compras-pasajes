@@ -386,3 +386,80 @@
   }
 }
 
+/* ==========================================================================
+   Passenger DNI Lookup Box (Facturas) - Light & Dark Mode
+   ========================================================================== */
+.passenger-dni-box {
+  grid-column: 1 / -1;
+  background: #f1f5f9;
+  border: 1.5px dashed #0284c7;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 6px 0 10px 0;
+  transition: all 0.3s ease;
+}
+
+.passenger-dni-box .form-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.92rem;
+  color: #0f172a;
+}
+
+.passenger-dni-box .passenger-dni-title {
+  color: #0369a1;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.passenger-dni-help {
+  color: #475569;
+  font-size: 0.78rem;
+  margin-top: 8px;
+  display: block;
+  line-height: 1.4;
+}
+
+.passenger-dni-success {
+  margin-top: 8px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] .passenger-dni-box {
+  background: #0f1c2e !important;
+  border: 1.5px dashed #38bdf8 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .passenger-dni-box .form-label {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .passenger-dni-box .passenger-dni-title {
+  color: #38bdf8 !important;
+  font-weight: 800;
+}
+
+[data-theme="dark"] .passenger-dni-help {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .passenger-dni-success {
+  background: rgba(22, 163, 74, 0.2) !important;
+  border-color: #22c55e !important;
+  color: #86efac !important;
+}
+
+
