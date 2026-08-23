@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
 import { generateAccountingPDF, type AccountingData } from '../../utils/accountingGenerator';
 import { FaCalculator, FaFilePdf, FaCalendarAlt, FaMoneyBillWave, FaBuilding, FaRegFileAlt, FaFileUpload } from 'react-icons/fa';
 import '../../styles/components/admin.css';
 
 const AccountingReport: React.FC = () => {
+  const { role } = useAuth();
   const [selectedMonth, setSelectedMonth] = useState<string>('2026-08'); // YYYY-MM
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -145,6 +148,10 @@ const AccountingReport: React.FC = () => {
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
   };
+
+  if (role === 'EMPLEADO' || role === 'VENDEDOR') {
+    return <Navigate to="/admin/ventas" replace />;
+  }
 
   return (
     <div style={{ paddingBottom: '50px' }}>

@@ -137,15 +137,19 @@ const AdminLayout: React.FC = () => {
           </div>
         </div>
         <nav className="admin-sidebar-nav">
-          <NavLink 
-            to="/admin/dashboard" 
-            end
-            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
-          >
-            <FaTachometerAlt /> Dashboard
-          </NavLink>
-
+          {/* Dashboard: Solo para ADMIN */}
           {role === 'ADMIN' && (
+            <NavLink 
+              to="/admin/dashboard" 
+              end
+              className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+            >
+              <FaTachometerAlt /> Dashboard
+            </NavLink>
+          )}
+
+          {/* Viajes: Para ADMIN y EMPLEADO/VENDEDOR */}
+          {(role === 'ADMIN' || role === 'EMPLEADO' || role === 'VENDEDOR') && (
             <NavLink 
               to="/admin/viajes" 
               className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
@@ -154,21 +158,24 @@ const AdminLayout: React.FC = () => {
             </NavLink>
           )}
 
+          {/* Ventas: Para todos los roles (ADMIN, EMPLEADO, VENDEDOR, CONTADOR) */}
+          {(role === 'ADMIN' || role === 'EMPLEADO' || role === 'VENDEDOR' || role === 'CONTADOR') && (
+            <NavLink 
+              to="/admin/ventas" 
+              className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+            >
+              <FaFileInvoiceDollar /> Ventas
+            </NavLink>
+          )}
+
+          {/* Contabilidad: Solo para ADMIN y CONTADOR */}
           {(role === 'ADMIN' || role === 'CONTADOR') && (
-            <>
-              <NavLink 
-                to="/admin/ventas" 
-                className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
-              >
-                <FaFileInvoiceDollar /> Ventas
-              </NavLink>
-              <NavLink 
-                to="/admin/contabilidad" 
-                className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
-              >
-                <FaCalculator /> Contabilidad
-              </NavLink>
-            </>
+            <NavLink 
+              to="/admin/contabilidad" 
+              className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+            >
+              <FaCalculator /> Contabilidad
+            </NavLink>
           )}
         </nav>
         <div className="admin-sidebar-footer">

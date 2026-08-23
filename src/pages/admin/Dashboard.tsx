@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
 import { 
@@ -341,6 +342,10 @@ const AdminDashboard: React.FC = () => {
     const freshUrl = URL.createObjectURL(pdfBlob);
     window.open(freshUrl, '_blank');
   };
+
+  if (role === 'EMPLEADO' || role === 'VENDEDOR') {
+    return <Navigate to="/admin/ventas" replace />;
+  }
 
   return (
     <div>

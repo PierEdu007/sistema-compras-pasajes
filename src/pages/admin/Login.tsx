@@ -22,7 +22,7 @@ const AdminLogin: React.FC = () => {
   });
   const [lockoutSeconds, setLockoutSeconds] = useState<number>(0);
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { user, role, loading } = useAuth();
 
   useEffect(() => {
     // El apartado de login administrativo siempre debe ser en modo claro
@@ -43,9 +43,13 @@ const AdminLogin: React.FC = () => {
     if (user && !loading) {
       sessionStorage.removeItem('admin_login_fails');
       sessionStorage.removeItem('admin_session_expired_msg');
-      navigate('/admin/dashboard', { replace: true });
+      if (role === 'EMPLEADO' || role === 'VENDEDOR') {
+        navigate('/admin/ventas', { replace: true });
+      } else {
+        navigate('/admin/dashboard', { replace: true });
+      }
     }
-  }, [user, loading, navigate]);
+  }, [user, role, loading, navigate]);
 
   // Lockout countdown timer
   useEffect(() => {

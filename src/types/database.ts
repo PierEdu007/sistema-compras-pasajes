@@ -86,7 +86,7 @@ export interface Venta {
   created_at: string;
 }
 
-export type Rol = 'ADMIN' | 'CONTADOR';
+export type Rol = 'ADMIN' | 'CONTADOR' | 'EMPLEADO' | 'VENDEDOR';
 
 export interface UserRole {
   id: string;

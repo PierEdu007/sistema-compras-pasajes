@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
 import { FaBell, FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaKey, FaServer, FaSearch, FaFilter, FaSync, FaDownload, FaPhone, FaEnvelope, FaWhatsapp, FaClock } from 'react-icons/fa';
 import { generateInvoicePDF, generateTicketPDF } from '../../utils/invoiceGenerator';
@@ -38,6 +39,7 @@ interface VentaRow {
 }
 
 const AdminSales: React.FC = () => {
+  const { role } = useAuth();
   const [ventas, setVentas] = useState<VentaRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -656,46 +658,52 @@ const AdminSales: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 style={{ margin: 0 }}>Gestión de Ventas</h1>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <button
-            onClick={handleExportBackup}
-            style={{
-              background: '#10b981',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '8px 14px',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)'
-            }}
-            title="Descargar copia de seguridad completa (Ventas, Viajes, Clientes) en JSON"
-          >
-            <FaDownload /> Respaldar BD (Backup 1-Clic)
-          </button>
-          <button
-            onClick={handleClearLocalCache}
-            style={{
-              background: '#ef4444',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '8px 14px',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 2px 6px rgba(239, 68, 68, 0.25)'
-            }}
-            title="Borra ventas de prueba guardadas en la memoria local del navegador"
-          >
-            <FaSync /> Limpiar Memoria Local (Caché)
-          </button>
+          {role === 'ADMIN' && (
+            <button
+              onClick={handleExportBackup}
+              style={{
+                background: '#10b981',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 14px',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)'
+              }}
+              title="Descargar copia de seguridad completa (Ventas, Viajes, Clientes) en JSON"
+            >
+              <FaDownload /> Respaldar BD (Backup 1-Clic)
+            </button>
+          )}
+
+          {role === 'ADMIN' && (
+            <button
+              onClick={handleClearLocalCache}
+              style={{
+                background: '#ef4444',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 14px',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 6px rgba(239, 68, 68, 0.25)'
+              }}
+              title="Borra ventas de prueba guardadas en la memoria local del navegador"
+            >
+              <FaSync /> Limpiar Memoria Local (Caché)
+            </button>
+          )}
+
           <button
             onClick={handleToggleNotifications}
             style={{
@@ -717,46 +725,51 @@ const AdminSales: React.FC = () => {
             <FaBell /> {notificationsEnabled ? 'Notificaciones Activas' : 'Activar Notificaciones'}
           </button>
 
-          <button 
-            onClick={() => setIsSunatModalOpen(true)}
-            style={{
-              background: 'linear-gradient(135deg, #0f4c81, #742284)',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '8px 14px',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 2px 6px rgba(15, 76, 129, 0.25)'
-            }}
-            title="Configurar conexión de Facturación Electrónica a SUNAT (Nubefact / PSE)"
-          >
-            <FaServer /> Configuración SUNAT (PSE)
-          </button>
+          {(role === 'ADMIN' || role === 'CONTADOR') && (
+            <button 
+              onClick={() => setIsSunatModalOpen(true)}
+              style={{
+                background: 'linear-gradient(135deg, #0f4c81, #742284)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 14px',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 6px rgba(15, 76, 129, 0.25)'
+              }}
+              title="Configurar conexión de Facturación Electrónica a SUNAT (Nubefact / PSE)"
+            >
+              <FaServer /> Configuración SUNAT (PSE)
+            </button>
+          )}
 
-          <button 
-            onClick={handleConfigureApiKey}
-            style={{
-              background: '#f8fafc',
-              border: '1px solid #cbd5e1',
-              borderRadius: '8px',
-              padding: '6px 12px',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              color: '#334155'
-            }}
-            title="Configurar clave API de Resend para enviar correos en local"
-          >
-            <FaKey style={{ color: '#742284' }} /> API Key Resend
-          </button>
+          {role === 'ADMIN' && (
+            <button 
+              onClick={handleConfigureApiKey}
+              style={{
+                background: '#475569',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 14px',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 6px rgba(71, 85, 105, 0.25)'
+              }}
+              title="Configurar API Key de Resend para envío de correos"
+            >
+              <FaKey /> Configurar Resend
+            </button>
+          )}
         </div>
       </div>
 
