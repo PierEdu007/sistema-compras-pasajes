@@ -55,6 +55,11 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
   const [loadingLookup, setLoadingLookup] = useState(false);
   const [lookupSuccessMsg, setLookupSuccessMsg] = useState('');
 
+  // Estados para verificación de DNI del pasajero cuando es Factura (RUC)
+  const [dniPasajero, setDniPasajero] = useState('');
+  const [loadingDniLookup, setLoadingDniLookup] = useState(false);
+  const [dniLookupSuccessMsg, setDniLookupSuccessMsg] = useState('');
+
   const isRuc = formData.tipo_documento === 'RUC';
   const isDni = formData.tipo_documento === 'DNI';
 
@@ -175,6 +180,68 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
 
     if ((isRuc && cleanVal.length === 11) || (isDni && cleanVal.length === 8)) {
       fetchDocumentoData(cleanVal, formData.tipo_documento);
+    }
+  };
+
+  // Consulta exclusiva para el DNI del pasajero cuando se emite Factura con RUC
+  const fetchDniPasajeroData = async (dni: string) => {
+    const cleanDni = sanitizeDocNumber(dni, 'DNI');
+    if (!PATTERNS.DNI.test(cleanDni)) {
+      setErrorMsg(t('validation.dniFormat', 'El DNI debe contener exactamente 8 dígitos numéricos.'));
+      return;
+    }
+
+    setLoadingDniLookup(true);
+    setDniLookupSuccessMsg('');
+    setErrorMsg('');
+
+    try {
+      const res = await fetch(`/api/dni?numero=${encodeURIComponent(cleanDni)}`);
+      if (res.ok) {
+        const data = await res.json();
+        let rawNombres = (data.nombres || '').trim();
+        let rawApellidos = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
+
+        if (!rawNombres && data.nombre) {
+          const parts = data.nombre.trim().split(/\s+/);
+          if (parts.length >= 3) {
+            rawApellidos = `${parts[0]} ${parts[1]}`;
+            rawNombres = parts.slice(2).join(' ');
+          } else {
+            rawNombres = data.nombre;
+          }
+        }
+
+        const nombres = sanitizeName(rawNombres);
+        const apellidos = sanitizeName(rawApellidos);
+
+        if (nombres || apellidos) {
+          setFormData(prev => ({
+            ...prev,
+            nombres: nombres,
+            apellidos: apellidos,
+            // Pre-llenar descripción opcional con el DNI del pasajero
+            descripcion_opcional: prev.descripcion_opcional && !prev.descripcion_opcional.startsWith('DNI ')
+              ? prev.descripcion_opcional
+              : `DNI ${cleanDni}`
+          }));
+          setDniLookupSuccessMsg(`RENIEC: Pasajero identificado (${nombres} ${apellidos})`);
+        }
+      }
+    } catch (err: any) {
+      console.error('Error al consultar DNI del pasajero:', err);
+    } finally {
+      setLoadingDniLookup(false);
+    }
+  };
+
+  const handleDniPasajeroChange = (val: string) => {
+    const cleanVal = filterLiveDocInput(val, 'DNI');
+    setDniPasajero(cleanVal);
+    setDniLookupSuccessMsg('');
+
+    if (cleanVal.length === 8) {
+      fetchDniPasajeroData(cleanVal);
     }
   };
 
@@ -420,6 +487,78 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
                 required={isRuc}
                 placeholder="Ej: Cal. Enrique Barron Nro. 1024, Lima"
               />
+            </div>
+
+            {/* Verificación de DNI del Pasajero (Quien va a viajar) para Factura */}
+            <div className="form-group" style={{ gridColumn: '1 / -1', background: '#f8fafc', padding: '12px', borderRadius: '10px', border: '1px dashed #cbd5e1' }}>
+              <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>
+                  <strong>{t('booking.passengerDni', 'DNI del Pasajero (Quien va a viajar)')}</strong> <span style={{color: 'red'}}>*</span>
+                </span>
+                {loadingDniLookup && (
+                  <span style={{ fontSize: '0.75rem', color: '#0284c7', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <FaSpinner className="spin" /> {t('booking.lookingUp', 'Consultando')} RENIEC...
+                  </span>
+                )}
+              </label>
+              
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  value={dniPasajero}
+                  onChange={(e) => handleDniPasajeroChange(e.target.value)}
+                  disabled={disabled}
+                  maxLength={8}
+                  placeholder="Ingresa los 8 dígitos del DNI de la persona que viaja"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => fetchDniPasajeroData(dniPasajero)}
+                  disabled={disabled || loadingDniLookup || !dniPasajero}
+                  style={{
+                    background: 'var(--color-primary)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '0 14px',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px'
+                  }}
+                  title="Verificar DNI en RENIEC"
+                >
+                  {loadingDniLookup ? <FaSpinner className="spin" /> : <FaSearch />}
+                  <span>{t('booking.search', 'Buscar')}</span>
+                </button>
+              </div>
+
+              {dniLookupSuccessMsg && (
+                <div style={{
+                  marginTop: '8px',
+                  background: '#f0fdf4',
+                  border: '1px solid #86efac',
+                  color: '#166534',
+                  padding: '0.4rem 0.6rem',
+                  borderRadius: '6px',
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  <FaCheck /> {dniLookupSuccessMsg}
+                </div>
+              )}
+              
+              <small style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '4px', display: 'block' }}>
+                ℹ️ Al consultar el DNI se auto-completarán los Nombres y Apellidos del pasajero y se incluirá en el detalle de la Factura.
+              </small>
             </div>
           </>
         )}

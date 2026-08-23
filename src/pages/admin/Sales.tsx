@@ -369,6 +369,7 @@ const AdminSales: React.FC = () => {
           email: venta.email,
           razonSocial,
           direccionFiscal,
+          descripcionOpcional,
           origen: venta.viajes?.rutas?.origen || 'CUSCO',
           destino: venta.viajes?.rutas?.destino || 'QUILLABAMBA',
           asiento: venta.numero_asiento,
@@ -446,6 +447,7 @@ const AdminSales: React.FC = () => {
       const parts = (v.culqi_charge_id || '').split('|');
       const razonSocial = v.razon_social || parts.find(p => p.startsWith('RS:'))?.replace('RS:', '') || '';
       const direccionFiscal = v.direccion_fiscal || parts.find(p => p.startsWith('DIR:'))?.replace('DIR:', '') || '';
+      const descripcionOpcional = v.descripcion_opcional || parts.find(p => p.startsWith('DESC:'))?.replace('DESC:', '') || '';
 
       const sunatRes = await emitirComprobanteSunat({
         ventaId: v.id,
@@ -456,6 +458,7 @@ const AdminSales: React.FC = () => {
         email: v.email,
         razonSocial,
         direccionFiscal,
+        descripcionOpcional,
         origen: v.viajes?.rutas?.origen || 'CUSCO',
         destino: v.viajes?.rutas?.destino || 'QUILLABAMBA',
         asiento: v.numero_asiento,

@@ -21,6 +21,8 @@ export interface SunatVentaData {
   email?: string;
   razonSocial?: string;
   direccionFiscal?: string;
+  descripcionOpcional?: string;
+  dniPasajero?: string;
   origen: string;
   destino: string;
   asiento: number;
@@ -140,7 +142,7 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
       {
         unidad_de_medida: 'ZZ', // Servicio
         codigo: `PAS-${data.asiento}`,
-        descripcion: `Pasaje Terrestre ${data.origen} -> ${data.destino} (Asiento #${data.asiento} - ${data.fechaViaje} ${data.horaViaje})`,
+        descripcion: `SERVICIO DE TRANSPORTE ${data.origen} - ${data.destino} PASAJERO: ${data.nombres} ${data.apellidos} ${data.tipoDocumento}.${data.nroDocumento} ASIENTO #${data.asiento}${data.descripcionOpcional ? ' - ' + data.descripcionOpcional : (data.dniPasajero ? ' - DNI ' + data.dniPasajero : '')}`.toUpperCase(),
         cantidad: 1,
         valor_unitario: config.tipoIgv === 1 ? (data.monto / 1.18).toFixed(2) : data.monto.toFixed(2),
         precio_unitario: data.monto.toFixed(2),
