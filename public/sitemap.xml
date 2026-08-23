@@ -6,7 +6,7 @@
   <!-- Página Principal / Inicio -->
   <url>
     <loc>https://turismotunkychasky.com.pe/</loc>
-    <lastmod>2026-08-15</lastmod>
+    <lastmod>2026-08-23</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -14,7 +14,7 @@
   <!-- Búsqueda y Horarios de Viajes -->
   <url>
     <loc>https://turismotunkychasky.com.pe/viajes</loc>
-    <lastmod>2026-08-15</lastmod>
+    <lastmod>2026-08-23</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -22,9 +22,17 @@
   <!-- Términos y Condiciones del Servicio -->
   <url>
     <loc>https://turismotunkychasky.com.pe/terminos</loc>
-    <lastmod>2026-08-15</lastmod>
+    <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Libro de Reclamaciones Virtual -->
+  <url>
+    <loc>https://turismotunkychasky.com.pe/libro-de-reclamaciones</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
 
 </urlset>

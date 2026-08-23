@@ -1,8 +1,35 @@
 # Robots.txt for Inversiones Tunki Chasky S.R.L.
+# Web Oficial: https://turismotunkychasky.com.pe
+
+User-agent: Googlebot
+Allow: /
+Allow: /viajes
+Allow: /terminos
+Allow: /libro-de-reclamaciones
+Disallow: /admin
+Disallow: /admin/
+Disallow: /compra/
+Disallow: /confirmacion/
+
+User-agent: Bingbot
+Allow: /
+Allow: /viajes
+Allow: /terminos
+Allow: /libro-de-reclamaciones
+Disallow: /admin
+Disallow: /admin/
+Disallow: /compra/
+Disallow: /confirmacion/
+
 User-agent: *
 Allow: /
-Disallow: /admin/
+Allow: /viajes
+Allow: /terminos
+Allow: /libro-de-reclamaciones
 Disallow: /admin
+Disallow: /admin/
+Disallow: /compra/
+Disallow: /confirmacion/
 
-# Sitemaps
+# Sitemap Oficial
 Sitemap: https://turismotunkychasky.com.pe/sitemap.xml
