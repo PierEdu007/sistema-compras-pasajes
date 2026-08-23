@@ -149,10 +149,16 @@ export default function Trips() {
 
           const viajeIds = validViajes.map(v => v.id);
 
-          const { data: bloqueosData } = await supabase
-            .from('asientos_bloqueos')
-            .select('viaje_id, numero_asiento, estado, expira_at')
-            .in('viaje_id', viajeIds);
+          const [{ data: bloqueosData }, { data: ventasData }] = await Promise.all([
+            supabase
+              .from('asientos_bloqueos')
+              .select('viaje_id, numero_asiento, estado, expira_at, sesion_token')
+              .in('viaje_id', viajeIds),
+            supabase
+              .from('ventas')
+              .select('viaje_id, numero_asiento, culqi_charge_id')
+              .in('viaje_id', viajeIds)
+          ]);
 
           const now = new Date();
           const fechaFormateada = formatDate(cleanFecha);
@@ -173,36 +179,59 @@ export default function Trips() {
             const explicit4 = tripsInHour.find(v => v.vehiculos?.nombre_display?.includes('4') || v.vehiculos?.total_asientos_pasajero === 4 || v.vehiculos?.tipo?.includes('4'));
             const explicit6 = tripsInHour.find(v => v.vehiculos?.nombre_display?.includes('6') || v.vehiculos?.total_asientos_pasajero === 6 || v.vehiculos?.tipo?.includes('6'));
             const baseTrip = tripsInHour[0];
+            const targetTripId = baseTrip.id;
 
-            // 1. Calcular para 4p (solo cuenta bloqueos de 4p)
+            // 1. Calcular para 4p (solo cuenta bloqueos/ventas de 4p)
             const v4Trip = explicit4 || baseTrip;
             const v4Id = explicit4 ? explicit4.id : `${baseTrip.id}?tipo=4p`;
-            const v4Ocupados = (bloqueosData || []).filter((b: any) => {
-              if (b.viaje_id !== (explicit4?.id || baseTrip.id)) return false;
-              if (b.sesion_token?.includes('6P')) return false;
-              if (b.estado === 'PAGADO') return b.numero_asiento >= 2 && b.numero_asiento <= 5;
-              if (b.estado === 'BLOQUEADO') {
-                const expDate = new Date(b.expira_at);
-                return expDate > now && b.numero_asiento >= 2 && b.numero_asiento <= 5;
-              }
-              return false;
-            }).length;
-            const v4Libres = Math.max(0, 4 - v4Ocupados);
+            const ocupados4P = new Set<number>();
 
-            // 2. Calcular para 6p (solo cuenta bloqueos de 6p)
+            (bloqueosData || []).forEach((b: any) => {
+              if (b.viaje_id !== (explicit4?.id || targetTripId)) return;
+              if (b.sesion_token?.includes('6P')) return;
+              if (b.numero_asiento < 2 || b.numero_asiento > 5) return;
+              if (b.estado === 'PAGADO') ocupados4P.add(b.numero_asiento);
+              else if (b.estado === 'BLOQUEADO' && new Date(b.expira_at) > now) ocupados4P.add(b.numero_asiento);
+            });
+
+            (ventasData || []).forEach((v: any) => {
+              if (v.viaje_id !== (explicit4?.id || targetTripId)) return;
+              if (v.culqi_charge_id?.includes('6P')) return;
+              if (v.culqi_charge_id?.startsWith('RECHAZADO_')) return;
+              if (v.numero_asiento < 2 || v.numero_asiento > 5) return;
+
+              const matchingBloqueo = (bloqueosData as any[] | null)?.find((b: any) => b.viaje_id === v.viaje_id && b.numero_asiento === v.numero_asiento);
+              if (matchingBloqueo?.sesion_token?.includes('6P')) return;
+              ocupados4P.add(v.numero_asiento);
+            });
+
+            const v4Libres = Math.max(0, 4 - ocupados4P.size);
+
+            // 2. Calcular para 6p (solo cuenta bloqueos/ventas de 6p)
             const v6Trip = explicit6 || baseTrip;
             const v6Id = explicit6 ? explicit6.id : `${baseTrip.id}?tipo=6p`;
-            const v6Ocupados = (bloqueosData || []).filter((b: any) => {
-              if (b.viaje_id !== (explicit6?.id || baseTrip.id)) return false;
-              if (b.sesion_token?.includes('4P')) return false;
-              if (b.estado === 'PAGADO') return b.numero_asiento >= 2 && b.numero_asiento <= 7;
-              if (b.estado === 'BLOQUEADO') {
-                const expDate = new Date(b.expira_at);
-                return expDate > now && b.numero_asiento >= 2 && b.numero_asiento <= 7;
-              }
-              return false;
-            }).length;
-            const v6Libres = Math.max(0, 6 - v6Ocupados);
+            const ocupados6P = new Set<number>();
+
+            (bloqueosData || []).forEach((b: any) => {
+              if (b.viaje_id !== (explicit6?.id || targetTripId)) return;
+              if (b.sesion_token?.includes('4P')) return;
+              if (b.numero_asiento < 2 || b.numero_asiento > 7) return;
+              if (b.estado === 'PAGADO') ocupados6P.add(b.numero_asiento);
+              else if (b.estado === 'BLOQUEADO' && new Date(b.expira_at) > now) ocupados6P.add(b.numero_asiento);
+            });
+
+            (ventasData || []).forEach((v: any) => {
+              if (v.viaje_id !== (explicit6?.id || targetTripId)) return;
+              if (v.culqi_charge_id?.includes('4P')) return;
+              if (v.culqi_charge_id?.startsWith('RECHAZADO_')) return;
+              if (v.numero_asiento < 2 || v.numero_asiento > 7) return;
+
+              const matchingBloqueo = (bloqueosData as any[] | null)?.find((b: any) => b.viaje_id === v.viaje_id && b.numero_asiento === v.numero_asiento);
+              if (matchingBloqueo?.sesion_token?.includes('4P')) return;
+              ocupados6P.add(v.numero_asiento);
+            });
+
+            const v6Libres = Math.max(0, 6 - ocupados6P.size);
 
             calculatedSchedules.push({
               hora_viaje: baseTrip.hora_viaje,

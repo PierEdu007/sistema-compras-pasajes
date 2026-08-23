@@ -110,7 +110,10 @@ function Confirmation() {
   const fechaHoraInfo = venta?.viajes ? `${formatDate(venta.viajes.fecha_viaje)} - ${venta.viajes.hora_viaje.substring(0, 5)}` : (stateData.fecha_viaje ? `${formatDate(stateData.fecha_viaje)} - ${stateData.hora_viaje?.substring(0, 5)}` : t('confirmation.dateFallback', 'Scheduled Date'));
   const montoTotal = venta ? venta.monto_pagado : (stateData.monto_pagado || 0);
 
-  const nroOperacion = stateData.nro_operacion || (venta?.culqi_charge_id?.startsWith('YAPE-') ? venta.culqi_charge_id.replace('YAPE-', '') : null);
+  const is6 = venta?.culqi_charge_id?.includes('6P') || (venta?.viajes?.vehiculos as any)?.total_asientos_pasajero === 6 || (stateData as any)?.tipo === '6p' || (asientoNum > 5);
+  const vehiculoLabel = is6 ? 'Camioneta (6 Pasajeros)' : 'Auto (4 Pasajeros)';
+
+  const nroOperacion = stateData.nro_operacion || (venta?.culqi_charge_id?.startsWith('YAPE-') ? venta.culqi_charge_id.replace('YAPE-', '').split('|')[0] : null);
 
   return (
     <div className="page-confirmation container py-5 fade-in">
@@ -164,8 +167,8 @@ function Confirmation() {
                 <strong>{fechaHoraInfo}</strong>
               </div>
               <div className="ticket-col text-right">
-                <small>{t('confirmation.service', 'SERVICIO')}</small>
-                <strong>Directo</strong>
+                <small>{t('confirmation.vehicle', 'VEHÍCULO')}</small>
+                <strong style={{ color: '#0f4c81' }}>{vehiculoLabel}</strong>
               </div>
             </div>
 

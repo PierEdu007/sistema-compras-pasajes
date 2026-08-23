@@ -16,6 +16,7 @@ export interface InvoiceData {
   fechaViaje: string;
   horaViaje: string;
   metodoPago?: string;
+  vehiculo?: string;
 }
 
 // Convert numbers to Spanish words
@@ -284,6 +285,15 @@ export function generateTicketPDF(data: InvoiceData): jsPDF {
   doc.text(`${data.origen} ➔ ${data.destino}`, 28, y);
   y += 4;
 
+  const vehiculoLabel = data.vehiculo || (data.asiento > 5 ? 'Camioneta (6 Pasajeros)' : 'Auto (4 Pasajeros)');
+  doc.setFont('helvetica', 'bold');
+  doc.text("TIPO DE VEHÍCULO:", 5, y);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(15, 76, 129);
+  doc.text(vehiculoLabel.toUpperCase(), 30, y);
+  y += 4;
+
+  doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'bold');
   doc.text("ASIENTO SELECCIONADO:", 5, y);
   doc.setFont('helvetica', 'bold');

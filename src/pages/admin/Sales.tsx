@@ -323,6 +323,9 @@ const AdminSales: React.FC = () => {
       const direccionFiscal = venta.direccion_fiscal || parts.find(p => p.startsWith('DIR:'))?.replace('DIR:', '') || '';
       const descripcionOpcional = venta.descripcion_opcional || parts.find(p => p.startsWith('DESC:'))?.replace('DESC:', '') || '';
 
+      const is6 = venta.culqi_charge_id?.includes('6P') || (venta.viajes as any)?.vehiculos?.total_asientos_pasajero === 6 || venta.numero_asiento > 5;
+      const vehiculoLabel = is6 ? 'Camioneta (6 Pasajeros)' : 'Auto (4 Pasajeros)';
+
       const invoiceData = {
         ventaId: venta.id,
         tipoDocumento: venta.tipo_documento,
@@ -338,7 +341,8 @@ const AdminSales: React.FC = () => {
         monto: venta.monto_pagado,
         fechaViaje: venta.viajes?.fecha_viaje || '',
         horaViaje: venta.viajes?.hora_viaje || '',
-        metodoPago: venta.metodo_pago || 'YAPE'
+        metodoPago: venta.metodo_pago || 'YAPE',
+        vehiculo: vehiculoLabel
       };
 
       // 1. Generar los PDFs locales (Boleto de Viaje e Invoice local)
@@ -616,6 +620,9 @@ const AdminSales: React.FC = () => {
       const serie = isRUC ? 'F001' : 'B001';
       const numComp = venta.nro_comprobante || `${serie}-${String(parseInt(venta.id.replace(/\D/g, '').slice(-4) || '1', 10)).padStart(4, '0')}`;
 
+      const is6 = venta.culqi_charge_id?.includes('6P') || (venta.viajes as any)?.vehiculos?.total_asientos_pasajero === 6 || venta.numero_asiento > 5;
+      const vehiculoLabel = is6 ? 'Camioneta (6 Pasajeros)' : 'Auto (4 Pasajeros)';
+
       const invoiceData = {
         ventaId: venta.id,
         tipoDocumento: venta.tipo_documento,
@@ -631,7 +638,8 @@ const AdminSales: React.FC = () => {
         monto: venta.monto_pagado,
         fechaViaje: venta.viajes?.fecha_viaje || '',
         horaViaje: venta.viajes?.hora_viaje || '',
-        metodoPago: venta.metodo_pago || 'YAPE'
+        metodoPago: venta.metodo_pago || 'YAPE',
+        vehiculo: vehiculoLabel
       };
 
       // 1. Generar Boleto PDF
