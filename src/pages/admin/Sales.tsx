@@ -35,6 +35,7 @@ interface VentaRow {
     fecha_viaje: string;
     hora_viaje: string;
     rutas: { origen: string; destino: string };
+    vehiculos?: { nombre_display: string; total_asientos_pasajero: number; tipo: string };
   };
 }
 
@@ -142,7 +143,7 @@ const AdminSales: React.FC = () => {
       setLoading(true);
       const { data, error: _err } = await supabase
         .from('ventas')
-        .select(`*, viajes (fecha_viaje, hora_viaje, rutas (origen, destino))`)
+        .select(`*, viajes (fecha_viaje, hora_viaje, rutas (origen, destino), vehiculos (nombre_display, total_asientos_pasajero, tipo))`)
         .order('created_at', { ascending: false });
 
       const localPending: VentaRow[] = JSON.parse(localStorage.getItem('local_pending_ventas') || '[]');
@@ -315,6 +316,48 @@ const AdminSales: React.FC = () => {
     }
   };
 
+  const getVehicleLabelForSale = (v: VentaRow): string => {
+    if (v.culqi_charge_id?.includes('6P') || v.culqi_charge_id?.includes('6p')) return 'Camioneta (6 Pasajeros)';
+    if (v.culqi_charge_id?.includes('4P') || v.culqi_charge_id?.includes('4p')) return 'Auto (4 Pasajeros)';
+    if (v.numero_asiento > 5) return 'Camioneta (6 Pasajeros)';
+    if ((v.viajes as any)?.vehiculos?.total_asientos_pasajero === 6) return 'Camioneta (6 Pasajeros)';
+    if ((v.viajes as any)?.vehiculos?.total_asientos_pasajero === 4) return 'Auto (4 Pasajeros)';
+    if ((v.viajes as any)?.vehiculos?.tipo?.includes('6')) return 'Camioneta (6 Pasajeros)';
+    if ((v.viajes as any)?.vehiculos?.tipo?.includes('4')) return 'Auto (4 Pasajeros)';
+    return 'Auto (4 Pasajeros)';
+  };
+
+  const handleDownloadTicketPDF = (v: VentaRow) => {
+    const parts = (v.culqi_charge_id || '').split('|');
+    const razonSocial = v.razon_social || parts.find(p => p.startsWith('RS:'))?.replace('RS:', '') || '';
+    const direccionFiscal = v.direccion_fiscal || parts.find(p => p.startsWith('DIR:'))?.replace('DIR:', '') || '';
+    const descripcionOpcional = v.descripcion_opcional || parts.find(p => p.startsWith('DESC:'))?.replace('DESC:', '') || '';
+    const vehiculoLabel = getVehicleLabelForSale(v);
+
+    const doc = generateTicketPDF({
+      ventaId: v.id,
+      tipoDocumento: v.tipo_documento,
+      nroDocumento: v.nro_documento,
+      nombres: v.nombres,
+      apellidos: v.apellidos,
+      razonSocial,
+      direccionFiscal,
+      descripcionOpcional,
+      origen: v.viajes?.rutas?.origen || 'CUSCO',
+      destino: v.viajes?.rutas?.destino || 'QUILLABAMBA',
+      asiento: v.numero_asiento,
+      monto: v.monto_pagado,
+      fechaViaje: v.viajes?.fecha_viaje || '',
+      horaViaje: v.viajes?.hora_viaje || '',
+      metodoPago: v.metodo_pago || 'YAPE',
+      vehiculo: vehiculoLabel
+    });
+
+    const blob = doc.output('blob');
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  };
+
   const handleConfirmPayment = async (venta: VentaRow) => {
     setProcessingId(venta.id);
     try {
@@ -322,9 +365,7 @@ const AdminSales: React.FC = () => {
       const razonSocial = venta.razon_social || parts.find(p => p.startsWith('RS:'))?.replace('RS:', '') || '';
       const direccionFiscal = venta.direccion_fiscal || parts.find(p => p.startsWith('DIR:'))?.replace('DIR:', '') || '';
       const descripcionOpcional = venta.descripcion_opcional || parts.find(p => p.startsWith('DESC:'))?.replace('DESC:', '') || '';
-
-      const is6 = venta.culqi_charge_id?.includes('6P') || (venta.viajes as any)?.vehiculos?.total_asientos_pasajero === 6 || venta.numero_asiento > 5;
-      const vehiculoLabel = is6 ? 'Camioneta (6 Pasajeros)' : 'Auto (4 Pasajeros)';
+      const vehiculoLabel = getVehicleLabelForSale(venta);
 
       const invoiceData = {
         ventaId: venta.id,
@@ -335,8 +376,8 @@ const AdminSales: React.FC = () => {
         razonSocial,
         direccionFiscal,
         descripcionOpcional,
-        origen: venta.viajes?.rutas?.origen || 'Origen',
-        destino: venta.viajes?.rutas?.destino || 'Destino',
+        origen: venta.viajes?.rutas?.origen || 'CUSCO',
+        destino: venta.viajes?.rutas?.destino || 'QUILLABAMBA',
         asiento: venta.numero_asiento,
         monto: venta.monto_pagado,
         fechaViaje: venta.viajes?.fecha_viaje || '',
@@ -345,21 +386,15 @@ const AdminSales: React.FC = () => {
         vehiculo: vehiculoLabel
       };
 
-      // 1. Generar los PDFs locales (Boleto de Viaje e Invoice local)
+      // 1. Generar PDFs locales (Boleto de Viaje e Invoice local)
       const invoicePdf = generateInvoicePDF(invoiceData);
       const ticketPdf = generateTicketPDF(invoiceData);
-
       const invoiceBlob = invoicePdf.output('blob');
       const ticketBlob = ticketPdf.output('blob');
 
-      const invoiceUrl = URL.createObjectURL(invoiceBlob);
-      const ticketUrl = URL.createObjectURL(ticketBlob);
-
-      window.open(ticketUrl, '_blank');
-
       // 2. Emisión automática a SUNAT vía API PSE / Nubefact
       let sunatNote = '';
-      let finalInvoiceUrl = invoiceUrl;
+      let finalInvoiceUrl: string | null = null;
       let sunatResultData: { pdfUrl?: string; xmlUrl?: string; serie?: string; numero?: number } | undefined = undefined;
 
       const sunatConfig = getSunatConfig();
@@ -382,21 +417,24 @@ const AdminSales: React.FC = () => {
           horaViaje: venta.viajes?.hora_viaje || ''
         });
 
-        if (sunatRes.success) {
-          sunatNote = `\n\nComprobante SUNAT Emitido y Aceptado (Serie: ${sunatRes.serie}-${sunatRes.numero})`;
-          if (sunatRes.pdfUrl) {
-            finalInvoiceUrl = sunatRes.pdfUrl;
-            window.open(sunatRes.pdfUrl, '_blank');
-          }
+        if (sunatRes.success && sunatRes.pdfUrl) {
+          sunatNote = `\n\n✅ Comprobante SUNAT Emitido: ${sunatRes.serie}-${sunatRes.numero}`;
+          finalInvoiceUrl = sunatRes.pdfUrl;
           sunatResultData = {
             pdfUrl: sunatRes.pdfUrl,
             xmlUrl: sunatRes.xmlUrl,
             serie: sunatRes.serie,
             numero: sunatRes.numero
           };
+          window.open(sunatRes.pdfUrl, '_blank');
         } else {
-          sunatNote = `\n\nSUNAT Aviso: ${sunatRes.error}`;
+          sunatNote = `\n\n⚠️ SUNAT Aviso: ${sunatRes.error || 'No se pudo contactar con NubeFact'}`;
         }
+      }
+
+      if (!finalInvoiceUrl) {
+        finalInvoiceUrl = URL.createObjectURL(invoiceBlob);
+        window.open(finalInvoiceUrl, '_blank');
       }
 
       const realNroComp = sunatResultData?.serie && sunatResultData?.numero 
@@ -408,12 +446,13 @@ const AdminSales: React.FC = () => {
         .update({
           comprobante_emitido: true,
           comprobante_url: finalInvoiceUrl,
-          nro_comprobante: realNroComp
+          nro_comprobante: realNroComp,
+          estado: 'CONFIRMADO'
         })
         .eq('id', venta.id);
 
       const localPending: VentaRow[] = JSON.parse(localStorage.getItem('local_pending_ventas') || '[]');
-      const updatedLocal = localPending.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, nro_comprobante: realNroComp } : v);
+      const updatedLocal = localPending.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, nro_comprobante: realNroComp, estado: 'CONFIRMADO' } : v);
       localStorage.setItem('local_pending_ventas', JSON.stringify(updatedLocal));
 
       // 4. Envío de correo por Resend adjuntando el PDF NubeFact, XML NubeFact y Boleto
@@ -425,10 +464,10 @@ const AdminSales: React.FC = () => {
         resendNote = `\n\n⚠️ Resend aviso: ${directResult.error}`;
       }
 
-      setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, estado: 'CONFIRMADO' } : v));
+      setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, nro_comprobante: realNroComp, estado: 'CONFIRMADO' } : v));
 
       const compTipo = venta.tipo_documento === 'RUC' ? 'Factura' : 'Boleta';
-      alert(`¡Pago verificado y confirmado exitosamente!\n\n• Se generó el Boleto de Viaje en PDF.\n• Se generó la ${compTipo} Electrónica NubeFact en PDF y XML.${sunatNote}${resendNote}`);
+      alert(`¡Pago verificado y confirmado exitosamente!\n\n• Vehículo asignado: ${vehiculoLabel}\n• Se generó el Boleto de Viaje en PDF.\n• Se generó la ${compTipo} Electrónica NubeFact en PDF y XML.${sunatNote}${resendNote}`);
 
     } catch (err) {
       console.error('Error al confirmar pago:', err);
@@ -1091,19 +1130,31 @@ const AdminSales: React.FC = () => {
                     </td>
                     <td>S/ {v.monto_pagado}</td>
                     <td>
-                      {v.comprobante_emitido ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <button
-                              onClick={() => handleOpenOrGenerateSunatPDF(v)}
-                              title="Ver o Generar Comprobante Electrónico Oficial SUNAT / NubeFact (PDF)"
-                              disabled={processingId === v.id}
-                              className="admin-btn"
-                              style={{ background: '#0f4c81', color: '#fff', border: 'none', borderRadius: '6px', padding: '5px 8px', fontSize: '0.78em', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
-                            >
-                              <FaFilePdf /> {processingId === v.id ? '...' : 'PDF'}
-                            </button>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          {/* Botón 1: Boleto de Viaje PDF con tipo de vehículo */}
+                          <button
+                            onClick={() => handleDownloadTicketPDF(v)}
+                            title="Ver o Descargar Boleto de Viaje (PDF con datos del vehículo)"
+                            className="admin-btn"
+                            style={{ background: '#059669', color: '#fff', border: 'none', borderRadius: '6px', padding: '5px 8px', fontSize: '0.78em', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
+                          >
+                            <FaFilePdf /> Boleto
+                          </button>
 
+                          {/* Botón 2: Factura / Boleta Electrónica Oficial NubeFact */}
+                          <button
+                            onClick={() => handleOpenOrGenerateSunatPDF(v)}
+                            title="Ver o Generar Comprobante Electrónico Oficial SUNAT / NubeFact (PDF)"
+                            disabled={processingId === v.id}
+                            className="admin-btn"
+                            style={{ background: '#0f4c81', color: '#fff', border: 'none', borderRadius: '6px', padding: '5px 8px', fontSize: '0.78em', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
+                          >
+                            <FaFilePdf /> {processingId === v.id ? '...' : (v.tipo_documento === 'RUC' ? 'Factura' : 'Boleta')}
+                          </button>
+
+                          {/* Botón 3: Confirmar o Reenviar */}
+                          {v.comprobante_emitido ? (
                             <button
                               onClick={() => handleResendEmail(v)}
                               title="Reenviar Boleta/Factura y Boleto de Viaje por Correo Electrónico"
@@ -1111,37 +1162,37 @@ const AdminSales: React.FC = () => {
                               className="admin-btn"
                               style={{ background: '#742284', color: '#fff', border: 'none', borderRadius: '6px', padding: '5px 8px', fontSize: '0.78em', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
                             >
-                              <FaPaperPlane /> {processingId === v.id ? '...' : 'Re-enviar'}
+                              <FaPaperPlane /> {processingId === v.id ? '...' : 'Enviar'}
                             </button>
-                          </div>
-
-                          <span style={{ color: '#16a34a', fontSize: '0.75em', display: 'inline-flex', alignItems: 'center', gap: '3px', fontWeight: 600 }}>
-                            <FaCheck /> Confirmado
-                          </span>
+                          ) : (
+                            <button 
+                              className="admin-btn" 
+                              style={{ padding: '5px 8px', fontSize: '0.78em', background: '#10b981', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
+                              onClick={() => handleConfirmPayment(v)}
+                              disabled={processingId === v.id}
+                              title="Confirmar pago y emitir comprobante + boleto"
+                            >
+                              <FaPaperPlane /> {processingId === v.id ? '...' : 'Confirmar'}
+                            </button>
+                          )}
                         </div>
-                      ) : (
-                        <div style={{ display: 'flex', gap: '6px' }}>
+
+                        {v.comprobante_emitido ? (
+                          <span style={{ color: '#16a34a', fontSize: '0.75em', display: 'inline-flex', alignItems: 'center', gap: '3px', fontWeight: 600 }}>
+                            <FaCheck /> Confirmado {v.nro_comprobante ? `(${v.nro_comprobante})` : ''}
+                          </span>
+                        ) : (
                           <button 
                             className="admin-btn" 
-                            style={{ padding: '6px 10px', fontSize: '0.8em', background: '#10b981', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                            onClick={() => handleConfirmPayment(v)}
-                            disabled={processingId === v.id}
-                            title="Confirmar pago y emitir comprobante + boleto"
-                          >
-                            <FaPaperPlane /> {processingId === v.id ? '...' : 'Confirmar'}
-                          </button>
-                          
-                          <button 
-                            className="admin-btn" 
-                            style={{ padding: '6px 10px', fontSize: '0.8em', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                            style={{ padding: '3px 6px', fontSize: '0.72em', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', alignSelf: 'flex-start' }}
                             onClick={() => handleRejectPayment(v)}
                             disabled={processingId === v.id}
                             title="Rechazar pago y liberar asiento"
                           >
                             <FaTimes /> Rechazar
                           </button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
