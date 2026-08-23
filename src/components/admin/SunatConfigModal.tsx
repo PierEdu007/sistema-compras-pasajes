@@ -128,42 +128,49 @@ export const SunatConfigModal: React.FC<Props> = ({ isOpen, onClose }) => {
   };
 
   const handleTestConnection = async () => {
-    if (!config.apiUrl || !config.apiToken) {
-      setTestResult({
-        success: false,
-        message: 'Por favor ingresa la Ruta de la API y el Token de autorización de Nubefact / PSE.'
-      });
-      return;
-    }
-
     setTesting(true);
     setTestResult(null);
 
     try {
-      const res = await fetch(config.apiUrl, {
+      const res = await fetch('/api/emitir-comprobante', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${config.apiToken}`
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ test: true })
+        body: JSON.stringify({
+          apiUrl: config.apiUrl || undefined,
+          apiToken: config.apiToken || undefined,
+          payload: {
+            operacion: 'consultar_comprobante',
+            tipo_de_comprobante: 1,
+            serie: config.serieFactura || 'FFF1',
+            codigo_unico: 'TEST_CONNECTION'
+          }
+        })
       });
+
+      const resData = await res.json();
 
       if (res.status === 401 || res.status === 403) {
         setTestResult({
           success: false,
-          message: 'Error de Autenticación: El Token ingresado no es válido o ha expirado.'
+          message: 'Error de Autenticación: El Token o Ruta ingresada no es válida o ha expirado.'
+        });
+      } else if (res.ok || (resData && (resData.codigo === 2 || resData.codigo === 21 || resData.codigo === 4 || resData.errors))) {
+        setTestResult({
+          success: true,
+          message: '¡Conexión establecida correctamente con el servidor de NubeFact / PSE!'
         });
       } else {
         setTestResult({
-          success: true,
-          message: '¡Conexión establecida correctamente con el servidor del Proveedor SUNAT!'
+          success: false,
+          message: resData.error || resData.message || 'Error al conectar con el servidor de facturación.'
         });
       }
     } catch (_err) {
       setTestResult({
         success: false,
-        message: 'Error de red al conectar con el API Endpoint. Verifica la URL.'
+        message: 'Error de red al conectar con el endpoint de facturación.'
       });
     } finally {
       setTesting(false);

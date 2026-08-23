@@ -98,9 +98,7 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
 
   const isFactura = data.tipoDocumento === 'RUC';
   const tipoComprobante = isFactura ? 1 : 2; // 1 = Factura, 2 = Boleta
-  let serie = isFactura ? (config.serieFactura || 'FFF1') : (config.serieBoleta || 'BBB1');
-  if (serie === 'B001') serie = 'BBB1';
-  if (serie === 'F001') serie = 'FFF1';
+  const serie = isFactura ? (config.serieFactura || 'FFF1') : (config.serieBoleta || 'BBB1');
 
   // Mapeo de Tipo de Documento según código SUNAT:
   // 1 = DNI, 6 = RUC, 4 = CE, 7 = PASAPORTE
@@ -118,6 +116,10 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
     ? `${data.ventaId.slice(0, 8)}-${serie}-${Date.now()}`
     : `VENTA-${serie}-${Date.now()}`;
 
+  const nowPeru = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Lima' }).format(new Date()); // YYYY-MM-DD
+  const [yyyy, mm, dd] = nowPeru.split('-');
+  const fechaEmisionNubeFact = `${dd}-${mm}-${yyyy}`;
+
   const payload = {
     operacion: 'generar_comprobante',
     tipo_de_comprobante: tipoComprobante,
@@ -129,7 +131,7 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
     cliente_denominacion: clienteNombre,
     cliente_direccion: data.direccionFiscal || 'CUSCO',
     cliente_email: data.email || 'reservas@turismotunkychasky.com.pe',
-    fecha_de_emision: new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Lima' }).format(new Date()),
+    fecha_de_emision: fechaEmisionNubeFact,
     moneda: 1, // Soles (PEN)
     porcentaje_de_igv: config.tipoIgv === 1 ? 18.00 : 0.00,
     total_igv: 0.00,
@@ -199,8 +201,45 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
       const errMsg = typeof result.errors === 'string' 
         ? result.errors 
         : (result.message || result.error || (result.errors ? JSON.stringify(result.errors) : ''));
+      
+      // Auto-reintento con serie alternativa si la serie configurada no está autorizada en NubeFact
+      if (result.codigo === 21 || errMsg.toLowerCase().includes('serie') || errMsg.toLowerCase().includes('autorizada')) {
+        const altSerie = isFactura 
+          ? (serie === 'FFF1' ? 'F001' : 'FFF1')
+          : (serie === 'BBB1' ? 'B001' : 'BBB1');
+        console.warn(`NubeFact: reintentando emisión con serie alternativa ${altSerie}...`);
+        try {
+          const retryPayload = { ...payload, serie: altSerie };
+          const retryRes = await fetch('/api/emitir-comprobante', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              apiUrl: config.apiUrl,
+              apiToken: config.apiToken,
+              payload: retryPayload
+            })
+          });
+          if (retryRes.ok) {
+            const retryResult = await retryRes.json();
+            if (!retryResult.errors && retryResult.enlace_del_pdf) {
+              return {
+                success: true,
+                serie: retryResult.serie,
+                numero: retryResult.numero,
+                pdfUrl: retryResult.enlace_del_pdf,
+                xmlUrl: retryResult.enlace_del_xml,
+                cdrUrl: retryResult.enlace_del_cdr,
+                qrCode: retryResult.cadena_para_codigo_qr,
+                sunatMessage: retryResult.sunat_description || 'Comprobante emitido correctamente'
+              };
+            }
+          }
+        } catch (_rErr) {
+          console.warn('Error en reintento de serie alternativa:', _rErr);
+        }
+      }
+
       // Código 4 = "Código único ya está en uso" — el comprobante ya fue emitido antes.
-      // Código 21 = Serie inválida — ya manejado arriba.
       // Recuperar el comprobante existente consultándolo por codigo_unico.
       if (result.codigo === 4 || errMsg.toLowerCase().includes('único') || errMsg.toLowerCase().includes('ya est')) {
         console.warn('NubeFact: código único en uso, consultando comprobante existente...');

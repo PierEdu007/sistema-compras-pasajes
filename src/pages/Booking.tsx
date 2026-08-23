@@ -245,25 +245,26 @@ export default function Booking() {
   // Cargar estado de asientos y suscribirse a cambios en tiempo real
   const fetchSeatStatuses = async (vId: string) => {
     try {
+      const is6 = tipoParam === '6p' || viaje?.vehiculos?.total_asientos_pasajero === 6;
+      const activeVehicleType = is6 ? '6P' : '4P';
+
       const [{ data: ventasData }, { data: bloqueosData }] = await Promise.all([
         supabase.from('ventas').select('id, numero_asiento, culqi_charge_id').eq('viaje_id', vId),
-        supabase.from('asientos_bloqueos').select('numero_asiento, estado, expira_at').eq('viaje_id', vId)
+        supabase.from('asientos_bloqueos').select('numero_asiento, estado, expira_at, sesion_token').eq('viaje_id', vId)
       ]);
 
       const rejectedList: string[] = JSON.parse(localStorage.getItem('rejected_ventas') || '[]');
       const statuses: Record<number, SeatStatus> = {};
 
-      if (ventasData) {
-        for (const v of (ventasData as any[])) {
-          if (!v.culqi_charge_id?.startsWith('RECHAZADO_') && !rejectedList.includes(v.id)) {
-            statuses[v.numero_asiento] = 'PAGADO';
-          }
-        }
-      }
+      const bloqueosList = (bloqueosData as any[]) || [];
 
-      if (bloqueosData) {
+      // 1. Procesar bloqueos
+      if (bloqueosList.length > 0) {
         const now = new Date();
-        for (const b of (bloqueosData as any[])) {
+        for (const b of bloqueosList) {
+          if (b.sesion_token?.includes('6P') && activeVehicleType === '4P') continue;
+          if (b.sesion_token?.includes('4P') && activeVehicleType === '6P') continue;
+
           if (b.estado === 'PAGADO') {
             statuses[b.numero_asiento] = 'PAGADO';
           } else if (b.estado === 'BLOQUEADO') {
@@ -271,6 +272,24 @@ export default function Booking() {
             if (expDate > now) {
               statuses[b.numero_asiento] = 'BLOQUEADO';
             }
+          }
+        }
+      }
+
+      // 2. Procesar ventas
+      if (ventasData) {
+        for (const v of (ventasData as any[])) {
+          if (!v.culqi_charge_id?.startsWith('RECHAZADO_') && !rejectedList.includes(v.id)) {
+            // Aislamiento por tag en culqi_charge_id
+            if (v.culqi_charge_id?.includes('TIPO:6P') && activeVehicleType === '4P') continue;
+            if (v.culqi_charge_id?.includes('TIPO:4P') && activeVehicleType === '6P') continue;
+
+            // Si el asiento tiene un bloqueo explícito perteneciente al otro vehículo, omitir
+            const matchingBloqueo = bloqueosList.find(b => b.numero_asiento === v.numero_asiento);
+            if (matchingBloqueo?.sesion_token?.includes('6P') && activeVehicleType === '4P') continue;
+            if (matchingBloqueo?.sesion_token?.includes('4P') && activeVehicleType === '6P') continue;
+
+            statuses[v.numero_asiento] = 'PAGADO';
           }
         }
       }
@@ -304,18 +323,22 @@ export default function Booking() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [viaje?.id, viajeId]);
+  }, [viaje?.id, viajeId, tipoParam]);
 
   const handleSelectSeat = async (seatNumber: number) => {
     const activeId = viaje?.id || viajeId;
     if (seatNumber === 1 || !activeId) return;
     setIsProcessing(true);
     try {
-      let sessionToken = sessionStorage.getItem('booking_session_token');
-      if (!sessionToken) {
-        sessionToken = `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-        sessionStorage.setItem('booking_session_token', sessionToken);
+      const is6 = tipoParam === '6p' || viaje?.vehiculos?.total_asientos_pasajero === 6;
+      const activeVehicleType = is6 ? '6P' : '4P';
+
+      let rawSessionToken = sessionStorage.getItem('booking_session_token');
+      if (!rawSessionToken) {
+        rawSessionToken = `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+        sessionStorage.setItem('booking_session_token', rawSessionToken);
       }
+      const sessionToken = `${activeVehicleType}|${rawSessionToken}`;
 
       // Si ya tenía un asiento seleccionado anteriormente, liberarlo primero en la DB
       if (selectedSeat && selectedSeat !== seatNumber) {
@@ -380,7 +403,10 @@ export default function Booking() {
   const handleTimerExpire = async () => {
     const activeId = viaje?.id || viajeId;
     if (activeId && selectedSeat) {
-      const sessionToken = sessionStorage.getItem('booking_session_token');
+      const is6 = tipoParam === '6p' || viaje?.vehiculos?.total_asientos_pasajero === 6;
+      const activeVehicleType = is6 ? '6P' : '4P';
+      const rawSessionToken = sessionStorage.getItem('booking_session_token');
+      const sessionToken = `${activeVehicleType}|${rawSessionToken}`;
       try {
         await (supabase.from('asientos_bloqueos') as any)
           .delete()
@@ -430,15 +456,16 @@ export default function Booking() {
       const cleanDir = pendingPassengerData.direccion_fiscal ? sanitizeAddress(pendingPassengerData.direccion_fiscal) : '';
       const cleanDesc = pendingPassengerData.descripcion_opcional ? sanitizeNotes(pendingPassengerData.descripcion_opcional) : '';
 
-      // Si el cliente puso un teléfono en el modal de Yape, se usa ese.
-      // Si no puso nada (está en blanco), se usa automáticamente el teléfono ingresado en el cuestionario anterior.
+      const is6 = tipoParam === '6p' || viaje.vehiculos?.total_asientos_pasajero === 6;
+      const activeVehicleType = is6 ? '6P' : '4P';
+
       const finalTelefono = (cleanTelYape && cleanTelYape.length >= 6)
         ? cleanTelYape
         : (cleanTelPass && cleanTelPass !== ''
             ? cleanTelPass
             : '927670019');
 
-      let chargeId = `YAPE-${cleanOp}`;
+      let chargeId = `YAPE-${cleanOp}|TIPO:${activeVehicleType}`;
       if (cleanRS) {
         chargeId += `|RS:${cleanRS}`;
       }

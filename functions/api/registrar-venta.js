@@ -150,13 +150,16 @@ export async function onRequestPost(context) {
       headers: authHeaders,
     });
 
-    // 5. Insert permanently into asientos_bloqueos as PAGADO
+    // 5. Insert permanently into asientos_bloqueos as PAGADO with vehicle type isolation
+    const tipoVehiculo = cleanChargeId.includes('TIPO:6P') ? '6P' : cleanChargeId.includes('TIPO:4P') ? '4P' : '';
+    const sesionToken = tipoVehiculo ? `PAGADO_${tipoVehiculo}` : 'PAGADO';
+
     const bloqueoPayload = {
       viaje_id,
       numero_asiento: seatNum,
       estado: 'PAGADO',
       expira_at: '2099-12-31T23:59:59Z',
-      sesion_token: 'PAGADO',
+      sesion_token: sesionToken,
     };
 
     const bloqueoRes = await fetch(`${SUPABASE_URL}/rest/v1/asientos_bloqueos`, {
