@@ -435,8 +435,8 @@ const AdminSales: React.FC = () => {
   };
 
   const handleOpenOrGenerateSunatPDF = async (v: VentaRow) => {
-    // 1. Si ya tiene URL oficial de NubeFact guardada
-    if (v.comprobante_url && v.comprobante_url.includes('nubefact.com')) {
+    // 1. Si ya tiene URL oficial de NubeFact o PSE guardada
+    if (v.comprobante_url && (v.comprobante_url.includes('nubefact.com') || v.comprobante_url.includes('pse.pe'))) {
       window.open(v.comprobante_url, '_blank');
       return;
     }

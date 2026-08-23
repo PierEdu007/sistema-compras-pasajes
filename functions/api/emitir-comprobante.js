@@ -27,6 +27,18 @@ function getCorsHeaders(request) {
   };
 }
 
+function isAllowedNubefactUrl(url) {
+  try {
+    const u = new URL(url);
+    const host = u.hostname.toLowerCase();
+    const isDomainAllowed = host.endsWith('nubefact.com') || host.endsWith('pse.pe');
+    const isPathAllowed = u.pathname.startsWith('/api/v1/') || u.pathname.startsWith('/api/');
+    return isDomainAllowed && isPathAllowed;
+  } catch {
+    return false;
+  }
+}
+
 export async function onRequest(context) {
   const { request } = context;
   const corsHeaders = getCorsHeaders(request);
@@ -46,20 +58,20 @@ export async function onRequest(context) {
     const body = await request.json();
     const { apiUrl, apiToken, payload } = body;
 
-    const targetUrl = apiUrl || context.env?.NUBEFACT_API_URL || context.env?.VITE_NUBEFACT_API_URL || '';
-    const targetToken = apiToken || context.env?.NUBEFACT_API_TOKEN || context.env?.VITE_NUBEFACT_API_TOKEN || '';
+    const targetUrl = (apiUrl || context.env?.NUBEFACT_API_URL || context.env?.VITE_NUBEFACT_API_URL || '').trim();
+    const targetToken = (apiToken || context.env?.NUBEFACT_API_TOKEN || context.env?.VITE_NUBEFACT_API_TOKEN || '').trim();
 
     if (!targetUrl || !targetToken) {
       return new Response(
-        JSON.stringify({ error: 'Credenciales de facturación electrónica no configuradas' }),
+        JSON.stringify({ error: 'Credenciales de facturación electrónica no configuradas en el servidor ni en la petición.' }),
         { status: 400, headers: corsHeaders }
       );
     }
 
-    // 1. SSRF Prevention: Strictly validate host URL
-    if (typeof targetUrl !== 'string' || !targetUrl.startsWith(NUBEFACT_ALLOWED_PREFIX)) {
+    // 1. SSRF Prevention: Validate host URL matches official NubeFact / PSE domain
+    if (typeof targetUrl !== 'string' || !isAllowedNubefactUrl(targetUrl)) {
       return new Response(
-        JSON.stringify({ error: 'Destino no autorizado. Solo se permite comunicación con la API oficial de NubeFact.' }),
+        JSON.stringify({ error: `Destino no autorizado (${targetUrl}). Solo se permite comunicación con la API oficial de NubeFact o PSE.` }),
         { status: 403, headers: corsHeaders }
       );
     }

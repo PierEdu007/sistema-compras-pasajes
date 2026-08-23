@@ -81,7 +81,15 @@ export async function onRequest(context) {
     async function fetchUrlAsBase64Server(url) {
       try {
         if (!url || typeof url !== 'string') return null;
-        const isUrlAllowed = ALLOWED_ATTACHMENT_PREFIXES.some(prefix => url.startsWith(prefix));
+        let isUrlAllowed = false;
+        try {
+          const u = new URL(url);
+          const host = u.hostname.toLowerCase();
+          isUrlAllowed = host.endsWith('nubefact.com') || host.endsWith('pse.pe') || host.endsWith('supabase.co');
+        } catch {
+          isUrlAllowed = false;
+        }
+
         if (!isUrlAllowed) {
           console.warn('SSRF Blocked: URL de adjunto no permitida:', url);
           return null;

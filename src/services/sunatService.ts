@@ -69,7 +69,7 @@ export function getSunatConfig(): SunatConfig {
     }
   }
   return {
-    enabled: Boolean(envApiUrl && envApiToken),
+    enabled: true, // Habilitado por defecto para usar variables de entorno en el servidor
     apiUrl: envApiUrl,
     apiToken: envApiToken,
     serieBoleta: 'BBB1',
@@ -89,10 +89,10 @@ export function saveSunatConfig(config: SunatConfig): void {
 export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?: SunatConfig): Promise<SunatResponse> {
   const config = customConfig || getSunatConfig();
 
-  if (!config.enabled || !config.apiUrl || !config.apiToken) {
+  if (config.enabled === false) {
     return {
       success: false,
-      error: 'La facturación automática a SUNAT no está habilitada o faltan las credenciales API de Nubefact/PSE.'
+      error: 'La facturación automática a SUNAT está deshabilitada en la configuración.'
     };
   }
 
@@ -195,8 +195,10 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
       }
     }
 
-    if (!ok || result.errors) {
-      const errMsg = typeof result.errors === 'string' ? result.errors : (result.message || '');
+    if (!ok || result.errors || result.error) {
+      const errMsg = typeof result.errors === 'string' 
+        ? result.errors 
+        : (result.message || result.error || (result.errors ? JSON.stringify(result.errors) : ''));
       // Código 4 = "Código único ya está en uso" — el comprobante ya fue emitido antes.
       // Código 21 = Serie inválida — ya manejado arriba.
       // Recuperar el comprobante existente consultándolo por codigo_unico.
@@ -238,7 +240,7 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
       }
       return {
         success: false,
-        error: errMsg || 'Error en la respuesta del proveedor SUNAT'
+        error: errMsg || 'Error en la respuesta del proveedor SUNAT / NubeFact'
       };
     }
 
