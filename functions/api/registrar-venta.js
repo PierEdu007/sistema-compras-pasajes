@@ -33,6 +33,15 @@ function sanitizeStr(str, maxLen = 100) {
     .trim();
 }
 
+function sanitizeText(str, maxLen = 200) {
+  if (!str || typeof str !== 'string') return '';
+  return str
+    .replace(/<[^>]*>?/gm, '')
+    .replace(/[`~$^%*+=?<>{}[\]\\|]/g, '')
+    .slice(0, maxLen)
+    .trim();
+}
+
 export async function onRequestPost(context) {
   const corsHeaders = getCorsHeaders(context.request);
   const SUPABASE_URL = context.env?.SUPABASE_URL || context.env?.VITE_SUPABASE_URL || 'https://ybnenttufdztznupgigk.supabase.co';
@@ -97,9 +106,9 @@ export async function onRequestPost(context) {
     const cleanTelefono = sanitizeStr(telefono, 20);
     const cleanMetodo = sanitizeStr(metodo_pago, 20) || 'YAPE';
     const cleanOp = sanitizeStr(nro_operacion, 30);
-    const cleanRS = sanitizeStr(razon_social, 120);
-    const cleanDir = sanitizeStr(direccion_fiscal, 150);
-    const cleanDesc = sanitizeStr(descripcion_opcional, 200);
+    const cleanRS = sanitizeText(razon_social, 120);
+    const cleanDir = sanitizeText(direccion_fiscal, 150);
+    const cleanDesc = sanitizeText(descripcion_opcional, 200);
 
     // Permitir delimitadores | y : en culqi_charge_id para los metadatos
     let cleanChargeId = typeof culqi_charge_id === 'string'

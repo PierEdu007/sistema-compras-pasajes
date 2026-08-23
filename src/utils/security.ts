@@ -155,7 +155,7 @@ export function sanitizeEmail(email: string): string {
 export function sanitizeCompanyName(name: string): string {
   if (!name || typeof name !== 'string') return '';
   return name
-    .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,\-&']/g, '')
+    .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,\-&':_/()#]/g, '')
     .replace(/\s+/g, ' ')
     .slice(0, 120)
     .trim()
@@ -168,7 +168,7 @@ export function sanitizeCompanyName(name: string): string {
 export function filterLiveCompanyInput(input: string): string {
   if (!input || typeof input !== 'string') return '';
   return input
-    .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,\-&']/g, '')
+    .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,\-&':_/()#]/g, '')
     .slice(0, 120)
     .toUpperCase();
 }
@@ -179,7 +179,7 @@ export function filterLiveCompanyInput(input: string): string {
 export function sanitizeAddress(address: string): string {
   if (!address || typeof address !== 'string') return '';
   return address
-    .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,\-#/º°']/g, '')
+    .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,\-#/º°':_]/g, '')
     .replace(/\s+/g, ' ')
     .slice(0, 150)
     .trim()
@@ -192,7 +192,7 @@ export function sanitizeAddress(address: string): string {
 export function filterLiveAddressInput(input: string): string {
   if (!input || typeof input !== 'string') return '';
   return input
-    .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,\-#/º°']/g, '')
+    .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,\-#/º°':_]/g, '')
     .slice(0, 150)
     .toUpperCase();
 }
@@ -203,9 +203,9 @@ export function filterLiveAddressInput(input: string): string {
 export function sanitizeNotes(notes: string): string {
   if (!notes || typeof notes !== 'string') return '';
   return notes
-    .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,\-()]/g, '')
+    .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,\-:_/()#º°'&]/g, '')
     .replace(/\s+/g, ' ')
-    .slice(0, 150)
+    .slice(0, 200)
     .trim()
     .toUpperCase();
 }
@@ -216,8 +216,8 @@ export function sanitizeNotes(notes: string): string {
 export function filterLiveNotesInput(input: string): string {
   if (!input || typeof input !== 'string') return '';
   return input
-    .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,\-()]/g, '')
-    .slice(0, 150)
+    .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,\-:_/()#º°'&]/g, '')
+    .slice(0, 200)
     .toUpperCase();
 }
 
