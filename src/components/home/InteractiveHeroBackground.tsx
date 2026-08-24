@@ -121,7 +121,14 @@ const InteractiveHeroBackground: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. Contrast & Readability Gradient Overlay */}
+      {/* 4. Animated Fog / Neblina Layers */}
+      <div className="fog-container" aria-hidden="true">
+        <div className="fog-layer fog-layer-1" />
+        <div className="fog-layer fog-layer-2" />
+        <div className="fog-layer fog-layer-3" />
+      </div>
+
+      {/* 5. Contrast & Readability Gradient Overlay */}
       <div className="interactive-hero-overlay" />
     </div>
   );
