@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaBus, FaCalendarAlt } from 'react-icons/fa';
+import { supabase } from '../../lib/supabase';
 
 export default function SearchForm() {
   const { t } = useTranslation();
@@ -26,20 +27,92 @@ export default function SearchForm() {
   const [origen, setOrigen] = useState('');
   const [destino, setDestino] = useState('');
   const [fecha, setFecha] = useState(today); // Fecha por defecto: hoy
+  const [routeMap, setRouteMap] = useState<Record<string, { value: string; label: string }[]>>({
+    CUSCO: [
+      { value: 'QUILLABAMBA', label: 'Quillabamba' },
+      { value: 'KITENI', label: 'Kiteni' }
+    ],
+    QUILLABAMBA: [
+      { value: 'CUSCO', label: 'Cusco' },
+      { value: 'KITENI', label: 'Kiteni' }
+    ],
+    KITENI: [
+      { value: 'QUILLABAMBA', label: 'Quillabamba' },
+      { value: 'CUSCO', label: 'Cusco' }
+    ]
+  });
 
-  const ALLOWED_CITIES = ['CUSCO', 'QUILLABAMBA'];
-
-  const rutas = [
+  const [originList, setOriginList] = useState<{ value: string; label: string }[]>([
     { value: 'CUSCO', label: 'Cusco' },
-    { value: 'QUILLABAMBA', label: 'Quillabamba' }
-  ];
+    { value: 'QUILLABAMBA', label: 'Quillabamba' },
+    { value: 'KITENI', label: 'Kiteni' }
+  ]);
+
+  // Cargar rutas activas desde Supabase de forma dinámica
+  useEffect(() => {
+    async function loadRoutes() {
+      try {
+        const { data, error } = (await supabase
+          .from('rutas')
+          .select('origen, destino')
+          .eq('activa', true)) as { data: Array<{ origen: string; destino: string }> | null; error: any };
+
+        if (!error && data && data.length > 0) {
+          const map: Record<string, { value: string; label: string }[]> = {};
+          const originsSet = new Set<string>();
+
+          const formatLabel = (city: string) => {
+            const lower = city.toLowerCase();
+            return lower.charAt(0).toUpperCase() + lower.slice(1);
+          };
+
+          data.forEach(r => {
+            const o = r.origen.toUpperCase().trim();
+            const d = r.destino.toUpperCase().trim();
+            originsSet.add(o);
+
+            if (!map[o]) map[o] = [];
+            if (!map[o].some(item => item.value === d)) {
+              map[o].push({ value: d, label: formatLabel(d) });
+            }
+          });
+
+          // Siempre asegurar que Kiteni esté presente en Quillabamba y Cusco
+          if (!map['QUILLABAMBA']) map['QUILLABAMBA'] = [];
+          if (!map['QUILLABAMBA'].some(i => i.value === 'KITENI')) {
+            map['QUILLABAMBA'].push({ value: 'KITENI', label: 'Kiteni' });
+          }
+          if (!map['CUSCO']) map['CUSCO'] = [];
+          if (!map['CUSCO'].some(i => i.value === 'KITENI')) {
+            map['CUSCO'].push({ value: 'KITENI', label: 'Kiteni' });
+          }
+          if (!map['KITENI']) {
+            map['KITENI'] = [
+              { value: 'QUILLABAMBA', label: 'Quillabamba' },
+              { value: 'CUSCO', label: 'Cusco' }
+            ];
+          }
+
+          setRouteMap(map);
+          setOriginList(
+            Array.from(new Set([...originsSet, 'CUSCO', 'QUILLABAMBA', 'KITENI'])).map(city => ({
+              value: city,
+              label: formatLabel(city)
+            }))
+          );
+        }
+      } catch (err) {
+        console.warn('Error loading dynamic routes:', err);
+      }
+    }
+    loadRoutes();
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!origen || !destino || !fecha) return;
     
-    // Validar que origen y destino pertenezcan a la lista permitida
-    if (!ALLOWED_CITIES.includes(origen) || !ALLOWED_CITIES.includes(destino) || origen === destino) {
+    if (origen === destino) {
       return;
     }
 
@@ -55,8 +128,10 @@ export default function SearchForm() {
     navigate(`/viajes?origen=${cleanOrigen}&destino=${cleanDestino}&fecha=${cleanFecha}`);
   };
 
-  // Prevenir seleccionar el mismo origen como destino
-  const destinosFiltrados = rutas.filter(r => r.value !== origen);
+  // Obtener destinos válidos según el origen seleccionado
+  const destinosDisponibles = origen && routeMap[origen] 
+    ? routeMap[origen] 
+    : [];
 
   return (
     <div className="search-form-container glass">
@@ -76,7 +151,7 @@ export default function SearchForm() {
               required
             >
               <option value="" disabled>{t('search.selectOrigin', 'Select origin')}</option>
-              {rutas.map(ruta => (
+              {originList.map(ruta => (
                 <option key={`orig-${ruta.value}`} value={ruta.value}>{ruta.label}</option>
               ))}
             </select>
@@ -92,7 +167,7 @@ export default function SearchForm() {
               disabled={!origen}
             >
               <option value="" disabled>{t('search.selectDestination', 'Select destination')}</option>
-              {destinosFiltrados.map(ruta => (
+              {destinosDisponibles.map(ruta => (
                 <option key={`dest-${ruta.value}`} value={ruta.value}>{ruta.label}</option>
               ))}
             </select>

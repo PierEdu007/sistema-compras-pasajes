@@ -120,13 +120,40 @@ const AdminTrips: React.FC = () => {
 
   const fetchOptions = async () => {
     try {
-      const [rutasRes, vehiculosRes] = await Promise.all([
+      let [rutasRes, vehiculosRes] = await Promise.all([
         supabase.from('rutas').select('id, origen, destino').eq('activa', true),
         supabase.from('vehiculos').select('id, nombre_display').eq('activo', true)
       ]);
       
-      if (rutasRes.data && (rutasRes.data as any[]).length > 0) {
-        const rawRutas = rutasRes.data as any[];
+      let rawRutas = (rutasRes.data as any[]) || [];
+
+      // Asegurar que existan todas las rutas oficiales (Cusco <-> Quillabamba, Quillabamba <-> Kiteni, Cusco <-> Kiteni)
+      const standardRoutes = [
+        { origen: 'CUSCO', destino: 'QUILLABAMBA', duracion_estimada: '06:00:00', activa: true },
+        { origen: 'QUILLABAMBA', destino: 'CUSCO', duracion_estimada: '06:00:00', activa: true },
+        { origen: 'QUILLABAMBA', destino: 'KITENI', duracion_estimada: '03:00:00', activa: true },
+        { origen: 'KITENI', destino: 'QUILLABAMBA', duracion_estimada: '03:00:00', activa: true },
+        { origen: 'CUSCO', destino: 'KITENI', duracion_estimada: '08:30:00', activa: true },
+        { origen: 'KITENI', destino: 'CUSCO', duracion_estimada: '08:30:00', activa: true },
+      ];
+
+      for (const st of standardRoutes) {
+        const found = rawRutas.find(
+          r => r.origen.toUpperCase() === st.origen && r.destino.toUpperCase() === st.destino
+        );
+        if (!found) {
+          try {
+            const { data: newR } = await (supabase
+              .from('rutas') as any)
+              .insert(st)
+              .select('id, origen, destino')
+              .single();
+            if (newR) rawRutas.push(newR);
+          } catch (_e) {}
+        }
+      }
+
+      if (rawRutas.length > 0) {
         setRutas(rawRutas);
         setCreateFormData(prev => ({ ...prev, ruta_id: rawRutas[0].id }));
       }
