@@ -27,6 +27,13 @@ export default function SearchForm() {
   const [origen, setOrigen] = useState('');
   const [destino, setDestino] = useState('');
   const [fecha, setFecha] = useState(today); // Fecha por defecto: hoy
+
+  // Kiteni es únicamente destino (no es punto de origen)
+  const originList = [
+    { value: 'CUSCO', label: 'Cusco' },
+    { value: 'QUILLABAMBA', label: 'Quillabamba' }
+  ];
+
   const [routeMap, setRouteMap] = useState<Record<string, { value: string; label: string }[]>>({
     CUSCO: [
       { value: 'QUILLABAMBA', label: 'Quillabamba' },
@@ -35,20 +42,10 @@ export default function SearchForm() {
     QUILLABAMBA: [
       { value: 'CUSCO', label: 'Cusco' },
       { value: 'KITENI', label: 'Kiteni' }
-    ],
-    KITENI: [
-      { value: 'QUILLABAMBA', label: 'Quillabamba' },
-      { value: 'CUSCO', label: 'Cusco' }
     ]
   });
 
-  const [originList, setOriginList] = useState<{ value: string; label: string }[]>([
-    { value: 'CUSCO', label: 'Cusco' },
-    { value: 'QUILLABAMBA', label: 'Quillabamba' },
-    { value: 'KITENI', label: 'Kiteni' }
-  ]);
-
-  // Cargar rutas activas desde Supabase de forma dinámica
+  // Cargar rutas activas desde Supabase manteniendo Kiteni solo como destino
   useEffect(() => {
     async function loadRoutes() {
       try {
@@ -58,8 +55,16 @@ export default function SearchForm() {
           .eq('activa', true)) as { data: Array<{ origen: string; destino: string }> | null; error: any };
 
         if (!error && data && data.length > 0) {
-          const map: Record<string, { value: string; label: string }[]> = {};
-          const originsSet = new Set<string>();
+          const map: Record<string, { value: string; label: string }[]> = {
+            CUSCO: [
+              { value: 'QUILLABAMBA', label: 'Quillabamba' },
+              { value: 'KITENI', label: 'Kiteni' }
+            ],
+            QUILLABAMBA: [
+              { value: 'CUSCO', label: 'Cusco' },
+              { value: 'KITENI', label: 'Kiteni' }
+            ]
+          };
 
           const formatLabel = (city: string) => {
             const lower = city.toLowerCase();
@@ -69,37 +74,17 @@ export default function SearchForm() {
           data.forEach(r => {
             const o = r.origen.toUpperCase().trim();
             const d = r.destino.toUpperCase().trim();
-            originsSet.add(o);
 
-            if (!map[o]) map[o] = [];
-            if (!map[o].some(item => item.value === d)) {
-              map[o].push({ value: d, label: formatLabel(d) });
+            // Solo mapear destinos para los orígenes válidos (CUSCO y QUILLABAMBA)
+            if (o === 'CUSCO' || o === 'QUILLABAMBA') {
+              if (!map[o]) map[o] = [];
+              if (!map[o].some(item => item.value === d)) {
+                map[o].push({ value: d, label: formatLabel(d) });
+              }
             }
           });
 
-          // Siempre asegurar que Kiteni esté presente en Quillabamba y Cusco
-          if (!map['QUILLABAMBA']) map['QUILLABAMBA'] = [];
-          if (!map['QUILLABAMBA'].some(i => i.value === 'KITENI')) {
-            map['QUILLABAMBA'].push({ value: 'KITENI', label: 'Kiteni' });
-          }
-          if (!map['CUSCO']) map['CUSCO'] = [];
-          if (!map['CUSCO'].some(i => i.value === 'KITENI')) {
-            map['CUSCO'].push({ value: 'KITENI', label: 'Kiteni' });
-          }
-          if (!map['KITENI']) {
-            map['KITENI'] = [
-              { value: 'QUILLABAMBA', label: 'Quillabamba' },
-              { value: 'CUSCO', label: 'Cusco' }
-            ];
-          }
-
           setRouteMap(map);
-          setOriginList(
-            Array.from(new Set([...originsSet, 'CUSCO', 'QUILLABAMBA', 'KITENI'])).map(city => ({
-              value: city,
-              label: formatLabel(city)
-            }))
-          );
         }
       } catch (err) {
         console.warn('Error loading dynamic routes:', err);
