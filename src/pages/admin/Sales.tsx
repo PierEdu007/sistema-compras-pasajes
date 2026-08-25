@@ -384,6 +384,8 @@ const AdminSales: React.FC = () => {
       let sunatResultData: { pdfUrl?: string; xmlUrl?: string; serie?: string; numero?: number } | undefined = undefined;
 
       const sunatConfig = getSunatConfig();
+      const isSpecialSale = venta.numero_asiento === 0 || venta.culqi_charge_id?.includes('ESPECIAL');
+
       if (sunatConfig.enabled) {
         const sunatRes = await emitirComprobanteSunat({
           ventaId: venta.id,
@@ -400,7 +402,8 @@ const AdminSales: React.FC = () => {
           asiento: venta.numero_asiento,
           monto: venta.monto_pagado,
           fechaViaje: venta.viajes?.fecha_viaje || '',
-          horaViaje: venta.viajes?.hora_viaje || ''
+          horaViaje: venta.viajes?.hora_viaje || '',
+          esViajeEspecial: isSpecialSale
         });
 
         if (sunatRes.success && sunatRes.pdfUrl) {
@@ -478,6 +481,8 @@ const AdminSales: React.FC = () => {
       const direccionFiscal = v.direccion_fiscal || parts.find(p => p.startsWith('DIR:'))?.replace('DIR:', '') || '';
       const descripcionOpcional = v.descripcion_opcional || parts.find(p => p.startsWith('DESC:'))?.replace('DESC:', '') || '';
 
+      const isSpecialSale = v.numero_asiento === 0 || v.culqi_charge_id?.includes('ESPECIAL');
+
       const sunatRes = await emitirComprobanteSunat({
         ventaId: v.id,
         tipoDocumento: v.tipo_documento,
@@ -493,7 +498,8 @@ const AdminSales: React.FC = () => {
         asiento: v.numero_asiento,
         monto: v.monto_pagado,
         fechaViaje: v.viajes?.fecha_viaje || '',
-        horaViaje: v.viajes?.hora_viaje || ''
+        horaViaje: v.viajes?.hora_viaje || '',
+        esViajeEspecial: isSpecialSale
       });
 
       if (sunatRes.success && sunatRes.pdfUrl) {
@@ -991,7 +997,24 @@ const AdminSales: React.FC = () => {
                       {v.viajes?.rutas?.origen} - {v.viajes?.rutas?.destino}<br/>
                       <small style={{ color: '#7f8c8d' }}>{v.viajes?.fecha_viaje} {v.viajes?.hora_viaje}</small>
                     </td>
-                    <td>#{v.numero_asiento}</td>
+                    <td>
+                      {v.numero_asiento === 0 || v.culqi_charge_id?.includes('ESPECIAL') ? (
+                        <span style={{ 
+                          backgroundColor: '#FAF5FF', 
+                          color: '#742284', 
+                          fontWeight: '800', 
+                          padding: '3px 8px', 
+                          borderRadius: '6px',
+                          border: '1px solid #E9D5FF',
+                          fontSize: '0.85em',
+                          display: 'inline-block'
+                        }}>
+                          ✨ Especial
+                        </span>
+                      ) : (
+                        `#${v.numero_asiento}`
+                      )}
+                    </td>
                     <td>
                       <strong>{v.nombres} {v.apellidos}</strong>
                     </td>

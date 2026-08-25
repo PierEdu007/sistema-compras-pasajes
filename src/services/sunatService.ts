@@ -29,6 +29,7 @@ export interface SunatVentaData {
   monto: number;
   fechaViaje: string;
   horaViaje: string;
+  esViajeEspecial?: boolean;
 }
 
 export interface SunatResponse {
@@ -121,6 +122,13 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
   const [yyyy, mm, dd] = nowPeru.split('-');
   const fechaEmisionNubeFact = `${dd}-${mm}-${yyyy}`;
 
+  const isSpecial = data.esViajeEspecial || data.asiento === 0;
+  const itemDescripcion = isSpecial
+    ? `SERVICIO DE TRANSPORTE ${data.origen} ${data.destino}${data.descripcionOpcional ? ' ' + data.descripcionOpcional : ''}`.toUpperCase().trim()
+    : `SERVICIO DE TRANSPORTE ${data.origen} - ${data.destino} PASAJERO: ${data.nombres} ${data.apellidos} ${data.tipoDocumento}.${data.nroDocumento} ASIENTO #${data.asiento}${data.descripcionOpcional ? ' - ' + data.descripcionOpcional : (data.dniPasajero ? ' - DNI ' + data.dniPasajero : '')}`.toUpperCase();
+
+  const itemCodigo = isSpecial ? 'SERV-ESP' : `PAS-${data.asiento}`;
+
   const payload = {
     operacion: 'generar_comprobante',
     tipo_de_comprobante: tipoComprobante,
@@ -144,8 +152,8 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
     items: [
       {
         unidad_de_medida: 'ZZ', // Servicio
-        codigo: `PAS-${data.asiento}`,
-        descripcion: `SERVICIO DE TRANSPORTE ${data.origen} - ${data.destino} PASAJERO: ${data.nombres} ${data.apellidos} ${data.tipoDocumento}.${data.nroDocumento} ASIENTO #${data.asiento}${data.descripcionOpcional ? ' - ' + data.descripcionOpcional : (data.dniPasajero ? ' - DNI ' + data.dniPasajero : '')}`.toUpperCase(),
+        codigo: itemCodigo,
+        descripcion: itemDescripcion,
         cantidad: 1,
         valor_unitario: config.tipoIgv === 1 ? (data.monto / 1.18).toFixed(2) : data.monto.toFixed(2),
         precio_unitario: data.monto.toFixed(2),

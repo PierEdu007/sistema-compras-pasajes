@@ -165,7 +165,10 @@ export function generateInvoicePDF(data: InvoiceData): jsPDF {
   doc.text("1", 6, y);
   doc.text("UND", 12, y);
 
-  const itemDesc = `SERVICIO DE TRANSPORTE ${data.origen} - ${data.destino} PASAJERO: ${data.nombres} ${data.apellidos} ${data.tipoDocumento}.${data.nroDocumento} ASIENTO #${data.asiento}${data.descripcionOpcional ? ' - ' + data.descripcionOpcional : ''}`;
+  const isSpecial = data.asiento === 0 || (data as any).esViajeEspecial;
+  const itemDesc = isSpecial
+    ? `SERVICIO DE TRANSPORTE ${data.origen} ${data.destino}${data.descripcionOpcional ? ' ' + data.descripcionOpcional : ''}`
+    : `SERVICIO DE TRANSPORTE ${data.origen} - ${data.destino} PASAJERO: ${data.nombres} ${data.apellidos} ${data.tipoDocumento}.${data.nroDocumento} ASIENTO #${data.asiento}${data.descripcionOpcional ? ' - ' + data.descripcionOpcional : ''}`;
   const descLines = doc.splitTextToSize(itemDesc.toUpperCase(), 34);
   doc.text(descLines, 22, y);
 
