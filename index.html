@@ -12,10 +12,21 @@
           return;
         }
         try {
-          var saved = localStorage.getItem('theme');
-          var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          var saved = null;
+          try { saved = localStorage.getItem('theme'); } catch(e) {}
+          var theme = 'light';
+          if (saved === 'dark' || saved === 'light') {
+            theme = saved;
+          } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            theme = 'dark';
+          }
           document.documentElement.setAttribute('data-theme', theme);
-        } catch (e) {}
+          // Also set a CSS class as a redundant fallback for mobile
+          if (theme === 'dark') document.documentElement.classList.add('is-dark');
+          else document.documentElement.classList.remove('is-dark');
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
       })();
     </script>
     

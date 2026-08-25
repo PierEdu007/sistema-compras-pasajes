@@ -89,11 +89,17 @@ const InteractiveHeroBackground: React.FC = () => {
           src={heroLandscapeImg}
           alt="Machu Picchu Día - Turismo Tunki Chasky"
           className="interactive-hero-bg interactive-hero-bg-day"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
         />
         <img
           src={heroLandscapeNightImg}
           alt="Machu Picchu Noche - Turismo Tunki Chasky"
           className="interactive-hero-bg interactive-hero-bg-night"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
         />
       </div>
 

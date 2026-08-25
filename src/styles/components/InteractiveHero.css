@@ -53,12 +53,24 @@
 }
 
 /* Transición a Noche en Modo Oscuro */
-[data-theme="dark"] .interactive-hero-bg-day {
+[data-theme="dark"] .interactive-hero-bg-day,
+.is-dark .interactive-hero-bg-day {
   opacity: 0;
 }
 
-[data-theme="dark"] .interactive-hero-bg-night {
+[data-theme="dark"] .interactive-hero-bg-night,
+.is-dark .interactive-hero-bg-night {
   opacity: 1;
+}
+
+/* Fallback: System dark mode on mobile devices that haven't set data-theme yet */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .interactive-hero-bg-day {
+    opacity: 0;
+  }
+  :root:not([data-theme="light"]) .interactive-hero-bg-night {
+    opacity: 1;
+  }
 }
 
 /* Light Vibrant Overlay (Lush Green & Golden Sun Tint, NOT Dull Grey) */
@@ -85,6 +97,17 @@
     rgba(15, 23, 42, 0.08) 40%,
     rgba(7, 14, 26, 0.75) 100%
   );
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .interactive-hero-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(4, 9, 18, 0.45) 0%,
+      rgba(15, 23, 42, 0.08) 40%,
+      rgba(7, 14, 26, 0.75) 100%
+    );
+  }
 }
 
 /* ----------------------------------------------------
@@ -203,6 +226,17 @@
   opacity: 0.4;
   filter: brightness(0.7) hue-rotate(190deg);
   transition: opacity 0.8s ease, filter 0.8s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .sunbeam-glow {
+    background: radial-gradient(circle, rgba(147, 197, 253, 0.22) 0%, rgba(96, 165, 250, 0.08) 45%, rgba(255, 255, 255, 0) 70%);
+    opacity: 0.85;
+  }
+  :root:not([data-theme="light"]) .clouds-container {
+    opacity: 0.4;
+    filter: brightness(0.7) hue-rotate(190deg);
+  }
 }
 
 @keyframes ambientSunPulse {
@@ -552,6 +586,38 @@
     radial-gradient(ellipse 1050px 210px at 32% 70%, rgba(214, 228, 248, 0.42) 0%, rgba(186, 215, 248, 0.16) 40%, transparent 70%),
     radial-gradient(ellipse 950px 190px at 78% 65%, rgba(214, 228, 248, 0.38) 0%, rgba(186, 215, 248, 0.14) 40%, transparent 70%);
   opacity: 0.65;
+}
+
+/* Fallback: System dark mode for fog on mobile devices */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .fog-layer-1 {
+    background-image:
+      radial-gradient(ellipse 900px 240px at 18% 82%, rgba(214, 228, 248, 0.7) 0%, rgba(186, 215, 248, 0.35) 45%, transparent 75%),
+      radial-gradient(ellipse 1100px 280px at 58% 76%, rgba(214, 228, 248, 0.68) 0%, rgba(186, 215, 248, 0.32) 50%, transparent 80%),
+      radial-gradient(ellipse 850px 230px at 90% 86%, rgba(214, 228, 248, 0.7) 0%, rgba(186, 215, 248, 0.34) 45%, transparent 75%),
+      linear-gradient(to top, rgba(186, 215, 248, 0.38) 0%, rgba(186, 215, 248, 0.16) 30%, transparent 65%);
+    opacity: 0.82;
+  }
+  :root:not([data-theme="light"]) .fog-layer-2 {
+    background-image:
+      radial-gradient(ellipse 950px 220px at 15% 55%, rgba(214, 228, 248, 0.58) 0%, rgba(186, 215, 248, 0.26) 45%, transparent 75%),
+      radial-gradient(ellipse 850px 190px at 52% 62%, rgba(214, 228, 248, 0.54) 0%, rgba(186, 215, 248, 0.22) 45%, transparent 70%),
+      radial-gradient(ellipse 920px 230px at 85% 50%, rgba(214, 228, 248, 0.56) 0%, rgba(186, 215, 248, 0.24) 48%, transparent 75%);
+    opacity: 0.76;
+  }
+  :root:not([data-theme="light"]) .fog-layer-3 {
+    background-image:
+      radial-gradient(ellipse 850px 180px at 28% 45%, rgba(214, 228, 248, 0.48) 0%, rgba(186, 215, 248, 0.18) 45%, transparent 70%),
+      radial-gradient(ellipse 800px 170px at 68% 40%, rgba(214, 228, 248, 0.45) 0%, rgba(186, 215, 248, 0.16) 45%, transparent 68%),
+      radial-gradient(ellipse 700px 150px at 95% 50%, rgba(214, 228, 248, 0.42) 0%, rgba(186, 215, 248, 0.14) 45%, transparent 65%);
+    opacity: 0.7;
+  }
+  :root:not([data-theme="light"]) .fog-layer-4 {
+    background-image:
+      radial-gradient(ellipse 1050px 210px at 32% 70%, rgba(214, 228, 248, 0.42) 0%, rgba(186, 215, 248, 0.16) 40%, transparent 70%),
+      radial-gradient(ellipse 950px 190px at 78% 65%, rgba(214, 228, 248, 0.38) 0%, rgba(186, 215, 248, 0.14) 40%, transparent 70%);
+    opacity: 0.65;
+  }
 }
 
 /* Mobile: scale down blur for optimal 60fps performance */
