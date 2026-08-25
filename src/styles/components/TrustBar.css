@@ -83,11 +83,32 @@
 }
 
 @media (max-width: 640px) {
+  .trust-bar-section {
+    padding: 10px 0;
+  }
   .trust-bar-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
   .trust-bar-item {
-    padding: 10px 14px;
+    padding: 8px 8px;
+    gap: 8px;
+    border-radius: 8px;
+  }
+  .trust-bar-icon-box {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+  }
+  .trust-bar-text h4 {
+    font-size: 0.76rem;
+    margin: 0 0 2px 0;
+    line-height: 1.2;
+  }
+  .trust-bar-text p {
+    font-size: 0.65rem;
+    line-height: 1.15;
   }
 }
