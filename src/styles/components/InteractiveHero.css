@@ -454,60 +454,59 @@
   will-change: transform;
 }
 
-/* Layer 1: Low Valley Dense Fog Bank (Drifting along Urubamba river valley) */
+/* Layer 1: Low Valley Delicate Mist (Semi-transparent wisps along valley) */
 .fog-layer-1 {
   bottom: 0%;
   left: 0;
-  height: 55%;
+  height: 50%;
   background-image:
-    radial-gradient(ellipse 900px 240px at 18% 82%, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.4) 45%, transparent 75%),
-    radial-gradient(ellipse 1100px 280px at 58% 76%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.35) 50%, transparent 80%),
-    radial-gradient(ellipse 850px 230px at 90% 86%, rgba(255, 255, 255, 0.76) 0%, rgba(255, 255, 255, 0.38) 45%, transparent 75%),
-    linear-gradient(to top, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.2) 30%, transparent 65%);
-  filter: blur(10px);
+    radial-gradient(ellipse 900px 220px at 18% 82%, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.15) 45%, transparent 75%),
+    radial-gradient(ellipse 1100px 250px at 58% 76%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.12) 50%, transparent 80%),
+    radial-gradient(ellipse 850px 200px at 90% 86%, rgba(255, 255, 255, 0.36) 0%, rgba(255, 255, 255, 0.14) 45%, transparent 75%);
+  filter: blur(14px);
   animation: fogDrift1 28s ease-in-out infinite alternate;
-  opacity: 0.9;
+  opacity: 0.50;
 }
 
-/* Layer 2: Mid-Mountain Rolling Mist (Crossing Huayna Picchu and Inca terraces) */
+/* Layer 2: Mid-Mountain Translucent Mist (Soft veil crossing ridges) */
 .fog-layer-2 {
   bottom: 18%;
   left: -20%;
-  height: 48%;
+  height: 44%;
   background-image:
-    radial-gradient(ellipse 950px 220px at 15% 55%, rgba(255, 255, 255, 0.68) 0%, rgba(255, 255, 255, 0.32) 45%, transparent 75%),
-    radial-gradient(ellipse 850px 190px at 52% 62%, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.28) 45%, transparent 70%),
-    radial-gradient(ellipse 920px 230px at 85% 50%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.3) 48%, transparent 75%);
-  filter: blur(14px);
+    radial-gradient(ellipse 950px 200px at 15% 55%, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.12) 45%, transparent 75%),
+    radial-gradient(ellipse 850px 170px at 52% 62%, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.10) 45%, transparent 70%),
+    radial-gradient(ellipse 920px 200px at 85% 50%, rgba(255, 255, 255, 0.30) 0%, rgba(255, 255, 255, 0.11) 48%, transparent 75%);
+  filter: blur(16px);
   animation: fogDrift2 24s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
-  opacity: 0.85;
+  opacity: 0.42;
 }
 
-/* Layer 3: Upper Mountain Ridge Cloud Veils (Drifting gently over peaks) */
+/* Layer 3: Upper Mountain Ridge Soft Veils */
 .fog-layer-3 {
   bottom: 35%;
   left: -10%;
-  height: 42%;
+  height: 38%;
   background-image:
-    radial-gradient(ellipse 850px 180px at 28% 45%, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0.25) 45%, transparent 70%),
-    radial-gradient(ellipse 800px 170px at 68% 40%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.22) 45%, transparent 68%),
-    radial-gradient(ellipse 700px 150px at 95% 50%, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.2) 45%, transparent 65%);
-  filter: blur(16px);
+    radial-gradient(ellipse 850px 160px at 28% 45%, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.08) 45%, transparent 70%),
+    radial-gradient(ellipse 800px 150px at 68% 40%, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.07) 45%, transparent 68%),
+    radial-gradient(ellipse 700px 140px at 95% 50%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.06) 45%, transparent 65%);
+  filter: blur(18px);
   animation: fogDrift3 20s ease-in-out infinite alternate;
-  opacity: 0.78;
+  opacity: 0.35;
 }
 
-/* Layer 4: Foreground Ambient Mist Waves (Undulating dynamic atmospheric presence) */
+/* Layer 4: Foreground Subtle Dynamic Mist */
 .fog-layer-4 {
   bottom: 6%;
   left: -15%;
-  height: 50%;
+  height: 45%;
   background-image:
-    radial-gradient(ellipse 1050px 210px at 32% 70%, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.22) 40%, transparent 70%),
-    radial-gradient(ellipse 950px 190px at 78% 65%, rgba(255, 255, 255, 0.48) 0%, rgba(255, 255, 255, 0.18) 40%, transparent 70%);
-  filter: blur(18px);
+    radial-gradient(ellipse 1050px 180px at 32% 70%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.06) 40%, transparent 70%),
+    radial-gradient(ellipse 950px 160px at 78% 65%, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.05) 40%, transparent 70%);
+  filter: blur(20px);
   animation: fogDrift4 34s linear infinite;
-  opacity: 0.72;
+  opacity: 0.28;
 }
 
 @keyframes fogDrift1 {
@@ -555,68 +554,66 @@
   }
 }
 
-/* Dark mode: Luminous Lunar Andean Mist (Radiant silver & midnight-blue mist) */
+/* Dark mode: Subtle Luminous Lunar Mist */
 [data-theme="dark"] .fog-layer-1 {
   background-image:
-    radial-gradient(ellipse 900px 240px at 18% 82%, rgba(214, 228, 248, 0.7) 0%, rgba(186, 215, 248, 0.35) 45%, transparent 75%),
-    radial-gradient(ellipse 1100px 280px at 58% 76%, rgba(214, 228, 248, 0.68) 0%, rgba(186, 215, 248, 0.32) 50%, transparent 80%),
-    radial-gradient(ellipse 850px 230px at 90% 86%, rgba(214, 228, 248, 0.7) 0%, rgba(186, 215, 248, 0.34) 45%, transparent 75%),
-    linear-gradient(to top, rgba(186, 215, 248, 0.38) 0%, rgba(186, 215, 248, 0.16) 30%, transparent 65%);
-  opacity: 0.82;
+    radial-gradient(ellipse 900px 220px at 18% 82%, rgba(214, 228, 248, 0.32) 0%, rgba(186, 215, 248, 0.12) 45%, transparent 75%),
+    radial-gradient(ellipse 1100px 250px at 58% 76%, rgba(214, 228, 248, 0.30) 0%, rgba(186, 215, 248, 0.10) 50%, transparent 80%),
+    radial-gradient(ellipse 850px 200px at 90% 86%, rgba(214, 228, 248, 0.30) 0%, rgba(186, 215, 248, 0.10) 45%, transparent 75%);
+  opacity: 0.45;
 }
 
 [data-theme="dark"] .fog-layer-2 {
   background-image:
-    radial-gradient(ellipse 950px 220px at 15% 55%, rgba(214, 228, 248, 0.58) 0%, rgba(186, 215, 248, 0.26) 45%, transparent 75%),
-    radial-gradient(ellipse 850px 190px at 52% 62%, rgba(214, 228, 248, 0.54) 0%, rgba(186, 215, 248, 0.22) 45%, transparent 70%),
-    radial-gradient(ellipse 920px 230px at 85% 50%, rgba(214, 228, 248, 0.56) 0%, rgba(186, 215, 248, 0.24) 48%, transparent 75%);
-  opacity: 0.76;
+    radial-gradient(ellipse 950px 200px at 15% 55%, rgba(214, 228, 248, 0.26) 0%, rgba(186, 215, 248, 0.08) 45%, transparent 75%),
+    radial-gradient(ellipse 850px 170px at 52% 62%, rgba(214, 228, 248, 0.24) 0%, rgba(186, 215, 248, 0.07) 45%, transparent 70%),
+    radial-gradient(ellipse 920px 200px at 85% 50%, rgba(214, 228, 248, 0.25) 0%, rgba(186, 215, 248, 0.08) 48%, transparent 75%);
+  opacity: 0.38;
 }
 
 [data-theme="dark"] .fog-layer-3 {
   background-image:
-    radial-gradient(ellipse 850px 180px at 28% 45%, rgba(214, 228, 248, 0.48) 0%, rgba(186, 215, 248, 0.18) 45%, transparent 70%),
-    radial-gradient(ellipse 800px 170px at 68% 40%, rgba(214, 228, 248, 0.45) 0%, rgba(186, 215, 248, 0.16) 45%, transparent 68%),
-    radial-gradient(ellipse 700px 150px at 95% 50%, rgba(214, 228, 248, 0.42) 0%, rgba(186, 215, 248, 0.14) 45%, transparent 65%);
-  opacity: 0.7;
+    radial-gradient(ellipse 850px 160px at 28% 45%, rgba(214, 228, 248, 0.22) 0%, rgba(186, 215, 248, 0.06) 45%, transparent 70%),
+    radial-gradient(ellipse 800px 150px at 68% 40%, rgba(214, 228, 248, 0.20) 0%, rgba(186, 215, 248, 0.05) 45%, transparent 68%),
+    radial-gradient(ellipse 700px 140px at 95% 50%, rgba(214, 228, 248, 0.18) 0%, rgba(186, 215, 248, 0.04) 45%, transparent 65%);
+  opacity: 0.32;
 }
 
 [data-theme="dark"] .fog-layer-4 {
   background-image:
-    radial-gradient(ellipse 1050px 210px at 32% 70%, rgba(214, 228, 248, 0.42) 0%, rgba(186, 215, 248, 0.16) 40%, transparent 70%),
-    radial-gradient(ellipse 950px 190px at 78% 65%, rgba(214, 228, 248, 0.38) 0%, rgba(186, 215, 248, 0.14) 40%, transparent 70%);
-  opacity: 0.65;
+    radial-gradient(ellipse 1050px 180px at 32% 70%, rgba(214, 228, 248, 0.18) 0%, rgba(186, 215, 248, 0.05) 40%, transparent 70%),
+    radial-gradient(ellipse 950px 160px at 78% 65%, rgba(214, 228, 248, 0.16) 0%, rgba(186, 215, 248, 0.04) 40%, transparent 70%);
+  opacity: 0.25;
 }
 
 /* Fallback: System dark mode for fog on mobile devices */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .fog-layer-1 {
     background-image:
-      radial-gradient(ellipse 900px 240px at 18% 82%, rgba(214, 228, 248, 0.7) 0%, rgba(186, 215, 248, 0.35) 45%, transparent 75%),
-      radial-gradient(ellipse 1100px 280px at 58% 76%, rgba(214, 228, 248, 0.68) 0%, rgba(186, 215, 248, 0.32) 50%, transparent 80%),
-      radial-gradient(ellipse 850px 230px at 90% 86%, rgba(214, 228, 248, 0.7) 0%, rgba(186, 215, 248, 0.34) 45%, transparent 75%),
-      linear-gradient(to top, rgba(186, 215, 248, 0.38) 0%, rgba(186, 215, 248, 0.16) 30%, transparent 65%);
-    opacity: 0.82;
+      radial-gradient(ellipse 900px 220px at 18% 82%, rgba(214, 228, 248, 0.32) 0%, rgba(186, 215, 248, 0.12) 45%, transparent 75%),
+      radial-gradient(ellipse 1100px 250px at 58% 76%, rgba(214, 228, 248, 0.30) 0%, rgba(186, 215, 248, 0.10) 50%, transparent 80%),
+      radial-gradient(ellipse 850px 200px at 90% 86%, rgba(214, 228, 248, 0.30) 0%, rgba(186, 215, 248, 0.10) 45%, transparent 75%);
+    opacity: 0.45;
   }
   :root:not([data-theme="light"]) .fog-layer-2 {
     background-image:
-      radial-gradient(ellipse 950px 220px at 15% 55%, rgba(214, 228, 248, 0.58) 0%, rgba(186, 215, 248, 0.26) 45%, transparent 75%),
-      radial-gradient(ellipse 850px 190px at 52% 62%, rgba(214, 228, 248, 0.54) 0%, rgba(186, 215, 248, 0.22) 45%, transparent 70%),
-      radial-gradient(ellipse 920px 230px at 85% 50%, rgba(214, 228, 248, 0.56) 0%, rgba(186, 215, 248, 0.24) 48%, transparent 75%);
-    opacity: 0.76;
+      radial-gradient(ellipse 950px 200px at 15% 55%, rgba(214, 228, 248, 0.26) 0%, rgba(186, 215, 248, 0.08) 45%, transparent 75%),
+      radial-gradient(ellipse 850px 170px at 52% 62%, rgba(214, 228, 248, 0.24) 0%, rgba(186, 215, 248, 0.07) 45%, transparent 70%),
+      radial-gradient(ellipse 920px 200px at 85% 50%, rgba(214, 228, 248, 0.25) 0%, rgba(186, 215, 248, 0.08) 48%, transparent 75%);
+    opacity: 0.38;
   }
   :root:not([data-theme="light"]) .fog-layer-3 {
     background-image:
-      radial-gradient(ellipse 850px 180px at 28% 45%, rgba(214, 228, 248, 0.48) 0%, rgba(186, 215, 248, 0.18) 45%, transparent 70%),
-      radial-gradient(ellipse 800px 170px at 68% 40%, rgba(214, 228, 248, 0.45) 0%, rgba(186, 215, 248, 0.16) 45%, transparent 68%),
-      radial-gradient(ellipse 700px 150px at 95% 50%, rgba(214, 228, 248, 0.42) 0%, rgba(186, 215, 248, 0.14) 45%, transparent 65%);
-    opacity: 0.7;
+      radial-gradient(ellipse 850px 160px at 28% 45%, rgba(214, 228, 248, 0.22) 0%, rgba(186, 215, 248, 0.06) 45%, transparent 70%),
+      radial-gradient(ellipse 800px 150px at 68% 40%, rgba(214, 228, 248, 0.20) 0%, rgba(186, 215, 248, 0.05) 45%, transparent 68%),
+      radial-gradient(ellipse 700px 140px at 95% 50%, rgba(214, 228, 248, 0.18) 0%, rgba(186, 215, 248, 0.04) 45%, transparent 65%);
+    opacity: 0.32;
   }
   :root:not([data-theme="light"]) .fog-layer-4 {
     background-image:
-      radial-gradient(ellipse 1050px 210px at 32% 70%, rgba(214, 228, 248, 0.42) 0%, rgba(186, 215, 248, 0.16) 40%, transparent 70%),
-      radial-gradient(ellipse 950px 190px at 78% 65%, rgba(214, 228, 248, 0.38) 0%, rgba(186, 215, 248, 0.14) 40%, transparent 70%);
-    opacity: 0.65;
+      radial-gradient(ellipse 1050px 180px at 32% 70%, rgba(214, 228, 248, 0.18) 0%, rgba(186, 215, 248, 0.05) 40%, transparent 70%),
+      radial-gradient(ellipse 950px 160px at 78% 65%, rgba(214, 228, 248, 0.16) 0%, rgba(186, 215, 248, 0.04) 40%, transparent 70%);
+    opacity: 0.25;
   }
 }
 
