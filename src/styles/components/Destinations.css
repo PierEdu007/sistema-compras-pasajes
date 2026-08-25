@@ -65,6 +65,36 @@
   transform: scale(1.15);
 }
 
+/* Animated Andean Mist / Neblina for Machu Picchu destination */
+.card-machupicchu-fog {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 250%;
+  height: 100%;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 360px 110px at 25% 65%, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.35) 45%, transparent 75%),
+    radial-gradient(ellipse 420px 130px at 70% 55%, rgba(255, 255, 255, 0.68) 0%, rgba(255, 255, 255, 0.3) 48%, transparent 75%),
+    radial-gradient(ellipse 300px 90px at 95% 70%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.25) 45%, transparent 70%);
+  filter: blur(10px);
+  animation: cardFogDrift 16s ease-in-out infinite alternate;
+  opacity: 0.88;
+  z-index: 1;
+}
+
+@keyframes cardFogDrift {
+  0% {
+    transform: translate3d(0, 0, 0) scaleY(1);
+  }
+  50% {
+    transform: translate3d(-20%, -6px, 0) scaleY(1.06);
+  }
+  100% {
+    transform: translate3d(-38%, 4px, 0) scaleY(0.96);
+  }
+}
+
 .price-tag {
   position: absolute;
   bottom: 0;

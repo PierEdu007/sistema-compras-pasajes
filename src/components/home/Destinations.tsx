@@ -254,6 +254,7 @@ export default function Destinations() {
                   <FaInfoCircle /> {isEn ? 'Tourist Info' : 'Info Turística'}
                 </div>
                 <img src={dest.image} alt={dest.title} loading="lazy" />
+                {dest.id === 1 && <div className="card-machupicchu-fog" />}
                 <div className="price-tag">{dest.priceTag}</div>
               </div>
 
@@ -328,6 +329,7 @@ export default function Destinations() {
               {/* Hero Image Banner */}
               <div className="destination-modal-hero">
                 <img src={activeModal.image} alt={activeModal.title} />
+                {activeModal.id === 1 && <div className="card-machupicchu-fog" />}
                 <div className="destination-modal-hero-badge">
                   <FaCompass /> {isEn ? 'Tourist Guide' : 'Guía Turística'}
                 </div>
