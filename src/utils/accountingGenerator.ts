@@ -191,8 +191,8 @@ export function generateAccountingPDF(data: AccountingData): jsPDF {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(100, 116, 139);
-  doc.text('📞 WhatsApp: 944795848 | ✉️ proinnova22@gmail.com', 15, page1Y);
-  doc.text('📍 Av. Antonio Lorena 318, Santiago, Cusco', 15, page1Y + 5);
+  doc.text('WhatsApp: +51 927 670 019 | Email: tunkychaskyoficial@gmail.com', 15, page1Y);
+  doc.text('Direccion: Av. Antonio Lorena 318, Santiago, Cusco', 15, page1Y + 5);
 
   // Decorative Bottom Accent Bar
   doc.setFillColor(30, 58, 138);
@@ -287,8 +287,8 @@ export function generateAccountingPDF(data: AccountingData): jsPDF {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(100, 116, 139);
-  doc.text('📞 WhatsApp: 944795848 | ✉️ proinnova22@gmail.com', 15, page1Y);
-  doc.text('📍 Av. Antonio Lorena 318, Santiago, Cusco', 15, page1Y + 5);
+  doc.text('WhatsApp: +51 927 670 019 | Email: tunkychaskyoficial@gmail.com', 15, page1Y);
+  doc.text('Direccion: Av. Antonio Lorena 318, Santiago, Cusco', 15, page1Y + 5);
 
   doc.setFillColor(30, 58, 138);
   doc.rect(15, page1Y + 9, 100, 4, 'F');

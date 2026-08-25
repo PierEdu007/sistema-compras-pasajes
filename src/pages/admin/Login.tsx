@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaInfoCircle } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import '../../styles/components/admin.css';
@@ -110,8 +111,8 @@ const AdminLogin: React.FC = () => {
         <h2 className="admin-login-title">Ingreso Administrativo</h2>
         
         {infoMsg && (
-          <div style={{ backgroundColor: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe', padding: '10px 14px', borderRadius: '8px', marginBottom: '15px', fontSize: '0.88rem' }}>
-            ℹ️ {infoMsg}
+          <div style={{ backgroundColor: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe', padding: '10px 14px', borderRadius: '8px', marginBottom: '15px', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FaInfoCircle /> {infoMsg}
           </div>
         )}
         {error && <div className="admin-error-msg">{error}</div>}

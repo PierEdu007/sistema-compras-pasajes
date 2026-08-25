@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaCreditCard, FaFileInvoice, FaSpinner, FaSearch, FaCheck } from 'react-icons/fa';
+import { FaCreditCard, FaFileInvoice, FaSpinner, FaSearch, FaCheck, FaInfoCircle } from 'react-icons/fa';
 import {
   PATTERNS,
   containsDangerousCode,
@@ -545,7 +545,7 @@ export default function PassengerForm({ onSubmit, disabled = false }: PassengerF
               )}
               
               <small className="passenger-dni-help">
-                ℹ️ Al consultar el DNI se auto-completarán los Nombres y Apellidos del pasajero y se incluirá en el detalle de la Factura.
+                <FaInfoCircle style={{ marginRight: '4px' }} /> Al consultar el DNI se auto-completarán los Nombres y Apellidos del pasajero y se incluirá en el detalle de la Factura.
               </small>
             </div>
           </>

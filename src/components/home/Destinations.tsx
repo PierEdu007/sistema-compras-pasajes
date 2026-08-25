@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { 
   FaBolt, FaCouch, FaSun, FaRoad, FaLeaf, FaTachometerAlt, 
   FaMapMarkedAlt, FaClock, FaTrain, FaStar, FaShieldAlt, FaArrowRight,
-  FaTimes, FaCompass, FaMapPin, FaCloudSun, FaMountain, FaUtensils, FaInfoCircle, FaWhatsapp
+  FaTimes, FaCompass, FaMapPin, FaCloudSun, FaMountain, FaUtensils, FaInfoCircle, FaWhatsapp,
+  FaCheck, FaLightbulb
 } from 'react-icons/fa';
 import '../../styles/components/Destinations.css';
 
@@ -377,7 +378,7 @@ export default function Destinations() {
                   <ul className="tourist-highlights-list">
                     {activeModal.touristInfo.highlights.map((item, idx) => (
                       <li key={idx}>
-                        <span style={{ color: '#16a34a', marginRight: '4px' }}>✓</span> {item}
+                        <FaCheck style={{ color: '#16a34a', marginRight: '6px', fontSize: '0.85rem' }} /> {item}
                       </li>
                     ))}
                   </ul>
@@ -391,7 +392,7 @@ export default function Destinations() {
 
                 {/* Tips */}
                 <div className="tourist-tips-box">
-                  <strong>💡 {isEn ? 'Traveler Tips:' : 'Consejos para el Viajero:'}</strong> {activeModal.touristInfo.tips}
+                  <strong><FaLightbulb style={{ color: '#f59e0b', marginRight: '4px' }} /> {isEn ? 'Traveler Tips:' : 'Consejos para el Viajero:'}</strong> {activeModal.touristInfo.tips}
                 </div>
               </div>
             </div>

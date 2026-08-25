@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
-import { FaPhoneAlt, FaEnvelope, FaFacebook, FaInstagram, FaWhatsapp, FaSun, FaMoon } from 'react-icons/fa';
+import { FaPhoneAlt, FaEnvelope, FaFacebook, FaInstagram, FaWhatsapp, FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
 import { useTheme } from '../../hooks/useTheme';
 import '../../styles/components/header.css';
 
@@ -96,8 +96,9 @@ export default function Header() {
             className="mobile-toggle" 
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Menu"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            {menuOpen ? '✕' : '☰'}
+            {menuOpen ? <FaTimes /> : <FaBars />}
           </button>
 
           <nav className={`nav-menu ${menuOpen ? 'active' : ''}`}>

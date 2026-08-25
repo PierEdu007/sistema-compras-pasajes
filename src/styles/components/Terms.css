@@ -142,13 +142,22 @@
 }
 
 .terms-btn-whatsapp {
-  background: #25D366;
-  color: #FFFFFF;
+  background: #25D366 !important;
+  color: #FFFFFF !important;
   box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
 }
 
+.terms-btn-whatsapp,
+.terms-btn-whatsapp *,
+.terms-btn-whatsapp span,
+.terms-btn-whatsapp svg {
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+}
+
 .terms-btn-whatsapp:hover {
-  background: #20BA5A;
+  background: #20BA5A !important;
+  color: #FFFFFF !important;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
 }
@@ -280,6 +289,9 @@
 }
 
 .terms-category-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   padding: 7px 14px;
   border-radius: 999px;
   font-size: 0.85rem;
@@ -292,6 +304,12 @@
   transition: all 0.2s ease;
 }
 
+.terms-cat-pill-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
 .terms-category-pill:hover {
   background: #E2E8F0;
   color: #0F172A;
@@ -302,6 +320,10 @@
   color: #FFFFFF;
   border-color: #742284;
   box-shadow: 0 4px 12px rgba(116, 34, 132, 0.25);
+}
+
+.terms-category-pill.active .terms-cat-pill-icon {
+  color: #FFFFFF;
 }
 
 /* --- 4. SECTION ACCORDION CARDS --- */
@@ -660,6 +682,21 @@
   background: #2D1A45;
   color: #D8B4FE;
   border-color: #4A2875;
+}
+
+[data-theme="dark"] .terms-btn-whatsapp,
+.is-dark .terms-btn-whatsapp,
+[data-theme="dark"] .terms-btn-whatsapp *,
+.is-dark .terms-btn-whatsapp * {
+  background: #25D366 !important;
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+}
+
+[data-theme="dark"] .terms-btn-whatsapp:hover,
+.is-dark .terms-btn-whatsapp:hover {
+  background: #20BA5A !important;
+  color: #FFFFFF !important;
 }
 
 /* --- 7. RESPONSIVE BREAKPOINTS --- */

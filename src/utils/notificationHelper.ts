@@ -139,7 +139,7 @@ export function notifyNewSale(venta: {
 
   // 3. Notificación Push del Sistema (Escritorio / Windows / Android)
   if ('Notification' in window && Notification.permission === 'granted') {
-    const title = '🔔 ¡NUEVA VENTA POR CONFIRMAR!';
+    const title = '¡NUEVA VENTA POR CONFIRMAR!';
     const body = `Pasajero: ${venta.nombres} ${venta.apellidos}\nAsiento: #${venta.numero_asiento} | Monto: S/ ${Number(venta.monto_pagado || 0).toFixed(2)}`;
 
     try {

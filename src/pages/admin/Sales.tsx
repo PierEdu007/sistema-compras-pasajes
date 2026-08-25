@@ -449,7 +449,7 @@ const AdminSales: React.FC = () => {
         });
 
         if (sunatRes.success && sunatRes.pdfUrl) {
-          sunatNote = `\n\n✅ Comprobante SUNAT Emitido: ${sunatRes.serie}-${sunatRes.numero}`;
+          sunatNote = `\n\nComprobante SUNAT Emitido: ${sunatRes.serie}-${sunatRes.numero}`;
           finalInvoiceUrl = sunatRes.pdfUrl;
           sunatResultData = {
             pdfUrl: sunatRes.pdfUrl,
@@ -459,7 +459,7 @@ const AdminSales: React.FC = () => {
           };
           window.open(sunatRes.pdfUrl, '_blank');
         } else {
-          sunatNote = `\n\n⚠️ SUNAT Aviso: ${sunatRes.error || 'No se pudo contactar con NubeFact'}`;
+          sunatNote = `\n\nSUNAT Aviso: ${sunatRes.error || 'No se pudo contactar con NubeFact'}`;
         }
       }
 
@@ -490,9 +490,9 @@ const AdminSales: React.FC = () => {
       let resendNote = '';
       const directResult = await sendDirectResend(venta, ticketBlob, sunatResultData, invoiceBlob);
       if (directResult.success) {
-        resendNote = `\n\n✅ ¡Correo con Boleto, PDF NubeFact y XML enviado a ${venta.email}!`;
+        resendNote = `\n\n¡Correo con Boleto, PDF NubeFact y XML enviado a ${venta.email}!`;
       } else {
-        resendNote = `\n\n⚠️ Resend aviso: ${directResult.error}`;
+        resendNote = `\n\nResend aviso: ${directResult.error}`;
       }
 
       setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, nro_comprobante: realNroComp, estado: 'CONFIRMADO' } : v));
@@ -886,8 +886,8 @@ const AdminSales: React.FC = () => {
               onChange={(e) => setFilterStatus(e.target.value)}
             >
               <option value="TODOS">Todos los Pagos</option>
-              <option value="PENDIENTE">⏳ Pendientes por Confirmar</option>
-              <option value="EMITIDO">✅ Confirmados / Emitidos</option>
+              <option value="PENDIENTE">Pendientes por Confirmar</option>
+              <option value="EMITIDO">Confirmados / Emitidos</option>
             </select>
           </div>
 
@@ -929,23 +929,23 @@ const AdminSales: React.FC = () => {
               onChange={(e) => setFilterRuta(e.target.value)}
             >
               <option value="TODOS">Todas las Rutas (Regulares y Especiales)</option>
-              <option value="TODAS_ESPECIALES">✨ Todos los Viajes Especiales</option>
-              <option value="TODAS_REGULARES">🚌 Todas las Salidas Regulares</option>
+              <option value="TODAS_ESPECIALES">Todos los Viajes Especiales</option>
+              <option value="TODAS_REGULARES">Todas las Salidas Regulares</option>
 
               {rutasEspeciales.length > 0 && (
-                <optgroup label="─── ✨ Rutas Especiales Registradas ───">
+                <optgroup label="─── Rutas Especiales Registradas ───">
                   {rutasEspeciales.map(r => (
                     <option key={`esp-${r}`} value={`ESP:${r}`}>
-                      ✨ {r} (Especial)
+                      {r} (Especial)
                     </option>
                   ))}
                 </optgroup>
               )}
 
-              <optgroup label="─── 🚌 Rutas de Salidas Regulares ───">
+              <optgroup label="─── Rutas de Salidas Regulares ───">
                 {rutasRegulares.map(r => (
                   <option key={`reg-${r}`} value={`REG:${r}`}>
-                    🚌 {r}
+                    {r}
                   </option>
                 ))}
               </optgroup>
@@ -1070,7 +1070,7 @@ const AdminSales: React.FC = () => {
                                 border: '1px solid #E9D5FF',
                                 display: 'inline-block'
                               }}>
-                                ✨ Especial
+                                Especial
                               </span>
                             )}
                             <br/>
@@ -1093,7 +1093,7 @@ const AdminSales: React.FC = () => {
                           fontSize: '0.85em',
                           display: 'inline-block'
                         }}>
-                          ✨ Especial
+                          Especial
                         </span>
                       ) : (
                         `#${v.numero_asiento}`
@@ -1172,7 +1172,7 @@ const AdminSales: React.FC = () => {
                             color: isAnulado ? '#dc2626' : '#16a34a',
                             border: `1px solid ${isAnulado ? '#fca5a5' : '#86efac'}`
                           }}>
-                            {isAnulado ? '✕ Anulado' : '✓ Aceptado'}
+                            {isAnulado ? 'Anulado' : 'Aceptado'}
                           </span>
                         );
                       })()}

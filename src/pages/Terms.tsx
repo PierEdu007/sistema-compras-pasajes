@@ -22,7 +22,10 @@ import {
   FaPhoneAlt,
   FaMapMarkerAlt,
   FaClock,
-  FaBalanceScale
+  FaBalanceScale,
+  FaStar,
+  FaSyncAlt,
+  FaTimes
 } from 'react-icons/fa';
 import '../styles/components/Terms.css';
 
@@ -63,16 +66,16 @@ export default function Terms() {
   });
 
   const categories = [
-    { id: 'ALL', labelEs: '🌟 Todos los Términos', labelEn: '🌟 All Terms' },
-    { id: 'boletos', labelEs: '🎫 Boletos y Comprobantes', labelEn: '🎫 Tickets & Invoices' },
-    { id: 'equipaje', labelEs: '🧳 Equipaje y Carga', labelEn: '🧳 Luggage & Baggage' },
-    { id: 'menores', labelEs: '👶 Menores de Edad', labelEn: '👶 Traveling Minors' },
-    { id: 'abordaje', labelEs: '🚌 Abordaje y Conducta', labelEn: '🚌 Boarding & Rules' },
-    { id: 'postergaciones', labelEs: '🔄 Postergaciones y Cambios', labelEn: '🔄 Rescheduling' },
-    { id: 'reservas', labelEs: '⏱️ Reservas y Pagos', labelEn: '⏱️ Booking & Payments' },
-    { id: 'encomiendas', labelEs: '📦 Encomiendas y Giros', labelEn: '📦 Parcel Services' },
-    { id: 'seguridad', labelEs: '🛡️ Seguridad y SOAT', labelEn: '🛡️ Insurance & Safety' },
-    { id: 'reclamaciones', labelEs: '⚖️ Libro de Reclamaciones', labelEn: '⚖️ Complaints Book' },
+    { id: 'ALL', icon: <FaStar />, labelEs: 'Todos los Términos', labelEn: 'All Terms' },
+    { id: 'boletos', icon: <FaTicketAlt />, labelEs: 'Boletos y Comprobantes', labelEn: 'Tickets & Invoices' },
+    { id: 'equipaje', icon: <FaSuitcase />, labelEs: 'Equipaje y Carga', labelEn: 'Luggage & Baggage' },
+    { id: 'menores', icon: <FaChild />, labelEs: 'Menores de Edad', labelEn: 'Traveling Minors' },
+    { id: 'abordaje', icon: <FaBus />, labelEs: 'Abordaje y Conducta', labelEn: 'Boarding & Rules' },
+    { id: 'postergaciones', icon: <FaSyncAlt />, labelEs: 'Postergaciones y Cambios', labelEn: 'Rescheduling' },
+    { id: 'reservas', icon: <FaClock />, labelEs: 'Reservas y Pagos', labelEn: 'Booking & Payments' },
+    { id: 'encomiendas', icon: <FaBox />, labelEs: 'Encomiendas y Giros', labelEn: 'Parcel Services' },
+    { id: 'seguridad', icon: <FaShieldAlt />, labelEs: 'Seguridad y SOAT', labelEn: 'Insurance & Safety' },
+    { id: 'reclamaciones', icon: <FaBalanceScale />, labelEs: 'Libro de Reclamaciones', labelEn: 'Complaints Book' },
   ];
 
   const sections: TermSection[] = [
@@ -462,7 +465,7 @@ export default function Terms() {
               rel="noopener noreferrer"
               className="terms-btn terms-btn-whatsapp"
             >
-              <FaWhatsapp /> {isEn ? 'WhatsApp Support' : 'Consultar por WhatsApp'}
+              <FaWhatsapp className="terms-btn-whatsapp-icon" /> <span>{isEn ? 'WhatsApp Support' : 'Consultar por WhatsApp'}</span>
             </a>
           </div>
         </div>
@@ -492,7 +495,7 @@ export default function Terms() {
                   onClick={() => setSearchQuery('')}
                   title={isEn ? 'Clear search' : 'Limpiar búsqueda'}
                 >
-                  ✕
+                  <FaTimes />
                 </button>
               )}
             </div>
@@ -515,7 +518,8 @@ export default function Terms() {
                 className={`terms-category-pill ${activeCategory === cat.id ? 'active' : ''}`}
                 onClick={() => setActiveCategory(cat.id)}
               >
-                {isEn ? cat.labelEn : cat.labelEs}
+                <span className="terms-cat-pill-icon">{cat.icon}</span>
+                <span>{isEn ? cat.labelEn : cat.labelEs}</span>
               </button>
             ))}
           </div>

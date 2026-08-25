@@ -274,7 +274,7 @@ const AccountingReport: React.FC = () => {
                     if (sumBase > 0) {
                       setCompras18Base(Number((sumBase * 0.85).toFixed(2)));
                       setCompras18Igv(Number((sumBase * 0.85 * 0.18).toFixed(2)));
-                      alert(`✅ Compras auto-cargadas desde archivo SIRE SUNAT de forma exitosa.`);
+                      alert(`Compras auto-cargadas desde archivo SIRE SUNAT de forma exitosa.`);
                     } else {
                       alert('Formato de archivo procesado.');
                     }

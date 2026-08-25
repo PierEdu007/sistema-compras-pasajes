@@ -645,7 +645,7 @@ const AdminDashboard: React.FC = () => {
                             color: isAnulado ? '#dc2626' : '#16a34a',
                             border: `1px solid ${isAnulado ? '#fca5a5' : '#86efac'}`
                           }}>
-                            {isAnulado ? '✕ Anulado' : '✓ Aceptado'}
+                            {isAnulado ? 'Anulado' : 'Aceptado'}
                           </span>
                         );
                       })()}

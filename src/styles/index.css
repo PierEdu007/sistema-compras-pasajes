@@ -301,19 +301,25 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   color: #f8fafc;
 }
 
-[data-theme="dark"] a:not(.btn):not(.btn-primary):not(.btn-secondary):not(.btn-danger):not(.nav-link-btn):not(.social-links a):not(.header-top a) {
+[data-theme="dark"] a:not(.btn):not(.btn-primary):not(.btn-secondary):not(.btn-danger):not(.nav-link-btn):not(.social-links a):not(.header-top a):not(.whatsapp-btn):not(.terms-btn-whatsapp):not(.terms-contact-pill) {
   color: #38bdf8;
 }
 
 [data-theme="dark"] .header-top a,
 [data-theme="dark"] .social-links a,
-[data-theme="dark"] .header-top .social-links a {
+[data-theme="dark"] .header-top .social-links a,
+[data-theme="dark"] .whatsapp-btn,
+[data-theme="dark"] .whatsapp-btn *,
+[data-theme="dark"] .terms-btn-whatsapp,
+[data-theme="dark"] .terms-btn-whatsapp * {
   color: #ffffff !important;
 }
 
 [data-theme="dark"] .header-top a svg,
 [data-theme="dark"] .social-links a svg,
-[data-theme="dark"] .header-top .social-links a svg {
+[data-theme="dark"] .header-top .social-links a svg,
+[data-theme="dark"] .whatsapp-btn svg,
+[data-theme="dark"] .terms-btn-whatsapp svg {
   color: #ffffff !important;
   fill: #ffffff !important;
 }
