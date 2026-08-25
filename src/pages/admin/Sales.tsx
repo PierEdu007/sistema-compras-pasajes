@@ -57,15 +57,53 @@ const AdminSales: React.FC = () => {
   const [filterComprobante, setFilterComprobante] = useState('');
   const [filterRuta, setFilterRuta] = useState('TODOS');
 
-  // Obtener rutas únicas para el select
-  const rutasUnicas = useMemo(() => {
-    const set = new Set<string>();
+  // Extraer ruta real y determinar si es viaje especial
+  const getSaleRoute = (v: VentaRow): { origen: string; destino: string; isSpecial: boolean; routeStr: string } => {
+    const isSpecial = v.numero_asiento === 0 || v.culqi_charge_id?.includes('ESPECIAL') || false;
+
+    let origen = v.viajes?.rutas?.origen || '';
+    let destino = v.viajes?.rutas?.destino || '';
+
+    // Si la venta especial guardó la ruta en culqi_charge_id (ORIGEN:XXX|DESTINO:YYY)
+    if (v.culqi_charge_id?.includes('ORIGEN:') && v.culqi_charge_id?.includes('DESTINO:')) {
+      const parts = v.culqi_charge_id.split('|');
+      const oPart = parts.find(p => p.startsWith('ORIGEN:'))?.replace('ORIGEN:', '');
+      const dPart = parts.find(p => p.startsWith('DESTINO:'))?.replace('DESTINO:', '');
+      if (oPart) origen = oPart;
+      if (dPart) destino = dPart;
+    }
+
+    origen = (origen || 'CUSCO').trim().toUpperCase();
+    destino = (destino || 'QUILLABAMBA').trim().toUpperCase();
+    const routeStr = `${origen} - ${destino}`;
+
+    return { origen, destino, isSpecial, routeStr };
+  };
+
+  // Obtener rutas únicas categorizadas (Regulares y Especiales)
+  const { rutasRegulares, rutasEspeciales } = useMemo(() => {
+    const regSet = new Set<string>();
+    const espSet = new Set<string>();
+
     ventas.forEach(v => {
-      if (v.viajes?.rutas?.origen && v.viajes?.rutas?.destino) {
-        set.add(`${v.viajes.rutas.origen} - ${v.viajes.rutas.destino}`);
+      const { routeStr, isSpecial } = getSaleRoute(v);
+      if (isSpecial) {
+        espSet.add(routeStr);
+      } else {
+        regSet.add(routeStr);
       }
     });
-    return Array.from(set).sort();
+
+    // Rutas estándar base siempre disponibles
+    regSet.add('CUSCO - QUILLABAMBA');
+    regSet.add('QUILLABAMBA - CUSCO');
+    regSet.add('CUSCO - KITENI');
+    regSet.add('QUILLABAMBA - KITENI');
+
+    return {
+      rutasRegulares: Array.from(regSet).sort(),
+      rutasEspeciales: Array.from(espSet).sort()
+    };
   }, [ventas]);
 
   const filteredVentas = useMemo(() => {
@@ -104,15 +142,19 @@ const AdminSales: React.FC = () => {
         return nroComp.toLowerCase().includes(filterComprobante.toLowerCase());
       })();
 
-      // 6. Ruta de viaje
+      // 6. Ruta de viaje (Regulares, Especiales y Rutas específicas)
       const rutaMatch = filterRuta === 'TODOS' || (() => {
-        const ruta = `${v.viajes?.rutas?.origen} - ${v.viajes?.rutas?.destino}`;
-        return ruta === filterRuta;
+        const { routeStr, isSpecial } = getSaleRoute(v);
+        if (filterRuta === 'TODAS_ESPECIALES') return isSpecial;
+        if (filterRuta === 'TODAS_REGULARES') return !isSpecial;
+        if (filterRuta.startsWith('ESP:')) return isSpecial && routeStr === filterRuta.replace('ESP:', '');
+        if (filterRuta.startsWith('REG:')) return !isSpecial && routeStr === filterRuta.replace('REG:', '');
+        return routeStr === filterRuta;
       })();
 
       return searchMatch && docMatch && statusMatch && fechaMatch && comprobanteMatch && rutaMatch;
     });
-  }, [ventas, searchQuery, filterDocType, filterStatus, filterFecha]);
+  }, [ventas, searchQuery, filterDocType, filterStatus, filterFecha, filterComprobante, filterRuta]);
 
   const handleToggleNotifications = async () => {
     const granted = await requestNotificationPermission();
@@ -886,10 +928,27 @@ const AdminSales: React.FC = () => {
               value={filterRuta}
               onChange={(e) => setFilterRuta(e.target.value)}
             >
-              <option value="TODOS">Todas las Rutas</option>
-              {rutasUnicas.map(r => (
-                <option key={r} value={r}>{r}</option>
-              ))}
+              <option value="TODOS">Todas las Rutas (Regulares y Especiales)</option>
+              <option value="TODAS_ESPECIALES">✨ Todos los Viajes Especiales</option>
+              <option value="TODAS_REGULARES">🚌 Todas las Salidas Regulares</option>
+
+              {rutasEspeciales.length > 0 && (
+                <optgroup label="─── ✨ Rutas Especiales Registradas ───">
+                  {rutasEspeciales.map(r => (
+                    <option key={`esp-${r}`} value={`ESP:${r}`}>
+                      ✨ {r} (Especial)
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+
+              <optgroup label="─── 🚌 Rutas de Salidas Regulares ───">
+                {rutasRegulares.map(r => (
+                  <option key={`reg-${r}`} value={`REG:${r}`}>
+                    🚌 {r}
+                  </option>
+                ))}
+              </optgroup>
             </select>
           </div>
         </div>
@@ -994,8 +1053,33 @@ const AdminSales: React.FC = () => {
                       </div>
                     </td>
                     <td>
-                      {v.viajes?.rutas?.origen} - {v.viajes?.rutas?.destino}<br/>
-                      <small style={{ color: '#7f8c8d' }}>{v.viajes?.fecha_viaje} {v.viajes?.hora_viaje}</small>
+                      {(() => {
+                        const { origen, destino, isSpecial } = getSaleRoute(v);
+                        return (
+                          <>
+                            <strong>{origen} - {destino}</strong>
+                            {isSpecial && (
+                              <span style={{ 
+                                marginLeft: '6px', 
+                                backgroundColor: '#FAF5FF', 
+                                color: '#742284', 
+                                fontWeight: 'bold', 
+                                fontSize: '0.75em', 
+                                padding: '2px 5px', 
+                                borderRadius: '4px',
+                                border: '1px solid #E9D5FF',
+                                display: 'inline-block'
+                              }}>
+                                ✨ Especial
+                              </span>
+                            )}
+                            <br/>
+                            <small style={{ color: '#7f8c8d' }}>
+                              {v.viajes?.fecha_viaje || v.created_at?.substring(0, 10)} {v.viajes?.hora_viaje || ''}
+                            </small>
+                          </>
+                        );
+                      })()}
                     </td>
                     <td>
                       {v.numero_asiento === 0 || v.culqi_charge_id?.includes('ESPECIAL') ? (
