@@ -45,6 +45,9 @@ export default function Home() {
       {/* About Us Section */}
       <About />
 
+      {/* Map Section */}
+      <MapSection />
+
       {/* Destinations Section */}
       <Destinations />
 
@@ -53,9 +56,6 @@ export default function Home() {
 
       {/* Testimonials Section */}
       <Testimonials />
-
-      {/* Map Section */}
-      <MapSection />
       
     </div>
   );
