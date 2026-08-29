@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
-import { FaBell, FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaServer, FaSearch, FaFilter, FaSync, FaDownload, FaPhone, FaEnvelope, FaWhatsapp, FaClock } from 'react-icons/fa';
+import { FaBell, FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaServer, FaSearch, FaFilter, FaSync, FaDownload, FaPhone, FaEnvelope, FaWhatsapp, FaClock, FaTrash } from 'react-icons/fa';
 import { generateInvoicePDF, generateTicketPDF } from '../../utils/invoiceGenerator';
 import { SunatConfigModal } from '../../components/admin/SunatConfigModal';
 import { emitirComprobanteSunat, getSunatConfig } from '../../services/sunatService';
@@ -642,6 +642,49 @@ const AdminSales: React.FC = () => {
     }
   };
 
+  const handleDeleteSpecialSale = async (venta: VentaRow) => {
+    const { origen, destino } = getSaleRoute(venta);
+    const compInfo = venta.nro_comprobante ? ` (${venta.nro_comprobante})` : '';
+    const isConfirmed = window.confirm(
+      `¿Estás seguro de que deseas ELIMINAR esta venta/factura especial por equivocación?\n\n` +
+      `• Pasajero / Razón Social: ${venta.nombres} ${venta.apellidos}\n` +
+      `• Documento: ${venta.tipo_documento} ${venta.nro_documento}\n` +
+      `• Ruta Especial: ${origen} ➔ ${destino}\n` +
+      `• Monto: S/ ${Number(venta.monto_pagado).toFixed(2)}\n` +
+      `• Comprobante: ${compInfo || 'Sin emitir'}\n\n` +
+      `Esta acción eliminará de forma permanente el registro de la venta especial.`
+    );
+    if (!isConfirmed) return;
+
+    setProcessingId(venta.id);
+    try {
+      // 1. Eliminar de Supabase
+      const { error: delErr } = await supabase
+        .from('ventas')
+        .delete()
+        .eq('id', venta.id);
+
+      if (delErr) {
+        console.warn('Error al eliminar de Supabase:', delErr);
+        throw delErr;
+      }
+
+      // 2. Limpiar de caché local si estuviera
+      const localPending: VentaRow[] = JSON.parse(localStorage.getItem('local_pending_ventas') || '[]');
+      const updatedLocal = localPending.filter(v => v.id !== venta.id);
+      localStorage.setItem('local_pending_ventas', JSON.stringify(updatedLocal));
+
+      // 3. Actualizar estado local
+      setVentas(prev => prev.filter(v => v.id !== venta.id));
+      alert('La venta especial y su comprobante fueron eliminados correctamente.');
+    } catch (err: any) {
+      console.error('Error al eliminar venta especial:', err);
+      alert(`No se pudo eliminar la venta especial: ${err.message || 'Error en la base de datos'}`);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
   const handleExportBackup = async () => {
     try {
       const [ventasRes, viajesRes, rutasRes, vehiculosRes] = await Promise.all([
@@ -1017,6 +1060,7 @@ const AdminSales: React.FC = () => {
                 const isYape = v.metodo_pago === 'YAPE' || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-'));
                 const opCode = v.nro_operacion || (v.culqi_charge_id && v.culqi_charge_id.startsWith('YAPE-') ? v.culqi_charge_id.split('|')[0].replace('YAPE-', '') : v.culqi_charge_id);
                 const isFactura = v.tipo_documento === 'RUC';
+                const { origen, destino, isSpecial } = getSaleRoute(v);
 
                 return (
                   <tr key={v.id}>
@@ -1053,33 +1097,26 @@ const AdminSales: React.FC = () => {
                       </div>
                     </td>
                     <td>
-                      {(() => {
-                        const { origen, destino, isSpecial } = getSaleRoute(v);
-                        return (
-                          <>
-                            <strong>{origen} - {destino}</strong>
-                            {isSpecial && (
-                              <span style={{ 
-                                marginLeft: '6px', 
-                                backgroundColor: '#FAF5FF', 
-                                color: '#742284', 
-                                fontWeight: 'bold', 
-                                fontSize: '0.75em', 
-                                padding: '2px 5px', 
-                                borderRadius: '4px',
-                                border: '1px solid #E9D5FF',
-                                display: 'inline-block'
-                              }}>
-                                Especial
-                              </span>
-                            )}
-                            <br/>
-                            <small style={{ color: '#7f8c8d' }}>
-                              {v.viajes?.fecha_viaje || v.created_at?.substring(0, 10)} {v.viajes?.hora_viaje || ''}
-                            </small>
-                          </>
-                        );
-                      })()}
+                      <strong>{origen} - {destino}</strong>
+                      {isSpecial && (
+                        <span style={{ 
+                          marginLeft: '6px', 
+                          backgroundColor: '#FAF5FF', 
+                          color: '#742284', 
+                          fontWeight: 'bold', 
+                          fontSize: '0.75em', 
+                          padding: '2px 5px', 
+                          borderRadius: '4px',
+                          border: '1px solid #E9D5FF',
+                          display: 'inline-block'
+                        }}>
+                          Especial
+                        </span>
+                      )}
+                      <br/>
+                      <small style={{ color: '#7f8c8d' }}>
+                        {v.viajes?.fecha_viaje || v.created_at?.substring(0, 10)} {v.viajes?.hora_viaje || ''}
+                      </small>
                     </td>
                     <td>
                       {v.numero_asiento === 0 || v.culqi_charge_id?.includes('ESPECIAL') ? (
@@ -1243,6 +1280,32 @@ const AdminSales: React.FC = () => {
                               title="Confirmar pago y emitir comprobante + boleto"
                             >
                               <FaPaperPlane /> {processingId === v.id ? '...' : 'Confirmar'}
+                            </button>
+                          )}
+
+                          {/* Botón 4: Eliminar Venta/Factura Especial (SOLO EN VIAJES ESPECIALES) */}
+                          {isSpecial && (
+                            <button
+                              onClick={() => handleDeleteSpecialSale(v)}
+                              title="Eliminar esta venta o factura especial por equivocación al generarla"
+                              disabled={processingId === v.id}
+                              className="admin-btn"
+                              style={{ 
+                                background: '#dc2626', 
+                                color: '#ffffff', 
+                                border: 'none', 
+                                borderRadius: '6px', 
+                                padding: '5px 8px', 
+                                fontSize: '0.78em', 
+                                cursor: 'pointer', 
+                                display: 'inline-flex', 
+                                alignItems: 'center', 
+                                gap: '4px', 
+                                fontWeight: 600,
+                                boxShadow: '0 1px 3px rgba(220, 38, 38, 0.25)'
+                              }}
+                            >
+                              <FaTrash /> {processingId === v.id ? '...' : 'Eliminar'}
                             </button>
                           )}
                         </div>
