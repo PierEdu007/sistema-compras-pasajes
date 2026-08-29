@@ -59,7 +59,7 @@ const AdminSales: React.FC = () => {
 
   // Extraer ruta real y determinar si es viaje especial
   const getSaleRoute = (v: VentaRow): { origen: string; destino: string; isSpecial: boolean; routeStr: string } => {
-    const isSpecial = v.numero_asiento === 0 || v.culqi_charge_id?.includes('ESPECIAL') || false;
+    const isSpecial = v.numero_asiento <= 0 || v.culqi_charge_id?.includes('ESPECIAL') || false;
 
     let origen = v.viajes?.rutas?.origen || '';
     let destino = v.viajes?.rutas?.destino || '';
@@ -426,7 +426,7 @@ const AdminSales: React.FC = () => {
       let sunatResultData: { pdfUrl?: string; xmlUrl?: string; serie?: string; numero?: number } | undefined = undefined;
 
       const sunatConfig = getSunatConfig();
-      const isSpecialSale = venta.numero_asiento === 0 || venta.culqi_charge_id?.includes('ESPECIAL');
+      const isSpecialSale = venta.numero_asiento <= 0 || venta.culqi_charge_id?.includes('ESPECIAL');
 
       if (sunatConfig.enabled) {
         const sunatRes = await emitirComprobanteSunat({
@@ -523,7 +523,7 @@ const AdminSales: React.FC = () => {
       const direccionFiscal = v.direccion_fiscal || parts.find(p => p.startsWith('DIR:'))?.replace('DIR:', '') || '';
       const descripcionOpcional = v.descripcion_opcional || parts.find(p => p.startsWith('DESC:'))?.replace('DESC:', '') || '';
 
-      const isSpecialSale = v.numero_asiento === 0 || v.culqi_charge_id?.includes('ESPECIAL');
+      const isSpecialSale = v.numero_asiento <= 0 || v.culqi_charge_id?.includes('ESPECIAL');
 
       const sunatRes = await emitirComprobanteSunat({
         ventaId: v.id,
@@ -1119,7 +1119,7 @@ const AdminSales: React.FC = () => {
                       </small>
                     </td>
                     <td>
-                      {v.numero_asiento === 0 || v.culqi_charge_id?.includes('ESPECIAL') ? (
+                      {v.numero_asiento <= 0 || v.culqi_charge_id?.includes('ESPECIAL') ? (
                         <span style={{ 
                           backgroundColor: '#FAF5FF', 
                           color: '#742284', 
