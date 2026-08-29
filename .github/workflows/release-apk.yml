@@ -1,0 +1,115 @@
+name: Build & Publish Android APK Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build APK and Create GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: ☕ Setup Java 17 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🤖 Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: 📦 Install Node Dependencies
+        run: npm ci
+
+      - name: 🔨 Build Web Assets (Vite)
+        run: npm run build
+
+      - name: 🔄 Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: 🔑 Grant Execute Permission to Gradle
+        run: chmod +x ./android/gradlew
+
+      - name: 🚀 Assemble Android APK (Gradle)
+        run: |
+          cd android
+          ./gradlew assembleDebug --no-daemon --stacktrace
+          cd ..
+
+      - name: 📦 Prepare Release Artifacts
+        run: |
+          mkdir -p release-output
+          cp android/app/build/outputs/apk/debug/app-debug.apk release-output/TunkyChasky-v1.0.0.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk release-output/TunkyChasky-latest.apk
+
+      - name: 📤 Upload APK Artifact (Workflow Tab)
+        uses: actions/upload-artifact@v4
+        with:
+          name: TunkyChasky-Android-APK
+          path: release-output/*.apk
+          retention-days: 30
+
+      - name: 🏷️ Determine Release Tag
+        id: vars
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "title=Tunky Chasky Android App - ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=v1.0.0" >> $GITHUB_OUTPUT
+            echo "title=Tunky Chasky Android App - v1.0.0 (Oficial)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🚀 Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.vars.outputs.tag }}
+          name: ${{ steps.vars.outputs.title }}
+          body: |
+            ### 📱 Aplicación Móvil Oficial de Turismo Tunky Chasky
+
+            Descarga el archivo APK directamente en tu celular Android para instalar la aplicación oficial de **Inversiones Tunki Chasky S.R.L.**:
+
+            #### 📥 Enlaces de Descarga Directa:
+            - **[TunkyChasky-v1.0.0.apk](https://github.com/${{ github.repository }}/releases/download/${{ steps.vars.outputs.tag }}/TunkyChasky-v1.0.0.apk)**
+            - **[TunkyChasky-latest.apk](https://github.com/${{ github.repository }}/releases/download/${{ steps.vars.outputs.tag }}/TunkyChasky-latest.apk)**
+
+            ---
+
+            #### 📋 Instrucciones de Instalación en tu Celular:
+            1. Haz clic en el enlace **TunkyChasky-v1.0.0.apk** desde el navegador de tu celular.
+            2. Cuando termine la descarga, abre el archivo descargado.
+            3. Si tu celular te pide permiso, selecciona **"Permitir instalar aplicaciones de esta fuente"** (Orígenes desconocidos).
+            4. Presiona **Instalar** y ¡listo! Podrás comprar pasajes, ver rutas y gestionar tus viajes en tiempo real.
+
+            ---
+            - **Versión:** 1.0.0
+            - **Plataforma:** Android 7.0 (Nougat / API 24) en adelante
+            - **Razón Social:** Inversiones Tunki Chasky S.R.L. (RUC 20608425676)
+          files: |
+            release-output/TunkyChasky-v1.0.0.apk
+            release-output/TunkyChasky-latest.apk
+          draft: false
+          prerelease: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
