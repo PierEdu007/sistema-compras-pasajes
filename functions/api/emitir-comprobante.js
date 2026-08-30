@@ -5,7 +5,7 @@
  */
 
 const NUBEFACT_ALLOWED_PREFIX = 'https://api.nubefact.com/api/v1/';
-const ALLOWED_OPERATIONS = ['generar_comprobante', 'consultar_comprobante', 'anular_comprobante', 'consultar_anulacion'];
+const ALLOWED_OPERATIONS = ['generar_comprobante', 'consultar_comprobante', 'anular_comprobante', 'consultar_anulacion', 'generar_anulacion'];
 
 const ALLOWED_ORIGINS = [
   'https://turismotunkychasky.com.pe',

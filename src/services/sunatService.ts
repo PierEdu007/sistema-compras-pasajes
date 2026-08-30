@@ -315,10 +315,10 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
  * Anular Comprobante Electrónico (Comunicación de Baja ante SUNAT)
  */
 export async function anularComprobanteSunat(
-  tipoComprobante: 'BOLETA' | 'FACTURA',
+  tipoComprobante: string,
   serie: string,
   numero: number,
-  motivo: string,
+  motivo?: string,
   customConfig?: SunatConfig
 ): Promise<SunatResponse> {
   const config = customConfig || getSunatConfig();
@@ -330,39 +330,78 @@ export async function anularComprobanteSunat(
     };
   }
 
+  const isFactura = tipoComprobante === 'FACTURA' || tipoComprobante === 'RUC' || serie.startsWith('F');
+  const tipoDocSunat = isFactura ? 1 : 2;
+
   const payload = {
-    operacion: 'generar_anulacion',
-    tipo_de_comprobante: tipoComprobante === 'FACTURA' ? 1 : 2,
+    operacion: 'anular_comprobante',
+    tipo_de_comprobante: tipoDocSunat,
     serie: serie,
     numero: numero,
-    motivo: motivo || 'Cancelación de viaje a solicitud del pasajero'
+    motivo: motivo || 'Anulación por error en emisión de viaje especial'
   };
 
   try {
-    const response = await fetch(config.apiUrl, {
+    const response = await fetch('/api/emitir-comprobante', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.apiToken}`
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        apiUrl: config.apiUrl,
+        apiToken: config.apiToken,
+        payload
+      })
     });
 
     const result = await response.json();
 
     if (!response.ok || result.errors) {
+      const errMsg = typeof result.errors === 'string' ? result.errors : (result.message || '');
+      
+      // Reintento con generar_anulacion si anular_comprobante no es reconocido
+      if (errMsg.toLowerCase().includes('operacion') || errMsg.toLowerCase().includes('operación')) {
+        try {
+          const retryRes = await fetch('/api/emitir-comprobante', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              apiUrl: config.apiUrl,
+              apiToken: config.apiToken,
+              payload: { ...payload, operacion: 'generar_anulacion' }
+            })
+          });
+          if (retryRes.ok) {
+            const retryResult = await retryRes.json();
+            if (!retryResult.errors) {
+              return {
+                success: true,
+                serie: retryResult.serie || serie,
+                numero: retryResult.numero || numero,
+                pdfUrl: retryResult.enlace_del_pdf,
+                xmlUrl: retryResult.enlace_del_xml,
+                cdrUrl: retryResult.enlace_del_cdr,
+                sunatMessage: retryResult.sunat_description || 'Comprobante dado de baja exitosamente ante SUNAT'
+              };
+            }
+          }
+        } catch (_retryErr) {}
+      }
+
       return {
         success: false,
-        error: result.errors || result.message || 'Error al anular en SUNAT'
+        error: errMsg || 'Error al anular en SUNAT'
       };
     }
 
     return {
       success: true,
+      serie: result.serie || serie,
+      numero: result.numero || numero,
       pdfUrl: result.enlace_del_pdf,
       xmlUrl: result.enlace_del_xml,
       cdrUrl: result.enlace_del_cdr,
-      sunatMessage: result.sunat_description || 'Comprobante Anulado Correctamente ante SUNAT'
+      sunatMessage: result.sunat_description || 'Comprobante dado de baja exitosamente ante SUNAT'
     };
   } catch (err: any) {
     return {
