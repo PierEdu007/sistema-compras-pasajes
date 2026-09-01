@@ -28,6 +28,7 @@ interface VentaRow {
   descripcion_opcional?: string;
   comprobante_emitido: boolean;
   comprobante_url: string | null;
+  comprobante_xml_url?: string | null;
   nro_comprobante?: string;
   estado_sunat?: string;
   estado?: string;
@@ -477,13 +478,14 @@ const AdminSales: React.FC = () => {
         .update({
           comprobante_emitido: true,
           comprobante_url: finalInvoiceUrl,
+          comprobante_xml_url: sunatResultData?.xmlUrl || null,
           nro_comprobante: realNroComp,
           estado: 'CONFIRMADO'
         })
         .eq('id', venta.id);
 
       const localPending: VentaRow[] = JSON.parse(localStorage.getItem('local_pending_ventas') || '[]');
-      const updatedLocal = localPending.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, nro_comprobante: realNroComp, estado: 'CONFIRMADO' } : v);
+      const updatedLocal = localPending.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, comprobante_xml_url: sunatResultData?.xmlUrl || null, nro_comprobante: realNroComp, estado: 'CONFIRMADO' } : v);
       localStorage.setItem('local_pending_ventas', JSON.stringify(updatedLocal));
 
       // 4. Envío de correo por Resend adjuntando el PDF NubeFact, XML NubeFact y Boleto
@@ -495,7 +497,7 @@ const AdminSales: React.FC = () => {
         resendNote = `\n\nResend aviso: ${directResult.error}`;
       }
 
-      setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, nro_comprobante: realNroComp, estado: 'CONFIRMADO' } : v));
+      setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, comprobante_xml_url: sunatResultData?.xmlUrl || null, nro_comprobante: realNroComp, estado: 'CONFIRMADO' } : v));
 
       const compTipo = venta.tipo_documento === 'RUC' ? 'Factura' : 'Boleta';
       alert(`¡Pago verificado y confirmado exitosamente!\n\n• Vehículo asignado: ${vehiculoLabel}\n• Se generó el Boleto de Viaje en PDF.\n• Se generó la ${compTipo} Electrónica NubeFact en PDF y XML.${sunatNote}${resendNote}`);
@@ -550,6 +552,7 @@ const AdminSales: React.FC = () => {
           .update({
             comprobante_emitido: true,
             comprobante_url: sunatRes.pdfUrl,
+            comprobante_xml_url: sunatRes.xmlUrl || null,
             nro_comprobante: realNro
           })
           .eq('id', v.id);
@@ -557,6 +560,7 @@ const AdminSales: React.FC = () => {
         setVentas(prev => prev.map(item => item.id === v.id ? {
           ...item,
           comprobante_url: sunatRes.pdfUrl!,
+          comprobante_xml_url: sunatRes.xmlUrl || null,
           nro_comprobante: realNro
         } : item));
 
@@ -1302,6 +1306,18 @@ const AdminSales: React.FC = () => {
                           >
                             <FaFilePdf /> {processingId === v.id ? '...' : (v.tipo_documento === 'RUC' ? 'Factura' : 'Boleta')}
                           </button>
+
+                          {/* Botón 2b: XML del Comprobante Electrónico */}
+                          {v.comprobante_xml_url && (
+                            <button
+                              onClick={() => window.open(v.comprobante_xml_url!, '_blank')}
+                              title="Descargar XML del Comprobante Electrónico SUNAT"
+                              className="admin-btn"
+                              style={{ background: '#742284', color: '#fff', border: 'none', borderRadius: '6px', padding: '5px 8px', fontSize: '0.78em', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
+                            >
+                              <FaServer /> XML
+                            </button>
+                          )}
 
                           {/* Botón 3: Confirmar o Reenviar */}
                           {v.comprobante_emitido ? (
