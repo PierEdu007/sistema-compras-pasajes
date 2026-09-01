@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
-import { FaBell, FaCheck, FaFilePdf, FaQrcode, FaPaperPlane, FaTimes, FaServer, FaSearch, FaFilter, FaSync, FaDownload, FaPhone, FaEnvelope, FaWhatsapp, FaClock, FaTrash } from 'react-icons/fa';
+import { FaBell, FaCheck, FaFilePdf, FaFileCode, FaQrcode, FaPaperPlane, FaTimes, FaServer, FaSearch, FaFilter, FaSync, FaDownload, FaPhone, FaEnvelope, FaWhatsapp, FaClock, FaTrash } from 'react-icons/fa';
 import { generateInvoicePDF, generateTicketPDF } from '../../utils/invoiceGenerator';
 import { SunatConfigModal } from '../../components/admin/SunatConfigModal';
-import { emitirComprobanteSunat, anularComprobanteSunat, getSunatConfig } from '../../services/sunatService';
+import { emitirComprobanteSunat, anularComprobanteSunat, consultarComprobanteSunat, getSunatConfig } from '../../services/sunatService';
 import { requestNotificationPermission } from '../../utils/notificationHelper';
 import '../../styles/components/admin.css';
 
@@ -473,19 +473,21 @@ const AdminSales: React.FC = () => {
         ? `${sunatResultData.serie}-${sunatResultData.numero}` 
         : (venta.nro_comprobante || (venta.tipo_documento === 'RUC' ? 'FFF1-0001' : 'BBB1-0001'));
 
+      const finalXmlUrl = sunatResultData?.xmlUrl || (finalInvoiceUrl && finalInvoiceUrl.includes('nubefact.com') ? finalInvoiceUrl.replace(/\.pdf(\?.*)?$/i, '.xml$1') : null);
+
       // 3. Actualizar estado local & Supabase
       await (supabase.from('ventas') as any)
         .update({
           comprobante_emitido: true,
           comprobante_url: finalInvoiceUrl,
-          comprobante_xml_url: sunatResultData?.xmlUrl || null,
+          comprobante_xml_url: finalXmlUrl,
           nro_comprobante: realNroComp,
           estado: 'CONFIRMADO'
         })
         .eq('id', venta.id);
 
       const localPending: VentaRow[] = JSON.parse(localStorage.getItem('local_pending_ventas') || '[]');
-      const updatedLocal = localPending.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, comprobante_xml_url: sunatResultData?.xmlUrl || null, nro_comprobante: realNroComp, estado: 'CONFIRMADO' } : v);
+      const updatedLocal = localPending.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, comprobante_xml_url: finalXmlUrl, nro_comprobante: realNroComp, estado: 'CONFIRMADO' } : v);
       localStorage.setItem('local_pending_ventas', JSON.stringify(updatedLocal));
 
       // 4. Envío de correo por Resend adjuntando el PDF NubeFact, XML NubeFact y Boleto
@@ -497,7 +499,7 @@ const AdminSales: React.FC = () => {
         resendNote = `\n\nResend aviso: ${directResult.error}`;
       }
 
-      setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, comprobante_xml_url: sunatResultData?.xmlUrl || null, nro_comprobante: realNroComp, estado: 'CONFIRMADO' } : v));
+      setVentas(prev => prev.map(v => v.id === venta.id ? { ...v, comprobante_emitido: true, comprobante_url: finalInvoiceUrl, comprobante_xml_url: finalXmlUrl, nro_comprobante: realNroComp, estado: 'CONFIRMADO' } : v));
 
       const compTipo = venta.tipo_documento === 'RUC' ? 'Factura' : 'Boleta';
       alert(`¡Pago verificado y confirmado exitosamente!\n\n• Vehículo asignado: ${vehiculoLabel}\n• Se generó el Boleto de Viaje en PDF.\n• Se generó la ${compTipo} Electrónica NubeFact en PDF y XML.${sunatNote}${resendNote}`);
@@ -548,11 +550,12 @@ const AdminSales: React.FC = () => {
 
       if (sunatRes.success && sunatRes.pdfUrl) {
         const realNro = `${sunatRes.serie}-${sunatRes.numero}`;
+        const xmlUrlFinal = sunatRes.xmlUrl || (sunatRes.pdfUrl ? sunatRes.pdfUrl.replace(/\.pdf(\?.*)?$/i, '.xml$1') : null);
         await (supabase.from('ventas') as any)
           .update({
             comprobante_emitido: true,
             comprobante_url: sunatRes.pdfUrl,
-            comprobante_xml_url: sunatRes.xmlUrl || null,
+            comprobante_xml_url: xmlUrlFinal,
             nro_comprobante: realNro
           })
           .eq('id', v.id);
@@ -560,7 +563,7 @@ const AdminSales: React.FC = () => {
         setVentas(prev => prev.map(item => item.id === v.id ? {
           ...item,
           comprobante_url: sunatRes.pdfUrl!,
-          comprobante_xml_url: sunatRes.xmlUrl || null,
+          comprobante_xml_url: xmlUrlFinal,
           nro_comprobante: realNro
         } : item));
 
@@ -1308,16 +1311,20 @@ const AdminSales: React.FC = () => {
                           </button>
 
                           {/* Botón 2b: XML del Comprobante Electrónico */}
-                          {v.comprobante_xml_url && (
-                            <button
-                              onClick={() => window.open(v.comprobante_xml_url!, '_blank')}
-                              title="Descargar XML del Comprobante Electrónico SUNAT"
-                              className="admin-btn"
-                              style={{ background: '#742284', color: '#fff', border: 'none', borderRadius: '6px', padding: '5px 8px', fontSize: '0.78em', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
-                            >
-                              <FaServer /> XML
-                            </button>
-                          )}
+                          {(() => {
+                            const xmlUrl = v.comprobante_xml_url || (v.comprobante_url && v.comprobante_url.includes('nubefact.com') ? v.comprobante_url.replace(/\.pdf(\?.*)?$/i, '.xml$1') : null);
+                            if (!xmlUrl || !v.comprobante_emitido) return null;
+                            return (
+                              <button
+                                onClick={() => window.open(xmlUrl, '_blank')}
+                                title="Descargar o Ver XML del Comprobante Electrónico SUNAT / NubeFact"
+                                className="admin-btn"
+                                style={{ background: '#742284', color: '#fff', border: 'none', borderRadius: '6px', padding: '5px 8px', fontSize: '0.78em', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
+                              >
+                                <FaServer /> XML
+                              </button>
+                            );
+                          })()}
 
                           {/* Botón 3: Confirmar o Reenviar */}
                           {v.comprobante_emitido ? (
