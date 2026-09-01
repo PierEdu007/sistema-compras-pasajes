@@ -123,8 +123,8 @@ export async function emitirComprobanteSunat(data: SunatVentaData, customConfig?
   const fechaEmisionNubeFact = `${dd}-${mm}-${yyyy}`;
 
   const isSpecial = data.esViajeEspecial || data.asiento === 0;
-  // Si descripcionOpcional tiene más de 30 caracteres, se considera un detalle editado manualmente
-  const usarDescripcionManual = data.descripcionOpcional && data.descripcionOpcional.trim().length > 30;
+  // Si descripcionOpcional está presente, se usa directamente como el detalle del comprobante
+  const usarDescripcionManual = Boolean(data.descripcionOpcional && data.descripcionOpcional.trim().length > 0);
   const itemDescripcion = usarDescripcionManual
     ? data.descripcionOpcional!.toUpperCase().trim()
     : isSpecial
