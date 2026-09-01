@@ -60,7 +60,10 @@ const AdminSales: React.FC = () => {
 
   // Extraer ruta real y determinar si es viaje especial
   const getSaleRoute = (v: VentaRow): { origen: string; destino: string; isSpecial: boolean; routeStr: string } => {
-    const isSpecial = v.numero_asiento <= 0 || v.culqi_charge_id?.includes('ESPECIAL') || false;
+    const isSpecial =
+      v.numero_asiento <= 0 ||
+      Boolean(v.culqi_charge_id?.includes('ESPECIAL')) ||
+      Boolean(v.descripcion_opcional?.toUpperCase().startsWith('SERVICIO DE TRANSPORTE'));
 
     let origen = v.viajes?.rutas?.origen || '';
     let destino = v.viajes?.rutas?.destino || '';
@@ -72,6 +75,16 @@ const AdminSales: React.FC = () => {
       const dPart = parts.find(p => p.startsWith('DESTINO:'))?.replace('DESTINO:', '');
       if (oPart) origen = oPart;
       if (dPart) destino = dPart;
+    }
+
+    // Si no se encontró en culqi_charge_id ni en viajes, extraer de descripcion_opcional ("SERVICIO DE TRANSPORTE ORIGEN DESTINO")
+    if ((!origen || !destino) && v.descripcion_opcional?.toUpperCase().includes('SERVICIO DE TRANSPORTE')) {
+      const cleanDesc = v.descripcion_opcional.toUpperCase().replace(/SERVICIO DE TRANSPORTE\s+/i, '').trim();
+      const parts = cleanDesc.split(/\s*[-➔–]\s*|\s{2,}/);
+      if (parts.length >= 2) {
+        if (!origen) origen = parts[0].trim();
+        if (!destino) destino = parts[1].trim();
+      }
     }
 
     origen = (origen || 'CUSCO').trim().toUpperCase();
@@ -1338,15 +1351,17 @@ const AdminSales: React.FC = () => {
                     <td>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                          {/* Botón 1: Boleto de Viaje PDF con tipo de vehículo */}
-                          <button
-                            onClick={() => handleDownloadTicketPDF(v)}
-                            title="Ver o Descargar Boleto de Viaje (PDF con datos del vehículo)"
-                            className="admin-btn"
-                            style={{ background: '#059669', color: '#fff', border: 'none', borderRadius: '6px', padding: '5px 8px', fontSize: '0.78em', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
-                          >
-                            <FaFilePdf /> Boleto
-                          </button>
+                          {/* Botón 1: Boleto de Viaje PDF con tipo de vehículo (Solo para viajes regulares con asiento) */}
+                          {!isSpecial && (
+                            <button
+                              onClick={() => handleDownloadTicketPDF(v)}
+                              title="Ver o Descargar Boleto de Viaje (PDF con datos del vehículo)"
+                              className="admin-btn"
+                              style={{ background: '#059669', color: '#fff', border: 'none', borderRadius: '6px', padding: '5px 8px', fontSize: '0.78em', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
+                            >
+                              <FaFilePdf /> Boleto
+                            </button>
+                          )}
 
                           {/* Botón 2: Factura / Boleta Electrónica Oficial NubeFact */}
                           <button
