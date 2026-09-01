@@ -599,6 +599,55 @@ const AdminSales: React.FC = () => {
     }
   };
 
+  const handleOpenSunatXML = async (v: VentaRow) => {
+    // 1. Si ya tenemos comprobante_xml_url directo en la fila
+    if (v.comprobante_xml_url && v.comprobante_xml_url.startsWith('http')) {
+      window.open(v.comprobante_xml_url, '_blank');
+      return;
+    }
+
+    // 2. Si la URL del PDF es oficial de NubeFact, el XML oficial tiene la misma ruta cambiando .pdf por .xml
+    if (v.comprobante_url && v.comprobante_url.includes('nubefact.com')) {
+      const derivedXml = v.comprobante_url.replace(/\.pdf(\?.*)?$/i, '.xml$1');
+      window.open(derivedXml, '_blank');
+      return;
+    }
+
+    // 3. Si tiene número de comprobante (ej: FFF1-12 o BBB1-45), consultarlo en NubeFact vía API
+    if (v.nro_comprobante && v.nro_comprobante.includes('-')) {
+      const parts = v.nro_comprobante.split('-');
+      const serie = parts[0]?.trim() || (v.tipo_documento === 'RUC' ? 'FFF1' : 'BBB1');
+      const numero = parseInt(parts[1]?.trim() || '0', 10);
+
+      if (numero > 0) {
+        setProcessingId(v.id);
+        try {
+          const res = await consultarComprobanteSunat(v.tipo_documento, serie, numero);
+          if (res.success && res.xmlUrl) {
+            // Guardar en Supabase para futuras consultas directas
+            await (supabase.from('ventas') as any)
+              .update({ comprobante_xml_url: res.xmlUrl })
+              .eq('id', v.id);
+
+            setVentas(prev => prev.map(item => item.id === v.id ? { ...item, comprobante_xml_url: res.xmlUrl } : item));
+            window.open(res.xmlUrl, '_blank');
+            return;
+          } else if (res.error) {
+            alert(`Aviso SUNAT / NubeFact: ${res.error}`);
+          }
+        } catch (err: any) {
+          console.error('Error consultando XML:', err);
+          alert('No se pudo recuperar el archivo XML de NubeFact.');
+        } finally {
+          setProcessingId(null);
+        }
+      }
+    }
+
+    // 4. Si aún no cuenta con comprobante emitido
+    alert('Esta venta aún no cuenta con comprobante electrónico emitido en SUNAT. Primero debes emitir la Factura o Boleta oficial.');
+  };
+
   const handleRejectPayment = async (venta: VentaRow) => {
     const isConfirmed = window.confirm(`¿Estás seguro de que deseas RECHAZAR este pago?\n\nPasajero: ${venta.nombres} ${venta.apellidos}\nMonto: S/ ${venta.monto_pagado}`);
     if (!isConfirmed) return;
@@ -1310,21 +1359,16 @@ const AdminSales: React.FC = () => {
                             <FaFilePdf /> {processingId === v.id ? '...' : (v.tipo_documento === 'RUC' ? 'Factura' : 'Boleta')}
                           </button>
 
-                          {/* Botón 2b: XML del Comprobante Electrónico */}
-                          {(() => {
-                            const xmlUrl = v.comprobante_xml_url || (v.comprobante_url && v.comprobante_url.includes('nubefact.com') ? v.comprobante_url.replace(/\.pdf(\?.*)?$/i, '.xml$1') : null);
-                            if (!xmlUrl || !v.comprobante_emitido) return null;
-                            return (
-                              <button
-                                onClick={() => window.open(xmlUrl, '_blank')}
-                                title="Descargar o Ver XML del Comprobante Electrónico SUNAT / NubeFact"
-                                className="admin-btn"
-                                style={{ background: '#742284', color: '#fff', border: 'none', borderRadius: '6px', padding: '5px 8px', fontSize: '0.78em', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
-                              >
-                                <FaServer /> XML
-                              </button>
-                            );
-                          })()}
+                          {/* Botón 2b: Ver archivo XML del Comprobante Electrónico */}
+                          <button
+                            onClick={() => handleOpenSunatXML(v)}
+                            title="Ver o Descargar Archivo XML Oficial del Comprobante Electrónico SUNAT / NubeFact"
+                            disabled={processingId === v.id}
+                            className="admin-btn"
+                            style={{ background: '#742284', color: '#fff', border: 'none', borderRadius: '6px', padding: '5px 8px', fontSize: '0.78em', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
+                          >
+                            <FaFileCode /> {processingId === v.id ? '...' : 'Ver archivo XML'}
+                          </button>
 
                           {/* Botón 3: Confirmar o Reenviar */}
                           {v.comprobante_emitido ? (
