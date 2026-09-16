@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
 import { FaPlus, FaTimes, FaSearch, FaFilter, FaEdit, FaTrashAlt, FaCalendarAlt, FaBus, FaSave, FaSync } from 'react-icons/fa';
+import { SEO } from '../../components/common/SEO';
 import '../../styles/components/admin.css';
 
 // Interface para las filas de viajes
@@ -361,6 +362,11 @@ const AdminTrips: React.FC = () => {
 
   return (
     <div style={{ paddingBottom: '40px' }}>
+      <SEO
+        title="Gestión de Salidas y Programación | Panel Tunky Chasky"
+        description="Administración y programación de salidas y viajes Tunky Chasky"
+        noIndex={true}
+      />
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
         <div>
