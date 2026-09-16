@@ -4,6 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
 import { generateAccountingPDF, type AccountingData } from '../../utils/accountingGenerator';
 import { FaCalculator, FaFilePdf, FaCalendarAlt, FaMoneyBillWave, FaBuilding, FaRegFileAlt, FaFileUpload } from 'react-icons/fa';
+import { SEO } from '../../components/common/SEO';
 import '../../styles/components/admin.css';
 
 const AccountingReport: React.FC = () => {
@@ -155,7 +156,12 @@ const AccountingReport: React.FC = () => {
 
   return (
     <div style={{ paddingBottom: '50px' }}>
-      {/* Header */}
+      <SEO
+        title="Reportes Contables SUNAT | Panel Tunky Chasky"
+        description="Liquidación mensual de impuestos SUNAT e IGV"
+        noIndex={true}
+      />
+      {/* HEADER DE LA PÁGINA */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
         <div>
           <h1 style={{ margin: 0, fontSize: '1.6rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '10px' }}>

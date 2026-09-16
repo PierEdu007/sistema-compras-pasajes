@@ -6,6 +6,7 @@ import { generateInvoicePDF, generateTicketPDF } from '../../utils/invoiceGenera
 import { SunatConfigModal } from '../../components/admin/SunatConfigModal';
 import { emitirComprobanteSunat, anularComprobanteSunat, consultarComprobanteSunat, getSunatConfig } from '../../services/sunatService';
 import { requestNotificationPermission } from '../../utils/notificationHelper';
+import { SEO } from '../../components/common/SEO';
 import '../../styles/components/admin.css';
 
 interface VentaRow {
@@ -894,6 +895,11 @@ const AdminSales: React.FC = () => {
 
   return (
     <div>
+      <SEO
+        title="Control de Ventas y Facturación | Panel Tunky Chasky"
+        description="Gestión y control de ventas y comprobantes electrónicos"
+        noIndex={true}
+      />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 style={{ margin: 0 }}>Gestión de Ventas</h1>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
