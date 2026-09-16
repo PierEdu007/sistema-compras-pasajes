@@ -16,4 +16,15 @@ i18n
     interpolation: { escapeValue: false },
   });
 
+// Sincronizar el atributo lang de <html> con el idioma activo
+i18n.on('languageChanged', (lng) => {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = lng ? lng.split('-')[0] : 'es';
+  }
+});
+
+if (typeof document !== 'undefined' && i18n.language) {
+  document.documentElement.lang = i18n.language.split('-')[0];
+}
+
 export default i18n;

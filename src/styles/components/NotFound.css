@@ -1,0 +1,202 @@
+.not-found-page {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background: radial-gradient(circle at 50% 30%, rgba(0, 209, 178, 0.05) 0%, transparent 60%);
+}
+
+.not-found-card {
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 20px;
+  padding: 48px 32px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme='dark'] .not-found-card {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.not-found-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(245, 158, 11, 0.1));
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 20px;
+}
+
+.not-found-number {
+  font-size: 5rem;
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, #0f4c81 0%, #742284 50%, #00d2b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 12px;
+  font-family: 'Cinzel', 'Plus Jakarta Sans', serif;
+}
+
+.not-found-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-text, #0f172a);
+  margin-bottom: 12px;
+}
+
+[data-theme='dark'] .not-found-title {
+  color: #f8fafc;
+}
+
+.not-found-description {
+  font-size: 1rem;
+  color: var(--color-text-light, #64748b);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+[data-theme='dark'] .not-found-description {
+  color: #94a3b8;
+}
+
+.not-found-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.not-found-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #0f4c81, #00d2b8);
+  color: #ffffff !important;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(0, 174, 239, 0.3);
+}
+
+.not-found-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 174, 239, 0.45);
+}
+
+.not-found-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-surface-dark, #f1f5f9);
+  color: var(--color-text, #1e293b) !important;
+  border: 1px solid var(--color-border, #cbd5e1);
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+[data-theme='dark'] .not-found-btn-secondary {
+  background: #334155;
+  color: #e2e8f0 !important;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.not-found-btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+[data-theme='dark'] .not-found-btn-secondary:hover {
+  background: #475569;
+}
+
+.not-found-btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(37, 211, 102, 0.1);
+  color: #16a34a !important;
+  border: 1px solid rgba(37, 211, 102, 0.3);
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.not-found-btn-whatsapp:hover {
+  background: #25d366;
+  color: #ffffff !important;
+}
+
+.not-found-footer-links {
+  border-top: 1px solid var(--color-border, #e2e8f0);
+  padding-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+}
+
+[data-theme='dark'] .not-found-footer-links {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.not-found-footer-link {
+  color: #0f4c81;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+[data-theme='dark'] .not-found-footer-link {
+  color: #38bdf8;
+}
+
+.not-found-footer-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .not-found-card {
+    padding: 32px 20px;
+  }
+  .not-found-number {
+    font-size: 4rem;
+  }
+  .not-found-title {
+    font-size: 1.3rem;
+  }
+  .not-found-actions {
+    flex-direction: column;
+  }
+  .not-found-btn-primary,
+  .not-found-btn-secondary,
+  .not-found-btn-whatsapp {
+    width: 100%;
+    justify-content: center;
+  }
+}

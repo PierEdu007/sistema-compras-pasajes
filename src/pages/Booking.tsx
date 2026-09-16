@@ -23,6 +23,7 @@ import {
 } from '../utils/security';
 import camioneta6pImg from '../assets/vehicles/camioneta-6p.png';
 import auto4pImg from '../assets/vehicles/auto-4p.png';
+import { SEO } from '../components/common/SEO';
 import '../styles/components/Booking.css';
 
 // Interfaz extendida para el viaje
@@ -633,8 +634,21 @@ export default function Booking() {
     }
   };
 
+  const bookingTitle = viaje
+    ? `Comprar Pasaje ${viaje.rutas.origen} a ${viaje.rutas.destino} | Elegir Asiento`
+    : 'Selección de Asientos y Compra de Pasaje';
+
+  const bookingDescription = viaje
+    ? `Selecciona tu asiento y compra tu pasaje de ${viaje.rutas.origen} a ${viaje.rutas.destino} (${viaje.hora_viaje.substring(0, 5)}) con pago seguro por Yape y boleta o factura electrónica SUNAT.`
+    : 'Elige tu asiento en tiempo real y completa tu reserva de pasaje en Tunky Chasky.';
+
   return (
     <div className="page-booking fade-in">
+      <SEO
+        title={bookingTitle}
+        description={bookingDescription}
+        noIndex={true}
+      />
       <div className="booking-header">
         <div className="container">
           <h1>{t('booking.title', 'Completa tu Reserva')}</h1>

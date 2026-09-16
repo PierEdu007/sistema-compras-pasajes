@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaBook, FaCheckCircle, FaExclamationCircle, FaUser, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaFileAlt } from 'react-icons/fa';
+import { SEO } from '../components/common/SEO';
 import '../styles/components/ClaimsBook.css';
 
 export default function ClaimsBook() {
@@ -34,6 +35,12 @@ export default function ClaimsBook() {
 
   return (
     <div className="claims-page">
+      <SEO
+        title="Libro de Reclamaciones Virtual"
+        description="Libro de Reclamaciones Virtual oficial de Inversiones Tunki Chasky S.R.L. Registra tus quejas o reclamos en cumplimiento con la normativa de INDECOPI."
+        canonical="https://turismotunkychasky.com.pe/libro-de-reclamaciones"
+        keywords="libro de reclamaciones tunky chasky, reclamos indecopi transporte cusco quillabamba"
+      />
       <div className="claims-header">
         <div className="claims-header-icon">
           <FaBook />
@@ -45,7 +52,7 @@ export default function ClaimsBook() {
           {t('claims.subtitle', 'Conforme a lo establecido en el Código de Protección y Defensa del Consumidor (Ley N° 29571)')}
         </p>
         <div className="claims-company-badge">
-          <strong>Razón Social:</strong> INVERSIONES TUNKI CHASKY S.R.L. | <strong>RUC:</strong> 20608425676
+          <strong>Razón Social:</strong> INVERSIONES TUNKI CHASKY S.R.L. | <strong>RUC:</strong> 20613271701
         </div>
       </div>
 

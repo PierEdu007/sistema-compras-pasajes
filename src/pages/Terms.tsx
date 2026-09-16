@@ -27,6 +27,7 @@ import {
   FaSyncAlt,
   FaTimes
 } from 'react-icons/fa';
+import { SEO } from '../components/common/SEO';
 import '../styles/components/Terms.css';
 
 interface TermItem {
@@ -427,6 +428,16 @@ export default function Terms() {
 
   return (
     <div className="terms-page-wrapper">
+      <SEO
+        title={isEn ? 'Terms & Conditions of Transport' : 'Términos y Condiciones del Servicio de Transporte'}
+        description={
+          isEn
+            ? 'Official travel regulations, baggage policies, ticket rules, and passenger rights of Inversiones Tunky Chasky S.R.L.'
+            : 'Consulta los términos y condiciones de transporte, políticas de equipaje, postergaciones, devoluciones y normativas de Inversiones Tunky Chasky S.R.L.'
+        }
+        canonical="https://turismotunkychasky.com.pe/terminos"
+        keywords="terminos y condiciones tunky chasky, politicas equipaje cusco quillabamba, devolucion pasajes cusco quillabamba"
+      />
       {/* 1. Header Banner */}
       <header className="terms-hero">
         <div className="container terms-hero-content">

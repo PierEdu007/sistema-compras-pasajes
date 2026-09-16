@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import ScheduleCard from '../components/trips/ScheduleCard';
 import VehicleSelectModal from '../components/trips/VehicleSelectModal';
 import type { ScheduleWithVehicles } from '../components/trips/VehicleSelectModal';
+import { SEO } from '../components/common/SEO';
 import '../styles/components/Trips.css';
 
 const headerBannerStyle: React.CSSProperties = {
@@ -289,8 +290,22 @@ export default function Trips() {
     };
   }, [fetchViajes]);
 
+  const pageTitle = origenParam && destinoParam
+    ? `Pasajes ${origenParam} a ${destinoParam} | Horarios y Salidas`
+    : 'Salidas y Horarios de Viaje';
+
+  const pageDescription = origenParam && destinoParam
+    ? `Consulta horarios de salida, disponibilidad de asientos y reserva tu pasaje de ${origenParam} a ${destinoParam} en autos y minivans modernas.`
+    : 'Consulta todas las salidas diarias programadas y disponibilidad de pasajes entre Cusco, Quillabamba, Kiteni y Machu Picchu.';
+
   return (
     <div className="trips-page">
+      <SEO
+        title={pageTitle}
+        description={pageDescription}
+        canonical="https://turismotunkychasky.com.pe/viajes"
+        keywords={`pasajes ${origenParam} ${destinoParam}, horarios ${origenParam} ${destinoParam}, salidas ${origenParam}`}
+      />
       <div className="container">
         {/* Banner superior de ruta y fecha */}
         <div style={headerBannerStyle}>

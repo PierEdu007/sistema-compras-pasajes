@@ -18,6 +18,7 @@ import {
   FaSearch
 } from 'react-icons/fa';
 import { generateInvoicePDF } from '../../utils/invoiceGenerator';
+import { SEO } from '../../components/common/SEO';
 import '../../styles/components/admin.css';
 
 interface DashboardVenta {
@@ -349,6 +350,11 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div>
+      <SEO
+        title="Dashboard de Administración | Panel Tunky Chasky"
+        description="Métricas y estadísticas del sistema Tunky Chasky"
+        noIndex={true}
+      />
       <h1 style={{ marginBottom: '20px' }}>Dashboard de Administración</h1>
 
       {/* Tarjeta de Bienvenida */}

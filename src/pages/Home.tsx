@@ -10,6 +10,7 @@ import TravelGuideSEO from '../components/home/TravelGuideSEO';
 import Testimonials from '../components/home/Testimonials';
 import MapSection from '../components/home/MapSection';
 import ComunicadoModal from '../components/home/ComunicadoModal';
+import { SEO } from '../components/common/SEO';
 import '../styles/components/Home.css';
 
 export default function Home() {
@@ -17,6 +18,12 @@ export default function Home() {
 
   return (
     <div className="page-home fade-in">
+      <SEO
+        title="Tunky Chasky | Pasajes Cusco a Quillabamba Online"
+        description="Compra pasajes Cusco a Quillabamba online al instante. Autos y minivans modernas, salidas diarias, pago fácil con Yape y boleta SUNAT. ¡Viaja seguro!"
+        canonical="https://turismotunkychasky.com.pe/"
+        keywords="pasajes cusco quillabamba, pasajes cusco quillabamba autos, colectivos quillabamba cusco, transporte tunky chasky, pasajes hidroelectrica machu picchu"
+      />
       <ComunicadoModal />
       
       {/* Hero Section with 3D Interactive Landscape, Cinemagraph & Foreground Birds */}

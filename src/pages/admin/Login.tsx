@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaInfoCircle } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import { SEO } from '../../components/common/SEO';
 import '../../styles/components/admin.css';
 
 const AdminLogin: React.FC = () => {
@@ -107,6 +108,11 @@ const AdminLogin: React.FC = () => {
 
   return (
     <div className="admin-login-container">
+      <SEO
+        title="Acceso Administrativo"
+        description="Acceso al panel administrativo de Tunky Chasky"
+        noIndex={true}
+      />
       <div className="admin-login-box">
         <h2 className="admin-login-title">Ingreso Administrativo</h2>
         

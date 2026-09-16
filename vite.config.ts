@@ -226,6 +226,30 @@ function nubefactLocalPlugin(): Plugin {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), resendLocalPlugin(), nubefactLocalPlugin()],
+  build: {
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react/') || id.includes('react-dom/') || id.includes('react-router')) {
+              return 'vendor-react';
+            }
+            if (id.includes('@supabase/')) {
+              return 'vendor-supabase';
+            }
+            if (id.includes('react-icons')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('i18next')) {
+              return 'vendor-i18n';
+            }
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
+  },
   server: {
     proxy: {
       // Proxy para consultas DNI (RENIEC) y RUC (SUNAT)

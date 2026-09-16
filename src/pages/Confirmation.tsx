@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { FaCheckCircle, FaHome, FaQrcode, FaClock, FaEnvelope } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
+import { SEO } from '../components/common/SEO';
 import '../styles/components/Confirmation.css';
 
 interface VentaDetails {
@@ -117,6 +118,11 @@ function Confirmation() {
 
   return (
     <div className="page-confirmation container py-5 fade-in">
+      <SEO
+        title="Reserva Registrada Exitosamente"
+        description="Tu reserva de pasaje en Tunky Chasky ha sido registrada exitosamente. Consulta los detalles de tu viaje, asiento y comprobante."
+        noIndex={true}
+      />
       <div className="confirmation-card">
         <div className="confirmation-header text-center">
           <div className="success-icon-wrapper">
